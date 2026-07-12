@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://bo1ttpfaa10pe"]
+
+[ext_resource type="Script" uid="uid://dpn2wkbtggnvw" path="res://objects/HexTile.gd" id="1_ha4sb"]
+[ext_resource type="Texture2D" uid="uid://bao0ogc0uwhdx" path="res://graphics/hex_terrain/Grass/grass_05.png" id="2_ha4sb"]
+
+[node name="HexTile" type="Node2D" unique_id=1843538518]
+script = ExtResource("1_ha4sb")
+terrain_texture = ExtResource("2_ha4sb")
+
+[node name="Terrain" type="Sprite2D" parent="." unique_id=1834524767]
+texture = ExtResource("2_ha4sb")
+
+[node name="Deposit" type="Sprite2D" parent="." unique_id=1665630489]

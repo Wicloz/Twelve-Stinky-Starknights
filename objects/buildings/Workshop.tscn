@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://b1vwf74qjibx1"]
+
+[ext_resource type="Script" uid="uid://dvcllp3vr4w7w" path="res://objects/buildings/Workshop.gd" id="1_oppb2"]
+[ext_resource type="Texture2D" uid="uid://bapas0q8a6fgc" path="res://graphics/workshop.png" id="1_texcb"]
+
+[node name="Workshop" type="Node2D" unique_id=388339356]
+script = ExtResource("1_oppb2")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=937227620]
+texture = ExtResource("1_texcb")

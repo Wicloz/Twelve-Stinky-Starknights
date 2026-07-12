@@ -33,7 +33,7 @@ var harvesting: bool = false
 const HARVEST_DURATION: float = 5.0
 const HARVEST_AMOUNT: int = 1
 
-var building: Building
+@export var building: Building
 
 
 func set_harvesting(enabled: bool) -> void:

@@ -1040,10 +1040,11 @@ position = Vector2(896, 222)
 q = 6
 r = 2
 
-[node name="Tile=7,-8" parent="HexMap" unique_id=417722775 instance=ExtResource("2_fj7yv")]
+[node name="Tile=7,-8" parent="HexMap" unique_id=417722775 node_paths=PackedStringArray("building") instance=ExtResource("2_fj7yv")]
 position = Vector2(384, -888)
 q = 7
 r = -8
+building = NodePath("Workshop")
 
 [node name="Workshop" parent="HexMap/Tile=7,-8" unique_id=388339356 node_paths=PackedStringArray("tile") instance=ExtResource("5_ic0uy")]
 tile = NodePath("..")

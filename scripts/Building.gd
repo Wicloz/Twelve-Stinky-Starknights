@@ -7,3 +7,7 @@ extends Node2D
 
 func get_display_name() -> String:
     return "???"
+
+
+func get_popup() -> PackedScene:
+    return null

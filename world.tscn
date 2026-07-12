@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://dbrueh6kw534c" path="res://graphics/hex_terrain/Grass/grass_12.png" id="5_wse8f"]
 [ext_resource type="Script" uid="uid://d22m0dkwwfmxq" path="res://scripts/ResourceList.gd" id="6_dwbse"]
 [ext_resource type="Script" uid="uid://2k071aqjpe3b" path="res://scripts/DepositPanel.gd" id="8_gbfbk"]
+[ext_resource type="Script" uid="uid://t2dj705eag71" path="res://scripts/BuildingPanel.gd" id="11_ic0uy"]
 
 [sub_resource type="GDScript" id="GDScript_036b0"]
 resource_name = "_HexMapBuilder"
@@ -1150,9 +1151,10 @@ start_tile = NodePath("../../HexMap/Tile=1,1")
 [node name="Viewport" type="Camera2D" parent="." unique_id=1775877281]
 script = ExtResource("4_aqk2v")
 
-[node name="ClickHandler" type="Node2D" parent="." unique_id=818196459 node_paths=PackedStringArray("deposit_panel")]
+[node name="ClickHandler" type="Node2D" parent="." unique_id=818196459 node_paths=PackedStringArray("deposit_panel", "building_panel")]
 script = ExtResource("5_dwbse")
 deposit_panel = NodePath("../UI/DepositPanel")
+building_panel = NodePath("../UI/BuildingPanel")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=1946576123]
 
@@ -1162,17 +1164,13 @@ offset_bottom = 40.0
 script = ExtResource("6_dwbse")
 
 [node name="DepositPanel" type="PanelContainer" parent="UI" unique_id=1222018713]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -56.5
-offset_top = -29.0
-offset_right = 56.5
-offset_bottom = 29.0
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -58.0
 grow_horizontal = 2
-grow_vertical = 2
+grow_vertical = 0
 script = ExtResource("8_gbfbk")
 
 [node name="VBox" type="VBoxContainer" parent="UI/DepositPanel" unique_id=800082505]
@@ -1184,6 +1182,22 @@ layout_mode = 2
 [node name="Toggle" type="CheckButton" parent="UI/DepositPanel/VBox" unique_id=1631508977]
 layout_mode = 2
 text = "Harvest:"
+
+[node name="BuildingPanel" type="PanelContainer" parent="UI" unique_id=1190837471]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("11_ic0uy")
+
+[node name="VBox" type="VBoxContainer" parent="UI/BuildingPanel" unique_id=1042535700]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UI/BuildingPanel/VBox" unique_id=1259757163]
+layout_mode = 2
 
 [node name="_HexMapBuilder" type="Node2D" parent="." unique_id=1275505773 node_paths=PackedStringArray("parent")]
 script = SubResource("GDScript_036b0")

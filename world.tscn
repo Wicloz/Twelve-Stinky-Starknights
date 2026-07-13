@@ -1199,6 +1199,17 @@ layout_mode = 2
 [node name="Title" type="Label" parent="UI/BuildingPanel/VBox" unique_id=1259757163]
 layout_mode = 2
 
+[node name="HBox" type="HBoxContainer" parent="UI/BuildingPanel/VBox" unique_id=1494035763]
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="UI/BuildingPanel/VBox/HBox" unique_id=1146856730]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PopupButton" type="Button" parent="UI/BuildingPanel/VBox/HBox" unique_id=737568438]
+layout_mode = 2
+text = "Open Building UI"
+
 [node name="_HexMapBuilder" type="Node2D" parent="." unique_id=1275505773 node_paths=PackedStringArray("parent")]
 script = SubResource("GDScript_036b0")
 tile_scene = ExtResource("2_fj7yv")

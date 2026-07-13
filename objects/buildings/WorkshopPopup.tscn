@@ -1,9 +1,83 @@
 [gd_scene format=3 uid="uid://b2h63kdst8h3f"]
 
-[node name="WorkshopPopup" type="Control" unique_id=1695030635]
+[ext_resource type="Script" uid="uid://cowikp7nojeed" path="res://objects/buildings/WorkshopPopup.gd" id="1_7p4gc"]
+
+[node name="WorkshopPopup" type="Control" unique_id=1695030635 node_paths=PackedStringArray("close_button")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_7p4gc")
+close_button = NodePath("PanelContainer/MarginContainer/VBoxContainer/Header/Close")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=499549731]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1558470522]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=1524465752]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=278245300]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Header" unique_id=1582423811]
+layout_mode = 2
+text = "Workshop"
+
+[node name="Spacer" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/Header" unique_id=1315776295]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Close" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/Header" unique_id=974737499]
+layout_mode = 2
+text = "✕"
+
+[node name="OrderSelection" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=646804814]
+layout_mode = 2
+
+[node name="Recipes" type="ItemList" parent="PanelContainer/MarginContainer/VBoxContainer/OrderSelection" unique_id=858313223]
+layout_mode = 2
+auto_width = true
+
+[node name="Details" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/OrderSelection" unique_id=987804275]
+layout_mode = 2
+
+[node name="RecipeName" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Details" unique_id=1576396022]
+layout_mode = 2
+
+[node name="RecipeIO" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Details" unique_id=332784122]
+layout_mode = 2
+
+[node name="RecipeWork" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Details" unique_id=603595288]
+layout_mode = 2
+
+[node name="OrderConfig" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=439511777]
+layout_mode = 2
+
+[node name="RepeatMode" type="OptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/OrderConfig" unique_id=1393575984]
+layout_mode = 2
+item_count = 3
+popup/item_0/text = "Forever"
+popup/item_0/id = 0
+popup/item_1/text = "Amount"
+popup/item_1/id = 1
+popup/item_2/text = "Until"
+popup/item_2/id = 2
+
+[node name="Count" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/OrderConfig" unique_id=385096690]
+layout_mode = 2
+
+[node name="Confirm" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/OrderConfig" unique_id=152213972]
+layout_mode = 2
+text = "Confirm"
+
+[node name="ClearButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1646209328]
+layout_mode = 2
+text = "Cancel Current Order"

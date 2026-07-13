@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://btlcybsomkccq"]
 
-[ext_resource type="Texture2D" uid="uid://n630udipiv2y" path="res://graphics/starknight.webp" id="1_prfl4"]
+[ext_resource type="Texture2D" uid="uid://n630udipiv2y" path="res://assets/starknight.webp" id="1_prfl4"]
 [ext_resource type="Script" uid="uid://bupenbvkslon" path="res://objects/Starknight.gd" id="1_wf1m3"]
 
 [node name="Starknight" type="Node2D" unique_id=887805097]

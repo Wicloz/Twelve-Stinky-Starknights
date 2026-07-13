@@ -3,7 +3,7 @@
 /android/
 
 # Ignore WIP assets
-graphics/
+assets/
 creation/
 
 # Ignore local IDE files

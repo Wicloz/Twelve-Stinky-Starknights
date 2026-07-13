@@ -1,7 +1,7 @@
 extends Building
 
 
-var capabilities: Array[Production.Capabilities] = [Production.Capabilities.FURNACE]
+var capabilities: Array[Crafting.Capabilities] = [Crafting.Capabilities.FURNACE]
 var order: Recipe = null
 
 

@@ -36,12 +36,21 @@ func add(item: ItemType, amount: int) -> void:
 	changed.emit()
 
 
-func try_remove(item: ItemType, amount: int) -> bool:
-	if _amounts[item] < amount:
-		return false
+func add_bulk(items: Dictionary[ItemType, int]) -> void:
+	for item in items:
+		_amounts[item] += items[item]
+	changed.emit()
+
+
+func remove(item: ItemType, amount: int) -> void:
 	_amounts[item] -= amount
 	changed.emit()
-	return true
+
+
+func remove_bulk(items: Dictionary[ItemType, int]) -> void:
+	for item in items:
+		_amounts[item] -= items[item]
+	changed.emit()
 
 
 func get_amount(item: ItemType) -> int:

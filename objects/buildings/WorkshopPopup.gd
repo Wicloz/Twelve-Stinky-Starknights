@@ -85,13 +85,11 @@ func _on_count_changed(value: int) -> void:
 
 
 func _on_clear_pressed() -> void:
-	_workshop.order = null
+	_workshop.clear_order()
 
 
 func _on_confirm_pressed() -> void:
-	_workshop.order = _selected_recipe
-	_workshop.order_repeat = _selected_repeat
-	_workshop.order_target = _selected_count
+	_workshop.apply_order(_selected_recipe, _selected_repeat, _selected_count)
 
 
 func _refresh_details() -> void:

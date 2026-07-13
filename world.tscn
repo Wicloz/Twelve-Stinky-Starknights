@@ -5,12 +5,14 @@
 [ext_resource type="Script" uid="uid://brynm6ycuap45" path="res://scripts/Viewport.gd" id="4_aqk2v"]
 [ext_resource type="Texture2D" uid="uid://cfvrsok5qgwer" path="res://assets/hex_terrain/Sand/sand_17.png" id="4_ioo17"]
 [ext_resource type="PackedScene" uid="uid://btlcybsomkccq" path="res://objects/Starknight.tscn" id="4_pkg7o"]
+[ext_resource type="Texture2D" uid="uid://58pp705lvaxt" path="res://assets/hex_terrain/Mars/mars_19.png" id="5_2o6r5"]
 [ext_resource type="Script" uid="uid://cc3atkeodsjni" path="res://scripts/ClickHandler.gd" id="5_dwbse"]
 [ext_resource type="PackedScene" uid="uid://b1vwf74qjibx1" path="res://objects/buildings/Workshop.tscn" id="5_ic0uy"]
 [ext_resource type="Texture2D" uid="uid://dbrueh6kw534c" path="res://assets/hex_terrain/Grass/grass_12.png" id="5_wse8f"]
 [ext_resource type="Script" uid="uid://d22m0dkwwfmxq" path="res://scripts/ResourceList.gd" id="6_dwbse"]
 [ext_resource type="Script" uid="uid://2k071aqjpe3b" path="res://scripts/DepositPanel.gd" id="8_gbfbk"]
 [ext_resource type="Script" uid="uid://t2dj705eag71" path="res://scripts/BuildingPanel.gd" id="11_ic0uy"]
+[ext_resource type="Script" uid="uid://cxog2xaur4sam" path="res://scripts/ConstructionPanel.gd" id="12_k3n1d"]
 
 [sub_resource type="GDScript" id="GDScript_036b0"]
 resource_name = "_HexMapBuilder"
@@ -878,7 +880,7 @@ position = Vector2(256, -444)
 q = 4
 r = -4
 terrain_texture = ExtResource("5_wse8f")
-deposit = 5
+deposit = 3
 workable = true
 
 [node name="Tile=4,-3" parent="HexMap" unique_id=196134978 instance=ExtResource("2_fj7yv")]
@@ -886,7 +888,7 @@ position = Vector2(320, -333)
 q = 4
 r = -3
 terrain_texture = ExtResource("5_wse8f")
-deposit = 5
+deposit = 3
 workable = true
 
 [node name="Tile=4,-2" parent="HexMap" unique_id=1537320037 instance=ExtResource("2_fj7yv")]
@@ -943,7 +945,7 @@ position = Vector2(320, -555)
 q = 5
 r = -5
 terrain_texture = ExtResource("5_wse8f")
-deposit = 5
+deposit = 3
 workable = true
 
 [node name="Tile=5,-4" parent="HexMap" unique_id=971935515 instance=ExtResource("2_fj7yv")]
@@ -951,7 +953,7 @@ position = Vector2(384, -444)
 q = 5
 r = -4
 terrain_texture = ExtResource("5_wse8f")
-deposit = 5
+deposit = 3
 workable = true
 
 [node name="Tile=5,-3" parent="HexMap" unique_id=188526213 instance=ExtResource("2_fj7yv")]
@@ -959,7 +961,7 @@ position = Vector2(448, -333)
 q = 5
 r = -3
 terrain_texture = ExtResource("5_wse8f")
-deposit = 5
+deposit = 3
 workable = true
 
 [node name="Tile=5,-2" parent="HexMap" unique_id=1297268902 instance=ExtResource("2_fj7yv")]
@@ -975,6 +977,9 @@ r = -1
 [node name="Tile=5,0" parent="HexMap" unique_id=193314190 instance=ExtResource("2_fj7yv")]
 position = Vector2(640, 0)
 q = 5
+terrain_texture = ExtResource("5_2o6r5")
+deposit = 5
+workable = true
 
 [node name="Tile=5,2" parent="HexMap" unique_id=822205188 instance=ExtResource("2_fj7yv")]
 position = Vector2(768, 222)
@@ -1006,7 +1011,7 @@ position = Vector2(448, -555)
 q = 6
 r = -5
 terrain_texture = ExtResource("5_wse8f")
-deposit = 5
+deposit = 3
 workable = true
 
 [node name="Tile=6,-4" parent="HexMap" unique_id=1919518312 instance=ExtResource("2_fj7yv")]
@@ -1014,7 +1019,7 @@ position = Vector2(512, -444)
 q = 6
 r = -4
 terrain_texture = ExtResource("5_wse8f")
-deposit = 5
+deposit = 3
 workable = true
 
 [node name="Tile=6,-3" parent="HexMap" unique_id=2055207635 instance=ExtResource("2_fj7yv")]
@@ -1049,6 +1054,7 @@ building = NodePath("Workshop")
 
 [node name="Workshop" parent="HexMap/Tile=7,-8" unique_id=388339356 node_paths=PackedStringArray("tile") instance=ExtResource("5_ic0uy")]
 tile = NodePath("..")
+under_construction = false
 
 [node name="Tile=7,-7" parent="HexMap" unique_id=117557779 instance=ExtResource("2_fj7yv")]
 position = Vector2(448, -777)
@@ -1151,10 +1157,11 @@ start_tile = NodePath("../../HexMap/Tile=1,1")
 [node name="Viewport" type="Camera2D" parent="." unique_id=1775877281]
 script = ExtResource("4_aqk2v")
 
-[node name="ClickHandler" type="Node2D" parent="." unique_id=818196459 node_paths=PackedStringArray("deposit_panel", "building_panel")]
+[node name="ClickHandler" type="Node2D" parent="." unique_id=818196459 node_paths=PackedStringArray("deposit_panel", "building_panel", "construction_panel")]
 script = ExtResource("5_dwbse")
 deposit_panel = NodePath("../UI/DepositPanel")
 building_panel = NodePath("../UI/BuildingPanel")
+construction_panel = NodePath("../UI/ConstructionPanel")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=1946576123]
 
@@ -1209,6 +1216,26 @@ size_flags_horizontal = 3
 [node name="PopupButton" type="Button" parent="UI/BuildingPanel/VBox/HBox" unique_id=737568438]
 layout_mode = 2
 text = "Open Building UI"
+
+[node name="ConstructionPanel" type="PanelContainer" parent="UI" unique_id=143995369]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("12_k3n1d")
+
+[node name="Margin" type="MarginContainer" parent="UI/ConstructionPanel" unique_id=1630822402]
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="UI/ConstructionPanel/Margin" unique_id=414275933]
+layout_mode = 2
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+
+[node name="Columns" type="HBoxContainer" parent="UI/ConstructionPanel/Margin/Scroll" unique_id=1519381145]
+layout_mode = 2
 
 [node name="_HexMapBuilder" type="Node2D" parent="." unique_id=1275505773 node_paths=PackedStringArray("parent")]
 script = SubResource("GDScript_036b0")

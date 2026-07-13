@@ -5,7 +5,10 @@ signal capabilities_changed
 
 const POPUP := preload("res://objects/buildings/WorkshopPopup.tscn")
 
-var capabilities: Array[Crafting.Capabilities] = [Crafting.Capabilities.FURNACE]
+var capabilities: Array[Crafting.Capabilities] = [
+	Crafting.Capabilities.FURNACE,
+	Crafting.Capabilities.WORKBENCH,
+]
 
 enum Repeat {FOREVER, COUNT, UNTIL}
 

@@ -4,21 +4,24 @@ signal changed
 
 enum ItemType {
 	NONE,
+
 	ORE,
-	INGOT,
-	OIL,
-	PLASTIC,
-	LOGS,
+	INGOTS,
+	LUMBER,
+	PLANKS,
+	CLAY,
+	BRICKS,
 }
 
 var ItemTypes: Array[ItemType] = []
 
 const _ITEM_NAMES: Dictionary[ItemType, String] = {
 	ItemType.ORE: "Metal Ore",
-	ItemType.INGOT: "Metal Ingot",
-	ItemType.OIL: "Oil",
-	ItemType.PLASTIC: "Plastic",
-	ItemType.LOGS: "Logs",
+	ItemType.INGOTS: "Metal Ingots",
+	ItemType.LUMBER: "Lumber",
+	ItemType.PLANKS: "Planks",
+	ItemType.CLAY: "Clay",
+	ItemType.BRICKS: "Bricks",
 }
 
 var _amounts: Dictionary[ItemType, int] = {}

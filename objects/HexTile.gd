@@ -30,7 +30,7 @@ var harvesting: bool = false
 			return get_node("Deposit").texture
 		return null
 
-const HARVEST_DURATION: float = 5.0
+const HARVEST_DURATION: float = 1.0
 const HARVEST_AMOUNT: int = 1
 
 @export var building: Building

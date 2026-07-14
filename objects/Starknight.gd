@@ -13,11 +13,15 @@ var _job: Job
 var _path: Array[HexTile] = []
 var _work_remaining: float = 0.0
 
+@onready var _progress_bar: ProgressBar = $ProgressBar
+
 
 func _ready() -> void:
 	_current_tile = start_tile
 	if start_tile:
 		position = start_tile.position
+	_set_progress(0.0)
+	_progress_bar.hide()
 
 
 func _process(delta: float) -> void:
@@ -58,6 +62,8 @@ func _try_claim() -> void:
 		return
 
 	_state = State.MOVING
+	_set_progress(0.0)
+	_progress_bar.show()
 
 
 func _move(delta: float) -> void:
@@ -74,6 +80,8 @@ func _move(delta: float) -> void:
 func _start_working() -> void:
 	_work_remaining = _job.duration
 	_state = State.WORKING
+	_set_progress(0.0)
+	_progress_bar.show()
 
 
 func _work(delta: float) -> void:
@@ -82,10 +90,19 @@ func _work(delta: float) -> void:
 		var job := _job
 		_job = null
 		_state = State.IDLE
+		_progress_bar.hide()
 		JobManager.complete(job)
+		return
+
+	_set_progress(1.0 - _work_remaining / _job.duration)
+
+
+func _set_progress(ratio: float) -> void:
+	_progress_bar.value = clampf(ratio, 0.0, 1.0)
 
 
 func _abort() -> void:
 	_job = null
 	_path.clear()
 	_state = State.IDLE
+	_progress_bar.hide()

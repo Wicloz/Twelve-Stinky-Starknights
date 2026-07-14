@@ -11,8 +11,8 @@ func _ready() -> void:
     item.display_name = "Build Refinery"
     item.scene = preload("res://objects/buildings/Refinery.tscn")
     item.texture = preload("res://assets/buildings/refinery.png")
-    item.cost[Stockpile.ItemType.BRICKS] = 100
-    item.cost[Stockpile.ItemType.INGOTS] = 10
+    item.cost[Stockpile.ItemType.BRICK] = 100
+    item.cost[Stockpile.ItemType.IRON_INGOT] = 10
 
 
 func get_unlocked_buildings() -> Array[CatalogItem]:

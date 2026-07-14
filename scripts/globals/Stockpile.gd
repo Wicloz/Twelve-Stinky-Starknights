@@ -5,23 +5,35 @@ signal changed
 enum ItemType {
 	NONE,
 
-	ORE,
-	INGOTS,
+	IRON_ORE,
+	IRON_INGOT,
 	LUMBER,
-	PLANKS,
+	PLANK,
 	CLAY,
-	BRICKS,
+	BRICK,
+
+	RAW_BRASS,
+	MECHANICAL_COMPONENTS,
+
+	RAW_ELECTRUM,
+	ELECTRUM_WIRE,
 }
 
 var ItemTypes: Array[ItemType] = []
 
 const _ITEM_NAMES: Dictionary[ItemType, String] = {
-	ItemType.ORE: "Metal Ore",
-	ItemType.INGOTS: "Metal Ingots",
+	ItemType.IRON_ORE: "Iron Ore",
+	ItemType.IRON_INGOT: "Iron Ingot",
 	ItemType.LUMBER: "Lumber",
-	ItemType.PLANKS: "Planks",
+	ItemType.PLANK: "Plank",
 	ItemType.CLAY: "Clay",
-	ItemType.BRICKS: "Bricks",
+	ItemType.BRICK: "Fired Clay Brick",
+
+	ItemType.RAW_BRASS: "Cu-Zn Sulfide Deposit",
+	ItemType.MECHANICAL_COMPONENTS: "Mechanical Components",
+
+	ItemType.RAW_ELECTRUM: "Compacted Electrum",
+	ItemType.ELECTRUM_WIRE: "Electrum Wire",
 }
 
 var _amounts: Dictionary[ItemType, int] = {}
@@ -32,8 +44,8 @@ func _ready() -> void:
 	for item in ItemType.values():
 		if item != ItemType.NONE:
 			ItemTypes.append(item)
-			_amounts[item] = 0
-			_seen[item] = false
+			_amounts[item] = 99999
+			_seen[item] = true
 
 
 func add(item: ItemType, amount: int) -> void:

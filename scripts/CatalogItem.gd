@@ -5,6 +5,7 @@ var display_name: String
 var scene: PackedScene
 var texture: Texture2D
 var cost: Dictionary[Stockpile.ItemType, int] = {}
+var allowed_deposits: Array[Stockpile.ItemType] = []
 
 const ICON_REGION := Rect2(0, 0, 120, 170)
 var _icon: AtlasTexture
@@ -17,7 +18,7 @@ func can_place_on(tile: HexTile) -> bool:
     if tile.building != null:
         return false
 
-    if tile.deposit != Stockpile.ItemType.NONE:
+    if tile.deposit not in allowed_deposits:
         return false
 
     return true

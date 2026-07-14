@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://duwewaxj651ab"]
+
+[ext_resource type="Texture2D" uid="uid://dn0fm0gjhng8i" path="res://assets/buildings/logging_camp.png" id="1_0agp2"]
+[ext_resource type="Script" uid="uid://jhkej272jrnm" path="res://objects/buildings/LoggingCamp.gd" id="1_g2i18"]
+
+[node name="LoggingCamp" type="Node2D" unique_id=1016814278]
+script = ExtResource("1_g2i18")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=899416791]
+texture = ExtResource("1_0agp2")

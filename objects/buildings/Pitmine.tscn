@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://yt0ir11iwkov"]
+
+[ext_resource type="Texture2D" uid="uid://fcyxn07nsofm" path="res://assets/buildings/pitmine.png" id="1_jocp7"]
+[ext_resource type="Script" uid="uid://dng25rplo33c6" path="res://objects/buildings/Pitmine.gd" id="1_nsk84"]
+
+[node name="Pitmine" type="Node2D" unique_id=717841116]
+script = ExtResource("1_nsk84")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=201341949]
+texture = ExtResource("1_jocp7")

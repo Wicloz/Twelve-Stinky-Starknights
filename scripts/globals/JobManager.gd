@@ -3,50 +3,81 @@ extends Node
 
 var available: Array[Job] = []
 var active: Array[Job] = []
+var starknights: Array[Starknight] = []
+
+
+func register(starknight: Starknight) -> void:
+	starknights.append(starknight)
+
+
+func unregister(starknight: Starknight) -> void:
+	starknights.erase(starknight)
 
 
 func post(job: Job) -> void:
 	available.append(job)
 
 
-func candidates() -> Array[Job]:
+func _process(_delta: float) -> void:
+	_assign_jobs()
+
+
+func _assign_jobs() -> void:
 	if available.is_empty():
-		return []
+		return
 
-	var best_priority := -INF
+	var idle := starknights.filter(func(starknight: Starknight) -> bool: return starknight.is_idle())
+	if idle.is_empty():
+		return
+
+	for job in _queue():
+		if idle.is_empty():
+			return
+
+		var closest: Starknight = null
+		var shortest := INF
+		for starknight in idle:
+			var travel_time: float = starknight.travel_time(job.target)
+			if travel_time < shortest:
+				shortest = travel_time
+				closest = starknight
+
+		# nobody can reach it from where they stand — leave it for another time
+		if closest == null:
+			continue
+
+		if not closest.assign(job):
+			continue
+
+		idle.erase(closest)
+		available.erase(job)
+		active.append(job)
+
+
+func _queue() -> Array[Job]:
+	var by_priority: Dictionary[int, Array] = {}
 	for job in available:
-		best_priority = max(best_priority, job.priority)
+		if not by_priority.has(job.priority):
+			by_priority[job.priority] = []
+		by_priority[job.priority].append(job)
 
-	var best_jobs: Array[Job] = []
-	for job in available:
-		if job.priority == best_priority:
-			best_jobs.append(job)
+	var priorities := by_priority.keys()
+	priorities.sort()
+	priorities.reverse()
 
-	return best_jobs
+	var queue: Array[Job] = []
+	for priority in priorities:
+		var jobs: Array = by_priority[priority]
+		jobs.shuffle()
+		queue.append_array(jobs)
 
-
-func is_available(job: Job) -> bool:
-	return available.has(job)
-
-
-func claim(job: Job) -> bool:
-	if not available.has(job):
-		return false
-
-	available.erase(job)
-	active.append(job)
-	return true
+	return queue
 
 
 func complete(job: Job) -> void:
 	if job.on_complete.is_valid():
 		job.on_complete.call()
 	active.erase(job)
-
-
-func abandon(job: Job) -> void:
-	active.erase(job)
-	available.append(job)
 
 
 func cancel_jobs_on_tile(tile: HexTile) -> void:

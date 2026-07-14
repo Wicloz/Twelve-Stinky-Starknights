@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://dmh4odecba40j"]
+
+[ext_resource type="Script" uid="uid://bat0gjuiafw1d" path="res://objects/buildings/IronFurnace.gd" id="1_spnri"]
+[ext_resource type="Texture2D" uid="uid://c5bqbwgaujc32" path="res://assets/buildings/furnace2.png" id="1_ycwi5"]
+
+[node name="IronFurnace" type="Node2D" unique_id=821535660]
+script = ExtResource("1_spnri")
+recipe = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1568753880]
+texture = ExtResource("1_ycwi5")

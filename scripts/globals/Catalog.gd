@@ -10,9 +10,19 @@ func _ready() -> void:
     item = CatalogItem.new()
     _catalog.append(item)
 
-    item.display_name = "Build Refinery"
-    item.scene = preload("res://objects/buildings/Refinery.tscn")
-    item.texture = preload("res://assets/buildings/refinery.png")
+    item.display_name = "Build Iron Foundry"
+    item.scene = preload("res://objects/buildings/IronFurnace.tscn")
+    item.texture = preload("res://assets/buildings/furnace2.png")
+    item.cost[Stockpile.ItemType.BRICK] = 100
+    item.cost[Stockpile.ItemType.IRON_INGOT] = 10
+    item.allowed_deposits = [Stockpile.ItemType.NONE]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
+    item.display_name = "Build Brass Foundry"
+    item.scene = preload("res://objects/buildings/BrassFurnace.tscn")
+    item.texture = preload("res://assets/buildings/furnace2.png")
     item.cost[Stockpile.ItemType.BRICK] = 100
     item.cost[Stockpile.ItemType.IRON_INGOT] = 10
     item.allowed_deposits = [Stockpile.ItemType.NONE]

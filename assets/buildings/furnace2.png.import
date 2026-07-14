@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c5bqbwgaujc32"
-path="res://.godot/imported/refinery.png-0f6c529741b64224355723df72de36c0.ctex"
+path="res://.godot/imported/furnace2.png-a00ec34370030fd68d39407424b132d7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/buildings/refinery.png"
-dest_files=["res://.godot/imported/refinery.png-0f6c529741b64224355723df72de36c0.ctex"]
+source_file="res://assets/buildings/furnace2.png"
+dest_files=["res://.godot/imported/furnace2.png-a00ec34370030fd68d39407424b132d7.ctex"]
 
 [params]
 

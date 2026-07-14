@@ -20,7 +20,6 @@ func _ready() -> void:
 	_current_tile = start_tile
 	if start_tile:
 		position = start_tile.position
-	_set_progress(0.0)
 	_progress_bar.hide()
 
 
@@ -86,15 +85,14 @@ func _start_working() -> void:
 
 func _work(delta: float) -> void:
 	_work_remaining -= delta
+	_set_progress(1.0 - _work_remaining / _job.duration)
+
 	if _work_remaining <= 0.0:
-		var job := _job
-		_job = null
 		_state = State.IDLE
 		_progress_bar.hide()
-		JobManager.complete(job)
-		return
-
-	_set_progress(1.0 - _work_remaining / _job.duration)
+		JobManager.complete(_job)
+		_job = null
+		_try_claim()
 
 
 func _set_progress(ratio: float) -> void:

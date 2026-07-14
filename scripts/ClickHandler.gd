@@ -23,12 +23,14 @@ func _begin_placement(item: CatalogItem) -> void:
 	_cursor_item = item
 	_mode = Mode.PLACE
 	_cursor_ghost.texture = item.texture
+	_cursor_label.text = ""
 
 
 func _end_placement() -> void:
 	_cursor_item = null
 	_mode = Mode.SELECT
 	_cursor_ghost.global_position = Vector2(-2000, -2000)
+	_cursor_label.text = ""
 
 
 func _try_place() -> void:

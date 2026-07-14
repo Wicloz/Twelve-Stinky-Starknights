@@ -49,9 +49,13 @@ func is_idle() -> bool:
 	return _state == State.IDLE and _footing() != null
 
 
+func assigned_job() -> Job:
+	return _job
+
+
 ## Seconds of walking to reach the tile, INF when it cannot be reached at all.
 func travel_time(target: HexTile) -> float:
-	if not is_idle():
+	if _footing() == null:
 		return INF
 
 	var path := _path_to(target)
@@ -75,7 +79,7 @@ func assign(job: Job) -> bool:
 		return false
 
 	_job = job
-	_job.register_abort_handler(_abort)
+	_job.register_abort_handler(release)
 
 	# the path owns the stroll step we are halfway through from here on
 	_path = path
@@ -135,7 +139,13 @@ func _wander(delta: float) -> void:
 	if position == _wander_tile.position:
 		_current_tile = _wander_tile
 		_wander_tile = null
-		_wander_pause = randf_range(WANDER_PAUSE_MIN, WANDER_PAUSE_MAX)
+		_rest()
+
+
+## Hold still for a breather. Buildings only re-post their job a frame after we finish
+## it, so strolling off the instant we are done would walk us away from our own post.
+func _rest() -> void:
+	_wander_pause = randf_range(WANDER_PAUSE_MIN, WANDER_PAUSE_MAX)
 
 
 func _move(delta: float) -> void:
@@ -165,14 +175,18 @@ func _work(delta: float) -> void:
 		_progress_bar.hide()
 		JobManager.complete(_job)
 		_job = null
+		_rest()
 
 
 func _set_progress(ratio: float) -> void:
 	_progress_bar.value = clampf(ratio, 0.0, 1.0)
 
 
-func _abort() -> void:
+## Drop the job without finishing it, either because it was cancelled or because the
+## JobManager handed it to a Starknight better placed to do it.
+func release() -> void:
 	_job = null
 	_path.clear()
 	_state = State.IDLE
 	_progress_bar.hide()
+	_rest()

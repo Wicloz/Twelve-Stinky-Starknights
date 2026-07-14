@@ -23,9 +23,6 @@ func _process(_delta: float) -> void:
 
 
 func _assign_jobs() -> void:
-	if available.is_empty():
-		return
-
 	var idle := starknights.filter(func(starknight: Starknight) -> bool: return starknight.is_idle())
 	if idle.is_empty():
 		return
@@ -42,7 +39,6 @@ func _assign_jobs() -> void:
 				shortest = travel_time
 				closest = starknight
 
-		# nobody can reach it from where they stand — leave it for another time
 		if closest == null:
 			continue
 
@@ -52,6 +48,36 @@ func _assign_jobs() -> void:
 		idle.erase(closest)
 		available.erase(job)
 		active.append(job)
+
+	_poach_jobs(idle)
+
+
+func _poach_jobs(idle: Array[Starknight]) -> void:
+	for holder in starknights:
+		if idle.is_empty():
+			return
+
+		var job: Job = holder.assigned_job()
+		if job == null:
+			continue
+
+		var closest: Starknight = null
+		var shortest: float = holder.travel_time(job.target)
+		for starknight in idle:
+			var travel_time: float = starknight.travel_time(job.target)
+			if travel_time < shortest:
+				shortest = travel_time
+				closest = starknight
+
+		if closest == null:
+			continue
+
+		if not closest.assign(job):
+			continue
+		holder.release()
+
+		idle.erase(closest)
+		idle.append(holder)
 
 
 func _queue() -> Array[Job]:

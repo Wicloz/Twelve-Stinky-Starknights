@@ -30,6 +30,8 @@ func try_place_on(tile: HexTile) -> bool:
 
     var building = scene.instantiate() as Building
 
+    tile.set_harvesting(false)
+
     tile.building = building
     building.tile = tile
 

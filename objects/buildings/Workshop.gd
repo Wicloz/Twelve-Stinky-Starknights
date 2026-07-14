@@ -25,6 +25,8 @@ func get_display_name() -> String:
 
 
 func get_popup() -> PackedScene:
+	if _under_construction:
+		return null
 	return POPUP
 
 

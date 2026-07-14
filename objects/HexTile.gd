@@ -37,7 +37,11 @@ const HARVEST_AMOUNT: int = 1
 
 
 func set_harvesting(enabled: bool) -> void:
+	if enabled == harvesting:
+		return
+
 	harvesting = enabled
+
 	if enabled:
 		_post_harvest_job()
 	else:

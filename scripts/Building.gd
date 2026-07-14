@@ -43,4 +43,5 @@ func _construction_complete() -> void:
 
 func _construction_aborted() -> void:
     Stockpile.add_bulk(_refund)
+    tile.building = null
     queue_free()

@@ -4,14 +4,17 @@ extends Node2D
 
 enum State {IDLE, RESERVING, MOVING, WORKING}
 
-@export var move_speed: float = 220.0
+const BASE_MOVE_SPEED: float = 220.0
+const HESITATION_PER_STEP: float = 0.05
+
+@export var move_speed: float = BASE_MOVE_SPEED
 @export var start_tile: HexTile
 
-var _state := State.IDLE
+var _state: State = State.IDLE
 var _current_tile: HexTile
 var _job: Job
 var _pending_job: Job
-var _frames_until_claim: int = 0
+var _hesitation_remaining: float = 0.0
 var _path: Array[HexTile] = []
 var _work_remaining: float = 0.0
 
@@ -30,7 +33,7 @@ func _process(delta: float) -> void:
 		State.IDLE:
 			_pick_job()
 		State.RESERVING:
-			_tick_reservation()
+			_tick_reservation(delta)
 		State.MOVING:
 			_move(delta)
 		State.WORKING:
@@ -58,22 +61,22 @@ func _pick_job() -> void:
 		if _path.is_empty():
 			return
 
-	# the further away the job is, the longer we hesitate, so nearer
-	# Starknights get to snatch it from under us first
+	# the further away the job is, the longer we hesitate, so nearer and
+	# faster Starknights get to snatch it from under us first
 	_pending_job = job
-	_frames_until_claim = _path.size()
+	_hesitation_remaining = _path.size() * HESITATION_PER_STEP * BASE_MOVE_SPEED / move_speed
 	_state = State.RESERVING
-	_tick_reservation()
+	_tick_reservation(0.0)
 
 
-func _tick_reservation() -> void:
+func _tick_reservation(delta: float) -> void:
 	# somebody else claimed it, or it was cancelled → start over on another job
 	if not JobManager.is_available(_pending_job):
 		_release_reservation()
 		return
 
-	if _frames_until_claim > 0:
-		_frames_until_claim -= 1
+	_hesitation_remaining -= delta
+	if _hesitation_remaining > 0.0:
 		return
 
 	if not JobManager.claim(_pending_job):
@@ -95,7 +98,7 @@ func _tick_reservation() -> void:
 
 func _release_reservation() -> void:
 	_pending_job = null
-	_frames_until_claim = 0
+	_hesitation_remaining = 0.0
 	_path.clear()
 	_state = State.IDLE
 

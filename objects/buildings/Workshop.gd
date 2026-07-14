@@ -63,7 +63,7 @@ func _try_post_job() -> void:
 
 	var job := Job.new()
 	job.target = tile
-	job.priority = 100
+	job.priority = 10
 	job.duration = order.work
 	job.on_complete = _on_craft_complete
 	job.on_cancel = _on_craft_aborted

@@ -28,7 +28,7 @@ func start_construction(cost: Dictionary[Stockpile.ItemType, int]) -> void:
     _refund = cost
 
     var job = Job.new()
-    job.priority = 100
+    job.priority = 11
     job.duration = 10.0
     job.target = tile
     job.on_complete = _construction_complete

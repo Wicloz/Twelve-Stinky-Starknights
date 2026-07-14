@@ -70,6 +70,7 @@ func axial_to_world(q: int, r: int) -> Vector2:
 [node name="World" type="Node2D" unique_id=1592913599]
 
 [node name="HexMap" type="Node2D" parent="." unique_id=1398524653]
+z_index = -1
 script = ExtResource("1_wse8f")
 
 [node name="Tile=-8,0" parent="HexMap" unique_id=1843538518 instance=ExtResource("2_fj7yv")]

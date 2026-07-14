@@ -6,6 +6,9 @@ var scene: PackedScene
 var texture: Texture2D
 var cost: Dictionary[Stockpile.ItemType, int] = {}
 
+const ICON_REGION := Rect2(0, 0, 120, 170)
+var _icon: AtlasTexture
+
 
 func can_place_on(tile: HexTile) -> bool:
     if tile == null:
@@ -29,6 +32,7 @@ func try_place_on(tile: HexTile) -> bool:
             return false
 
     var building = scene.instantiate() as Building
+    building.z_index = tile.z_index + 1
 
     tile.set_harvesting(false)
 
@@ -39,3 +43,11 @@ func try_place_on(tile: HexTile) -> bool:
     building.start_construction(cost)
 
     return true
+
+
+func get_icon() -> AtlasTexture:
+    if _icon == null:
+        _icon = AtlasTexture.new()
+        _icon.atlas = texture
+        _icon.region = ICON_REGION
+    return _icon

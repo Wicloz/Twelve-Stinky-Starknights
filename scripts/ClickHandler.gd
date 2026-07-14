@@ -1,17 +1,72 @@
 extends Node2D
 
 
+enum Mode {SELECT, PLACE}
+var _mode: Mode = Mode.SELECT
+
 @export var deposit_panel: DepositPanel
 @export var building_panel: BuildingPanel
 @export var construction_panel: ConstructionPanel
 
+const HOLO_BLUE := preload("res://assets/buildings/holo_blue.tres")
+const HOLO_RED := preload("res://assets/buildings/holo_red.tres")
+@onready var _cursor_ghost := $CursorGhost
+var _cursor_item: CatalogItem
 
-func _unhandled_input(event: InputEvent) -> void:
-	if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
+
+func _ready() -> void:
+	construction_panel.building_selected.connect(_begin_placement)
+
+
+func _begin_placement(item: CatalogItem) -> void:
+	_cursor_item = item
+	_mode = Mode.PLACE
+	_cursor_ghost.texture = item.texture
+
+
+func _end_placement() -> void:
+	_cursor_item = null
+	_mode = Mode.SELECT
+	_cursor_ghost.global_position = Vector2(-2000, -2000)
+
+
+func _try_place() -> void:
+	var tile := _hovered_tile()
+	if _cursor_item.try_place_on(tile):
+		_end_placement()
+
+
+func _process(_delta: float) -> void:
+	if _mode != Mode.PLACE:
 		return
 
-	var coord := ZaWarudo.world_to_axial(get_global_mouse_position())
-	var tile: HexTile = ZaWarudo.tiles.get(coord)
+	var tile := _hovered_tile()
+
+	if _cursor_item.can_place_on(tile):
+		_cursor_ghost.global_position = tile.global_position
+		_cursor_ghost.material = HOLO_BLUE
+	else:
+		_cursor_ghost.global_position = get_global_mouse_position()
+		_cursor_ghost.material = HOLO_RED
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton and event.pressed):
+		return
+
+	match _mode:
+		Mode.PLACE:
+			if event.button_index == MOUSE_BUTTON_LEFT:
+				_try_place()
+			elif event.button_index == MOUSE_BUTTON_RIGHT:
+				_end_placement()
+		Mode.SELECT:
+			if event.button_index == MOUSE_BUTTON_LEFT:
+				_select()
+
+
+func _select() -> void:
+	var tile := _hovered_tile()
 
 	if tile == null:
 		deposit_panel.hide()
@@ -32,3 +87,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		deposit_panel.hide()
 		building_panel.hide()
 		construction_panel.show()
+
+
+func _hovered_tile() -> HexTile:
+	return ZaWarudo.tiles.get(ZaWarudo.world_to_axial(get_global_mouse_position()))

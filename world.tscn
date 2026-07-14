@@ -1054,7 +1054,6 @@ building = NodePath("Workshop")
 
 [node name="Workshop" parent="HexMap/Tile=7,-8" unique_id=388339356 node_paths=PackedStringArray("tile") instance=ExtResource("5_ic0uy")]
 tile = NodePath("..")
-under_construction = false
 
 [node name="Tile=7,-7" parent="HexMap" unique_id=117557779 instance=ExtResource("2_fj7yv")]
 position = Vector2(448, -777)
@@ -1162,6 +1161,8 @@ script = ExtResource("5_dwbse")
 deposit_panel = NodePath("../UI/DepositPanel")
 building_panel = NodePath("../UI/BuildingPanel")
 construction_panel = NodePath("../UI/ConstructionPanel")
+
+[node name="CursorGhost" type="Sprite2D" parent="ClickHandler" unique_id=203583358]
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=1946576123]
 

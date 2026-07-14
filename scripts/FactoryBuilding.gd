@@ -16,8 +16,6 @@ func _process(delta: float) -> void:
     if _under_construction or _has_active_job:
         return
 
-    _has_active_job = true
-
     var can_afford = true
     for item in _recipe.inputs:
         if Stockpile.get_amount(item) < _recipe.inputs[item]:
@@ -27,6 +25,7 @@ func _process(delta: float) -> void:
     if not can_afford:
         return
 
+    _has_active_job = true
     Stockpile.remove_bulk(_recipe.inputs)
 
     var job = Job.new()

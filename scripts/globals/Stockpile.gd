@@ -46,8 +46,8 @@ func _ready() -> void:
 	for item in ItemType.values():
 		if item != ItemType.NONE:
 			ItemTypes.append(item)
-			_amounts[item] = 99999
-			_seen[item] = true
+			_amounts[item] = 0
+			_seen[item] = false
 
 
 func add(item: ItemType, amount: int) -> void:

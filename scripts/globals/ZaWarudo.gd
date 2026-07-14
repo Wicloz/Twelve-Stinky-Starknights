@@ -50,6 +50,15 @@ func find_path(from: Vector2i, to: Vector2i) -> Array[HexTile]:
 	return path
 
 
+func walkable_neighbors(coord: Vector2i) -> Array[HexTile]:
+	var neighbors: Array[HexTile] = []
+	for offset in NEIGHBOR_OFFSETS:
+		var tile: HexTile = tiles.get(coord + offset)
+		if tile and tile.walkable:
+			neighbors.append(tile)
+	return neighbors
+
+
 var _spacing := Vector2.ZERO
 
 

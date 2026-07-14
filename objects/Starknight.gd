@@ -92,7 +92,6 @@ func _work(delta: float) -> void:
 		_progress_bar.hide()
 		JobManager.complete(_job)
 		_job = null
-		_try_claim()
 
 
 func _set_progress(ratio: float) -> void:

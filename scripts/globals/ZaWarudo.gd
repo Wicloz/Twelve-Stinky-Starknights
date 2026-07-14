@@ -50,12 +50,6 @@ func find_path(from: Vector2i, to: Vector2i) -> Array[HexTile]:
 	return path
 
 
-func set_walkable(coord: Vector2i, walkable: bool) -> void:
-	if not astar.ids_by_hex_coord.has(coord):
-		return
-	astar.set_point_disabled(astar.ids_by_hex_coord[coord], not walkable)
-
-
 var _spacing := Vector2.ZERO
 
 

@@ -6,7 +6,7 @@ signal building_selected(item: CatalogItem)
 @onready var _columns: HBoxContainer = $Margin/Scroll/Columns
 
 const ROWS := 2
-const CELL := Vector2(120, 170)
+const CELL := Vector2(60, 85)
 
 var _shown: Array[CatalogItem] = []
 

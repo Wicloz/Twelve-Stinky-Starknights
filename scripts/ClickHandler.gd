@@ -11,6 +11,7 @@ var _mode: Mode = Mode.SELECT
 const HOLO_BLUE := preload("res://assets/buildings/holo_blue.tres")
 const HOLO_RED := preload("res://assets/buildings/holo_red.tres")
 @onready var _cursor_ghost := $CursorGhost
+@onready var _cursor_label := $CursorGhost/Label
 var _cursor_item: CatalogItem
 
 
@@ -31,9 +32,13 @@ func _end_placement() -> void:
 
 
 func _try_place() -> void:
-	var tile := _hovered_tile()
-	if _cursor_item.try_place_on(tile):
+	var error := _cursor_item.try_place_on(_hovered_tile())
+
+	if error == "":
 		_end_placement()
+
+	else:
+		_cursor_label.text = error
 
 
 func _process(_delta: float) -> void:

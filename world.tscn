@@ -1206,6 +1206,10 @@ construction_panel = NodePath("../UI/ConstructionPanel")
 
 [node name="CursorGhost" type="Sprite2D" parent="ClickHandler" unique_id=203583358]
 
+[node name="Label" type="Label" parent="ClickHandler/CursorGhost" unique_id=795803081]
+offset_right = 40.0
+offset_bottom = 23.0
+
 [node name="UI" type="CanvasLayer" parent="." unique_id=1946576123]
 
 [node name="ResourceList" type="VBoxContainer" parent="UI" unique_id=1683944017]

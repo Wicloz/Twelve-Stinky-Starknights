@@ -24,13 +24,13 @@ func can_place_on(tile: HexTile) -> bool:
     return true
 
 
-func try_place_on(tile: HexTile) -> bool:
+func try_place_on(tile: HexTile) -> String:
     if not can_place_on(tile):
-        return false
+        return "Cannot place this building here."
 
     for resource in cost:
         if Stockpile.get_amount(resource) < cost[resource]:
-            return false
+            return "Not enough resources to place this building."
 
     var building = scene.instantiate() as Building
     building.z_index = tile.z_index + 1
@@ -43,7 +43,7 @@ func try_place_on(tile: HexTile) -> bool:
     tile.add_child(building)
     building.start_construction(cost)
 
-    return true
+    return ""
 
 
 func get_icon() -> AtlasTexture:

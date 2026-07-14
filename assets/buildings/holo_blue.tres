@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://gx5fablgpgyy"]
+
+[ext_resource type="Shader" uid="uid://dqoswsetl4pdq" path="res://assets/buildings/holo.gdshader" id="1_e7pk2"]
+
+[resource]
+shader = ExtResource("1_e7pk2")
+shader_parameter/holo_color = Color(0.4, 0.8, 1, 1)
+shader_parameter/alpha = 0.5
+shader_parameter/scan_density = 40.0
+shader_parameter/scan_speed = 2.0

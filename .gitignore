@@ -1,9 +1,9 @@
-# Godot 4+ specific ignores
-.godot/
-/android/
-
 # Ignore WIP assets
 creation/
 
 # Ignore local IDE files
 .vscode/
+.godot/
+
+# Ignore build output
+builds/

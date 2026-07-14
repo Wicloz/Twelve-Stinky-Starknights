@@ -9,7 +9,7 @@ func post(job: Job) -> void:
 	available.append(job)
 
 
-func claim_next() -> Job:
+func peek_next() -> Job:
 	if available.is_empty():
 		return null
 
@@ -22,10 +22,20 @@ func claim_next() -> Job:
 		if job.priority == best_priority:
 			candidates.append(job)
 
-	var chosen: Job = candidates.pick_random()
-	available.erase(chosen)
-	active.append(chosen)
-	return chosen
+	return candidates.pick_random()
+
+
+func is_available(job: Job) -> bool:
+	return available.has(job)
+
+
+func claim(job: Job) -> bool:
+	if not available.has(job):
+		return false
+
+	available.erase(job)
+	active.append(job)
+	return true
 
 
 func complete(job: Job) -> void:

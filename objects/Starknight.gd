@@ -2,7 +2,7 @@ class_name Starknight
 extends Node2D
 
 
-enum State {IDLE, MOVING, WORKING}
+enum State {IDLE, RESERVING, MOVING, WORKING}
 
 @export var move_speed: float = 220.0
 @export var start_tile: HexTile
@@ -10,6 +10,8 @@ enum State {IDLE, MOVING, WORKING}
 var _state := State.IDLE
 var _current_tile: HexTile
 var _job: Job
+var _pending_job: Job
+var _frames_until_claim: int = 0
 var _path: Array[HexTile] = []
 var _work_remaining: float = 0.0
 
@@ -26,43 +28,76 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	match _state:
 		State.IDLE:
-			_try_claim()
+			_pick_job()
+		State.RESERVING:
+			_tick_reservation()
 		State.MOVING:
 			_move(delta)
 		State.WORKING:
 			_work(delta)
 
 
-func _try_claim() -> void:
+func _pick_job() -> void:
 	if _current_tile == null:
 		return
 
-	var job := JobManager.claim_next()
+	var job := JobManager.peek_next()
 	if job == null:
 		return
 
-	_job = job
-	job.register_abort_handler(_abort)
-
-	# already standing on it → work in place
+	# already standing on it → no path to walk, claim without waiting
 	if job.target == _current_tile:
-		_start_working()
+		_path = []
+	else:
+		_path = ZaWarudo.find_path(
+			Vector2i(_current_tile.q, _current_tile.r),
+			Vector2i(job.target.q, job.target.r),
+		)
+
+		# empty here means unreachable (the in-place case was handled above)
+		if _path.is_empty():
+			return
+
+	# the further away the job is, the longer we hesitate, so nearer
+	# Starknights get to snatch it from under us first
+	_pending_job = job
+	_frames_until_claim = _path.size()
+	_state = State.RESERVING
+	_tick_reservation()
+
+
+func _tick_reservation() -> void:
+	# somebody else claimed it, or it was cancelled → start over on another job
+	if not JobManager.is_available(_pending_job):
+		_release_reservation()
 		return
 
-	_path = ZaWarudo.find_path(
-		Vector2i(_current_tile.q, _current_tile.r),
-		Vector2i(job.target.q, job.target.r),
-	)
+	if _frames_until_claim > 0:
+		_frames_until_claim -= 1
+		return
 
-	# empty here means unreachable (the in-place case was handled above)
+	if not JobManager.claim(_pending_job):
+		_release_reservation()
+		return
+
+	_job = _pending_job
+	_pending_job = null
+	_job.register_abort_handler(_abort)
+
 	if _path.is_empty():
-		_job = null
-		JobManager.abandon(job)
+		_start_working()
 		return
 
 	_state = State.MOVING
 	_set_progress(0.0)
 	_progress_bar.show()
+
+
+func _release_reservation() -> void:
+	_pending_job = null
+	_frames_until_claim = 0
+	_path.clear()
+	_state = State.IDLE
 
 
 func _move(delta: float) -> void:

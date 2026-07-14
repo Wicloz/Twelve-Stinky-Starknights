@@ -39,28 +39,16 @@ func _run_assignment_pass() -> void:
 	var idle := starknights.filter(func(starknight: Starknight) -> bool:
 		return starknight.is_idle()
 	)
+	if idle.is_empty():
+		return
 
-	for job in _queue():
+	for priority in _priorities():
+		var jobs := available.filter(func(job: Job) -> bool:
+			return job.priority == priority
+		)
+		_fill_tier(idle, jobs)
 		if idle.is_empty():
 			return
-
-		var closest: Starknight = null
-		var shortest := INF
-		for starknight in idle:
-			var travel_time: float = starknight.travel_time(job.target)
-			if travel_time < shortest:
-				shortest = travel_time
-				closest = starknight
-
-		if closest == null:
-			continue
-
-		if not closest.assign(job):
-			continue
-
-		idle.erase(closest)
-		available.erase(job)
-		active.append(job)
 
 	for holder in starknights:
 		if idle.is_empty():
@@ -89,24 +77,56 @@ func _run_assignment_pass() -> void:
 		idle.append(holder)
 
 
-func _queue() -> Array[Job]:
-	var by_priority: Dictionary[int, Array] = {}
+## The distinct priorities currently posted, highest first.
+func _priorities() -> Array:
+	var seen: Dictionary[int, bool] = {}
 	for job in available:
-		if not by_priority.has(job.priority):
-			by_priority[job.priority] = []
-		by_priority[job.priority].append(job)
+		seen[job.priority] = true
 
-	var priorities := by_priority.keys()
+	var priorities := seen.keys()
 	priorities.sort()
 	priorities.reverse()
+	return priorities
 
-	var queue: Array[Job] = []
-	for priority in priorities:
-		var jobs: Array = by_priority[priority]
-		jobs.shuffle()
-		queue.append_array(jobs)
 
-	return queue
+func _fill_tier(idle: Array[Starknight], jobs: Array[Job]) -> void:
+	# a Starknight already standing on a job's tile keeps it — this is what lets one
+	# re-take the deposit or workshop it just finished instead of being sent away, and
+	# nothing further down can steal it since no travel time beats zero
+	for starknight in idle.duplicate():
+		for job in jobs:
+			if starknight.travel_time(job.target) != 0.0:
+				continue
+			if starknight.assign(job):
+				idle.erase(starknight)
+				jobs.erase(job)
+				available.erase(job)
+				active.append(job)
+			break
+
+	# the rest go to their closest idle Starknight, shuffled so that a far-flung job
+	# still takes its turn rather than forever losing out to nearer ones
+	jobs.shuffle()
+	for job in jobs:
+		if idle.is_empty():
+			return
+
+		var closest: Starknight = null
+		var shortest := INF
+		for starknight in idle:
+			var travel_time: float = starknight.travel_time(job.target)
+			if travel_time < shortest:
+				shortest = travel_time
+				closest = starknight
+
+		if closest == null:
+			continue
+		if not closest.assign(job):
+			continue
+
+		idle.erase(closest)
+		available.erase(job)
+		active.append(job)
 
 
 func complete(job: Job) -> void:

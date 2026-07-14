@@ -9,6 +9,10 @@ func _process(delta: float) -> void:
     if _under_construction or _has_active_job:
         return
 
+    _post_job()
+
+
+func _post_job() -> void:
     _has_active_job = true
 
     var job = Job.new()
@@ -22,7 +26,7 @@ func _process(delta: float) -> void:
 
 func _on_mine_complete() -> void:
     Stockpile.add(tile.deposit, tile.HARVEST_AMOUNT)
-    _has_active_job = false
+    _post_job()
 
 
 func _on_mine_aborted() -> void:

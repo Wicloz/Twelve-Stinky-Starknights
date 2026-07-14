@@ -16,14 +16,13 @@ func _process(delta: float) -> void:
     if _under_construction or _has_active_job:
         return
 
-    var can_afford = true
+    _try_post_job()
+
+
+func _try_post_job() -> void:
     for item in _recipe.inputs:
         if Stockpile.get_amount(item) < _recipe.inputs[item]:
-            can_afford = false
-            break
-
-    if not can_afford:
-        return
+            return
 
     _has_active_job = true
     Stockpile.remove_bulk(_recipe.inputs)
@@ -40,6 +39,7 @@ func _process(delta: float) -> void:
 func _on_craft_complete() -> void:
     Stockpile.add_bulk(_recipe.outputs)
     _has_active_job = false
+    _try_post_job()
 
 
 func _on_craft_aborted() -> void:

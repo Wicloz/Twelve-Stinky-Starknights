@@ -9,20 +9,20 @@ func post(job: Job) -> void:
 	available.append(job)
 
 
-func peek_next() -> Job:
+func candidates() -> Array[Job]:
 	if available.is_empty():
-		return null
+		return []
 
 	var best_priority := -INF
 	for job in available:
 		best_priority = max(best_priority, job.priority)
 
-	var candidates: Array[Job] = []
+	var best_jobs: Array[Job] = []
 	for job in available:
 		if job.priority == best_priority:
-			candidates.append(job)
+			best_jobs.append(job)
 
-	return candidates.pick_random()
+	return best_jobs
 
 
 func is_available(job: Job) -> bool:

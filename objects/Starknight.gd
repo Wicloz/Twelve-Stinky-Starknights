@@ -44,26 +44,34 @@ func _pick_job() -> void:
 	if _current_tile == null:
 		return
 
-	var job := JobManager.peek_next()
-	if job == null:
-		return
+	var from := Vector2i(_current_tile.q, _current_tile.r)
+	var nearest: Job = null
+	var nearest_path: Array[HexTile] = []
 
-	# already standing on it → no path to walk, claim without waiting
-	if job.target == _current_tile:
-		_path = []
-	else:
-		_path = ZaWarudo.find_path(
-			Vector2i(_current_tile.q, _current_tile.r),
-			Vector2i(job.target.q, job.target.r),
-		)
+	for job in JobManager.candidates():
+		# already standing on it → no path to walk, nothing can be nearer
+		if job.target == _current_tile:
+			nearest = job
+			nearest_path = []
+			break
+
+		var path := ZaWarudo.find_path(from, Vector2i(job.target.q, job.target.r))
 
 		# empty here means unreachable (the in-place case was handled above)
-		if _path.is_empty():
-			return
+		if path.is_empty():
+			continue
+
+		if nearest == null or path.size() < nearest_path.size():
+			nearest = job
+			nearest_path = path
+
+	if nearest == null:
+		return
 
 	# the further away the job is, the longer we hesitate, so nearer and
 	# faster Starknights get to snatch it from under us first
-	_pending_job = job
+	_pending_job = nearest
+	_path = nearest_path
 	_hesitation_remaining = _path.size() * HESITATION_PER_STEP * BASE_MOVE_SPEED / move_speed
 	_state = State.RESERVING
 	_tick_reservation(0.0)

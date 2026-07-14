@@ -13,6 +13,7 @@ enum ItemType {
 	BRICK,
 
 	RAW_BRASS,
+	BRASS_INGOT,
 	MECHANICAL_COMPONENTS,
 
 	RAW_ELECTRUM,
@@ -30,6 +31,7 @@ const _ITEM_NAMES: Dictionary[ItemType, String] = {
 	ItemType.BRICK: "Fired Clay Brick",
 
 	ItemType.RAW_BRASS: "Cu-Zn Sulfide Deposit",
+	ItemType.BRASS_INGOT: "Brass Ingot",
 	ItemType.MECHANICAL_COMPONENTS: "Mechanical Components",
 
 	ItemType.RAW_ELECTRUM: "Compacted Electrum",

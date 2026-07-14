@@ -30,13 +30,6 @@ func get_popup() -> PackedScene:
 	return POPUP
 
 
-func has_capabilities(required: Array[Crafting.Capabilities]) -> bool:
-	for capability in required:
-		if not capabilities.has(capability):
-			return false
-	return true
-
-
 func apply_order(recipe: Recipe, repeat: Repeat, target: int) -> void:
 	_cancel_current_job()
 

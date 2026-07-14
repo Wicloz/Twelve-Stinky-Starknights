@@ -5,6 +5,7 @@
 
 [node name="Refinery" type="Node2D" unique_id=821535660]
 script = ExtResource("1_spnri")
+recipe = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1568753880]
 texture = ExtResource("1_ycwi5")

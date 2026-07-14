@@ -115,10 +115,9 @@ func _populate_recipes() -> void:
 	_recipes.clear()
 	_recipe_list.clear()
 
-	for recipe in Crafting.recipes:
-		if _workshop.has_capabilities(recipe.needs_capabilities):
-			_recipes.append(recipe)
-			_recipe_list.add_item(recipe.display_name)
+	for recipe in Crafting.recipes_with_capabilities_satisfied(_workshop.capabilities):
+		_recipes.append(recipe)
+		_recipe_list.add_item(recipe.display_name)
 
 	var idx = _recipes.find(_selected_recipe)
 	if idx != -1:

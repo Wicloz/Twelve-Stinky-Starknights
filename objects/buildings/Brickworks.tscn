@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://brp57l5frghgx"]
+
+[ext_resource type="Texture2D" uid="uid://dxi8w0t3g680w" path="res://assets/buildings/brickworks.png" id="1_1k7y7"]
+[ext_resource type="Script" uid="uid://cucxw5pvc7yet" path="res://objects/buildings/Brickworks.gd" id="1_mlila"]
+
+[node name="Brickworks" type="Node2D" unique_id=711838744]
+script = ExtResource("1_mlila")
+recipe = 1
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=345373549]
+texture = ExtResource("1_1k7y7")

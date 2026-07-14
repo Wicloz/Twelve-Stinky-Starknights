@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://bqquglaf6p5rp"]
+
+[ext_resource type="Script" uid="uid://dsho0lxnf3yem" path="res://objects/buildings/Sawmill.gd" id="1_62gh7"]
+[ext_resource type="Texture2D" uid="uid://b7vxokwpe0ohg" path="res://assets/buildings/sawmill.png" id="1_e3ppr"]
+
+[node name="Sawmill" type="Node2D" unique_id=1403442536]
+script = ExtResource("1_62gh7")
+recipe = 2
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1456539947]
+texture = ExtResource("1_e3ppr")

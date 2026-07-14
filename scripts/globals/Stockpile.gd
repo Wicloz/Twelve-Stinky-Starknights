@@ -18,6 +18,10 @@ enum ItemType {
 
 	RAW_ELECTRUM,
 	ELECTRUM_WIRE,
+
+	SAND,
+	GLASS,
+	SILICON_BOULE,
 }
 
 var ItemTypes: Array[ItemType] = []
@@ -36,6 +40,10 @@ const _ITEM_NAMES: Dictionary[ItemType, String] = {
 
 	ItemType.RAW_ELECTRUM: "Compacted Electrum",
 	ItemType.ELECTRUM_WIRE: "Electrum Wire",
+
+	ItemType.SAND: "Sand",
+	ItemType.GLASS: "Glass",
+	ItemType.SILICON_BOULE: "Silicon Boule",
 }
 
 var _amounts: Dictionary[ItemType, int] = {}

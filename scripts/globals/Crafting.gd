@@ -12,6 +12,7 @@ enum RecipeType {
 	MAKE_PLANKS,
 	MAKE_BRASS,
 	MAKE_MECHANICAL_COMPONENTS,
+	MAKE_GLASS,
 }
 
 var _recipe_map: Dictionary[RecipeType, Recipe] = {}
@@ -86,3 +87,12 @@ func _ready() -> void:
 	recipe.outputs[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 1
 	recipe.work = 8.0
 	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_GLASS] = recipe
+
+	recipe.display_name = "Smelt Glass"
+	recipe.inputs[Stockpile.ItemType.SAND] = 1
+	recipe.outputs[Stockpile.ItemType.GLASS] = 1
+	recipe.work = 4.0
+	recipe.needs_capabilities.append(Capabilities.FURNACE)

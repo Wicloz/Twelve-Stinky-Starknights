@@ -60,6 +60,7 @@ func _ready() -> void:
         Stockpile.ItemType.CLAY,
         Stockpile.ItemType.RAW_BRASS,
         Stockpile.ItemType.RAW_ELECTRUM,
+        Stockpile.ItemType.SAND,
     ]
 
 

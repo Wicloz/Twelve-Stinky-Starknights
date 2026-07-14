@@ -1154,6 +1154,7 @@ position = Vector2(-2731, -1183)
 start_tile = NodePath("../../HexMap/Tile=1,1")
 
 [node name="Viewport" type="Camera2D" parent="." unique_id=1775877281]
+limit_enabled = false
 script = ExtResource("4_aqk2v")
 
 [node name="ClickHandler" type="Node2D" parent="." unique_id=818196459 node_paths=PackedStringArray("deposit_panel", "building_panel", "construction_panel")]

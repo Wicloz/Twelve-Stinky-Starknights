@@ -3,8 +3,12 @@ extends Camera2D
 
 @export var pan_speed: float = 600
 @export var zoom_factor: float = 0.1
-@export var min_zoom: float = 0.2
+@export var min_zoom: float = 0.5
 @export var max_zoom: float = 2
+
+
+func _ready() -> void:
+	zoom = Vector2(min_zoom, min_zoom)
 
 
 func _process(delta: float) -> void:
@@ -12,7 +16,7 @@ func _process(delta: float) -> void:
 		Input.get_axis("ui_left", "ui_right"),
 		Input.get_axis("ui_up", "ui_down"),
 	)
-	position += input * pan_speed * delta
+	position += input * pan_speed * delta / sqrt(zoom.x)
 
 
 func _unhandled_input(event: InputEvent) -> void:

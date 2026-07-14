@@ -171,11 +171,18 @@ func _work(delta: float) -> void:
 	_set_progress(1.0 - _work_remaining / _job.duration)
 
 	if _work_remaining <= 0.0:
+		var finished := _job
+
+		# completing a job can re-post it and hand it straight back to us, so we have to
+		# stand fully idle before we report it done
+		_job = null
+		_path.clear()
 		_state = State.IDLE
 		_progress_bar.hide()
-		JobManager.complete(_job)
-		_job = null
 		_rest()
+
+		JobManager.complete(finished)
+		JobManager.report_idle()
 
 
 func _set_progress(ratio: float) -> void:
@@ -190,3 +197,7 @@ func release() -> void:
 	_state = State.IDLE
 	_progress_bar.hide()
 	_rest()
+
+	# a poaching pass stands us down mid-assignment and already accounts for us; its
+	# re-entrancy guard keeps this from kicking off a nested pass
+	JobManager.report_idle()

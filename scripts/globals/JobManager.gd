@@ -5,9 +5,12 @@ var available: Array[Job] = []
 var active: Array[Job] = []
 var starknights: Array[Starknight] = []
 
+var _assigning: bool = false
+
 
 func register(starknight: Starknight) -> void:
 	starknights.append(starknight)
+	_assign_jobs()
 
 
 func unregister(starknight: Starknight) -> void:
@@ -16,16 +19,26 @@ func unregister(starknight: Starknight) -> void:
 
 func post(job: Job) -> void:
 	available.append(job)
+	_assign_jobs()
 
 
-func _process(_delta: float) -> void:
+func report_idle() -> void:
 	_assign_jobs()
 
 
 func _assign_jobs() -> void:
-	var idle := starknights.filter(func(starknight: Starknight) -> bool: return starknight.is_idle())
-	if idle.is_empty():
+	if _assigning:
 		return
+
+	_assigning = true
+	_run_assignment_pass()
+	_assigning = false
+
+
+func _run_assignment_pass() -> void:
+	var idle := starknights.filter(func(starknight: Starknight) -> bool:
+		return starknight.is_idle()
+	)
 
 	for job in _queue():
 		if idle.is_empty():
@@ -49,10 +62,6 @@ func _assign_jobs() -> void:
 		available.erase(job)
 		active.append(job)
 
-	_poach_jobs(idle)
-
-
-func _poach_jobs(idle: Array[Starknight]) -> void:
 	for holder in starknights:
 		if idle.is_empty():
 			return

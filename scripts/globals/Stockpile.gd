@@ -6,44 +6,54 @@ enum ItemType {
 	NONE,
 
 	IRON_ORE,
-	IRON_INGOT,
+	IRON_INGOTS,
 	LUMBER,
-	PLANK,
+	PLANKS,
 	CLAY,
-	BRICK,
+	BRICKS,
 
 	RAW_BRASS,
-	BRASS_INGOT,
+	BRASS_INGOTS,
 	MECHANICAL_COMPONENTS,
 
 	RAW_ELECTRUM,
 	ELECTRUM_WIRE,
 
 	SAND,
-	GLASS,
 	SILICON_BOULE,
+
+	PETROCHEMICALS,
+	ACRYLIC_PLASTIC,
+
+	HOSHIUMIUM,
+	JELLY_STANDEES,
 }
 
 var ItemTypes: Array[ItemType] = []
 
 const _ITEM_NAMES: Dictionary[ItemType, String] = {
 	ItemType.IRON_ORE: "Iron Ore",
-	ItemType.IRON_INGOT: "Iron Ingot",
+	ItemType.IRON_INGOTS: "Iron Ingots",
 	ItemType.LUMBER: "Lumber",
-	ItemType.PLANK: "Plank",
+	ItemType.PLANKS: "Planks",
 	ItemType.CLAY: "Clay",
-	ItemType.BRICK: "Fired Clay Brick",
+	ItemType.BRICKS: "Fired Clay Bricks",
 
 	ItemType.RAW_BRASS: "Cu-Zn Sulfide Deposit",
-	ItemType.BRASS_INGOT: "Brass Ingot",
+	ItemType.BRASS_INGOTS: "Brass Ingots",
 	ItemType.MECHANICAL_COMPONENTS: "Mechanical Components",
 
 	ItemType.RAW_ELECTRUM: "Compacted Electrum",
 	ItemType.ELECTRUM_WIRE: "Electrum Wire",
 
-	ItemType.SAND: "Sand",
-	ItemType.GLASS: "Glass",
+	ItemType.SAND: "Silica Sand",
 	ItemType.SILICON_BOULE: "Silicon Boule",
+
+	ItemType.PETROCHEMICALS: "Petrochemicals",
+	ItemType.ACRYLIC_PLASTIC: "Acrylic Plastic",
+
+	ItemType.HOSHIUMIUM: "Hoshiumium",
+	ItemType.JELLY_STANDEES: "Jelly Standees",
 }
 
 var _amounts: Dictionary[ItemType, int] = {}

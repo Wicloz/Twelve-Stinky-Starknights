@@ -13,8 +13,8 @@ func _ready() -> void:
     item.display_name = "Build Iron Foundry"
     item.scene = preload("res://objects/buildings/IronFurnace.tscn")
     item.texture = preload("res://assets/buildings/furnace2.png")
-    item.cost[Stockpile.ItemType.BRICK] = 100
-    item.cost[Stockpile.ItemType.IRON_INGOT] = 10
+    item.cost[Stockpile.ItemType.BRICKS] = 100
+    item.cost[Stockpile.ItemType.IRON_INGOTS] = 10
     item.allowed_deposits = [Stockpile.ItemType.NONE]
 
     item = CatalogItem.new()
@@ -23,8 +23,8 @@ func _ready() -> void:
     item.display_name = "Build Brass Foundry"
     item.scene = preload("res://objects/buildings/BrassFurnace.tscn")
     item.texture = preload("res://assets/buildings/furnace2.png")
-    item.cost[Stockpile.ItemType.BRICK] = 100
-    item.cost[Stockpile.ItemType.IRON_INGOT] = 10
+    item.cost[Stockpile.ItemType.BRICKS] = 100
+    item.cost[Stockpile.ItemType.IRON_INGOTS] = 10
     item.allowed_deposits = [Stockpile.ItemType.NONE]
 
     item = CatalogItem.new()
@@ -33,7 +33,7 @@ func _ready() -> void:
     item.display_name = "Build Sawmill"
     item.scene = preload("res://objects/buildings/Sawmill.tscn")
     item.texture = preload("res://assets/buildings/sawmill.png")
-    item.cost[Stockpile.ItemType.BRICK] = 10
+    item.cost[Stockpile.ItemType.BRICKS] = 10
     item.cost[Stockpile.ItemType.LUMBER] = 10
     item.allowed_deposits = [Stockpile.ItemType.NONE]
 
@@ -43,7 +43,7 @@ func _ready() -> void:
     item.display_name = "Build Brickworks"
     item.scene = preload("res://objects/buildings/Brickworks.tscn")
     item.texture = preload("res://assets/buildings/brickworks.png")
-    item.cost[Stockpile.ItemType.BRICK] = 10
+    item.cost[Stockpile.ItemType.BRICKS] = 10
     item.cost[Stockpile.ItemType.LUMBER] = 10
     item.allowed_deposits = [Stockpile.ItemType.NONE]
 
@@ -54,7 +54,7 @@ func _ready() -> void:
     item.scene = preload("res://objects/buildings/LoggingCamp.tscn")
     item.texture = preload("res://assets/buildings/logging_camp.png")
     item.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 10
-    item.cost[Stockpile.ItemType.IRON_INGOT] = 10
+    item.cost[Stockpile.ItemType.IRON_INGOTS] = 10
     item.allowed_deposits = [Stockpile.ItemType.LUMBER]
 
     item = CatalogItem.new()
@@ -64,7 +64,7 @@ func _ready() -> void:
     item.scene = preload("res://objects/buildings/Pitmine.tscn")
     item.texture = preload("res://assets/buildings/pitmine.png")
     item.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 10
-    item.cost[Stockpile.ItemType.BRICK] = 100
+    item.cost[Stockpile.ItemType.PLANKS] = 100
     item.allowed_deposits = [
         Stockpile.ItemType.IRON_ORE,
         Stockpile.ItemType.CLAY,

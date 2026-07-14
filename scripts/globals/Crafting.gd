@@ -12,7 +12,6 @@ enum RecipeType {
 	MAKE_PLANKS,
 	MAKE_BRASS,
 	MAKE_MECHANICAL_COMPONENTS,
-	MAKE_GLASS,
 }
 
 var _recipe_map: Dictionary[RecipeType, Recipe] = {}
@@ -47,7 +46,7 @@ func _ready() -> void:
 
 	recipe.display_name = "Smelt Iron"
 	recipe.inputs[Stockpile.ItemType.IRON_ORE] = 1
-	recipe.outputs[Stockpile.ItemType.IRON_INGOT] = 1
+	recipe.outputs[Stockpile.ItemType.IRON_INGOTS] = 1
 	recipe.work = 4.0
 	recipe.needs_capabilities.append(Capabilities.FURNACE)
 
@@ -56,7 +55,7 @@ func _ready() -> void:
 
 	recipe.display_name = "Bake Bricks"
 	recipe.inputs[Stockpile.ItemType.CLAY] = 1
-	recipe.outputs[Stockpile.ItemType.BRICK] = 1
+	recipe.outputs[Stockpile.ItemType.BRICKS] = 1
 	recipe.work = 4.0
 	recipe.needs_capabilities.append(Capabilities.FURNACE)
 
@@ -65,7 +64,7 @@ func _ready() -> void:
 
 	recipe.display_name = "Saw Planks"
 	recipe.inputs[Stockpile.ItemType.LUMBER] = 1
-	recipe.outputs[Stockpile.ItemType.PLANK] = 8
+	recipe.outputs[Stockpile.ItemType.PLANKS] = 8
 	recipe.work = 8.0
 	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
 
@@ -74,7 +73,7 @@ func _ready() -> void:
 
 	recipe.display_name = "Smelt Brass"
 	recipe.inputs[Stockpile.ItemType.RAW_BRASS] = 1
-	recipe.outputs[Stockpile.ItemType.BRASS_INGOT] = 1
+	recipe.outputs[Stockpile.ItemType.BRASS_INGOTS] = 1
 	recipe.work = 4.0
 	recipe.needs_capabilities.append(Capabilities.FURNACE)
 
@@ -82,17 +81,8 @@ func _ready() -> void:
 	_recipe_map[RecipeType.MAKE_MECHANICAL_COMPONENTS] = recipe
 
 	recipe.display_name = "Craft Mechanical Components"
-	recipe.inputs[Stockpile.ItemType.BRASS_INGOT] = 1
-	recipe.inputs[Stockpile.ItemType.PLANK] = 1
+	recipe.inputs[Stockpile.ItemType.BRASS_INGOTS] = 1
+	recipe.inputs[Stockpile.ItemType.PLANKS] = 1
 	recipe.outputs[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 1
 	recipe.work = 8.0
 	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
-
-	recipe = Recipe.new()
-	_recipe_map[RecipeType.MAKE_GLASS] = recipe
-
-	recipe.display_name = "Smelt Glass"
-	recipe.inputs[Stockpile.ItemType.SAND] = 1
-	recipe.outputs[Stockpile.ItemType.GLASS] = 1
-	recipe.work = 4.0
-	recipe.needs_capabilities.append(Capabilities.FURNACE)

@@ -5,8 +5,8 @@ signal changed
 enum ItemType {
 	NONE,
 
-	IRON_ORE,
-	IRON_INGOTS,
+	RAW_TITANIUM,
+
 	LUMBER,
 	PLANKS,
 	CLAY,
@@ -25,6 +25,11 @@ enum ItemType {
 	PETROCHEMICALS,
 	ACRYLIC_PLASTIC,
 
+	RAW_CUPRONICKEL,
+	CUPRONICKEL_INGOTS,
+	FLUID_PIPES,
+	PRESSURE_VESSELS,
+
 	HOSHIUMIUM,
 	JELLY_STANDEES,
 }
@@ -32,8 +37,8 @@ enum ItemType {
 var ItemTypes: Array[ItemType] = []
 
 const _ITEM_NAMES: Dictionary[ItemType, String] = {
-	ItemType.IRON_ORE: "Iron Ore",
-	ItemType.IRON_INGOTS: "Iron Ingots",
+	ItemType.RAW_TITANIUM: "Compacted Titanium",
+
 	ItemType.LUMBER: "Lumber",
 	ItemType.PLANKS: "Planks",
 	ItemType.CLAY: "Clay",
@@ -51,6 +56,11 @@ const _ITEM_NAMES: Dictionary[ItemType, String] = {
 
 	ItemType.PETROCHEMICALS: "Petrochemicals",
 	ItemType.ACRYLIC_PLASTIC: "Acrylic Plastic",
+
+	ItemType.RAW_CUPRONICKEL: "Cu-Ni Sulfide Deposit",
+	ItemType.CUPRONICKEL_INGOTS: "Cupronickel Ingots",
+	ItemType.FLUID_PIPES: "Fluid Pipes",
+	ItemType.PRESSURE_VESSELS: "Pressure Vessels",
 
 	ItemType.HOSHIUMIUM: "Hoshiumium",
 	ItemType.JELLY_STANDEES: "Jelly Standees",

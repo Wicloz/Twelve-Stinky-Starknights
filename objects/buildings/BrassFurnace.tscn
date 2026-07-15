@@ -5,7 +5,7 @@
 
 [node name="BrassFurnace" type="Node2D" unique_id=1107348902]
 script = ExtResource("1_cbiti")
-recipe = 3
+recipe = 2
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=930500119]
 texture = ExtResource("2_20j21")

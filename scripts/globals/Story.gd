@@ -29,12 +29,11 @@ func _define_cutscenes() -> void:
     _locked_cutscenes.append(cutscene)
 
     cutscene.still = preload("res://assets/cutscenes/aiko.jpg")
-    cutscene.text = say(AIKO, "Aiko", "Click on a deposit tile and enable harvesting to have a Starknight work it. Use the [u]workshop[/u] to manually craft small amounts of items, you will need 10 clay bricks and 10 iron ingots to get started. Construct buildings from the picker at the bottom to speed up extraction and production. You have some time to build up your own infrastructure before the debut.")
+    cutscene.text = say(AIKO, "Aiko", "Click on a deposit tile and enable harvesting to have a Starknight work it. Use the [u]workshop[/u] to manually craft small amounts of items, you will need 20 clay bricks to get started. Construct buildings from the picker at the bottom to speed up extraction and production. You have some time to build up your own infrastructure before the debut.")
 
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)
 
-    cutscene.conditions[Stockpile.ItemType.IRON_INGOTS] = 1000
     cutscene.conditions[Stockpile.ItemType.PLANKS] = 1000
     cutscene.conditions[Stockpile.ItemType.BRICKS] = 1000
     cutscene.still = preload("res://assets/cutscenes/kevin.png")
@@ -43,7 +42,6 @@ func _define_cutscenes() -> void:
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)
 
-    cutscene.conditions[Stockpile.ItemType.IRON_INGOTS] = 1000
     cutscene.conditions[Stockpile.ItemType.PLANKS] = 1000
     cutscene.conditions[Stockpile.ItemType.BRICKS] = 1000
     cutscene.video = preload("res://assets/cutscenes/jungus.ogv")

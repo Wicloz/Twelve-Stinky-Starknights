@@ -10,21 +10,21 @@ func _ready() -> void:
     item = CatalogItem.new()
     _catalog.append(item)
 
-    item.display_name = "Build Iron Foundry"
-    item.scene = preload("res://objects/buildings/IronFurnace.tscn")
+    item.display_name = "Build Brass Foundry"
+    item.scene = preload("res://objects/buildings/BrassFurnace.tscn")
     item.texture = preload("res://assets/buildings/furnace2.png")
     item.cost[Stockpile.ItemType.BRICKS] = 100
-    item.cost[Stockpile.ItemType.IRON_INGOTS] = 10
+    item.cost[Stockpile.ItemType.RAW_TITANIUM] = 50
     item.allowed_deposits = [Stockpile.ItemType.NONE]
 
     item = CatalogItem.new()
     _catalog.append(item)
 
-    item.display_name = "Build Brass Foundry"
-    item.scene = preload("res://objects/buildings/BrassFurnace.tscn")
+    item.display_name = "Build Cupronickel Foundry"
+    item.scene = preload("res://objects/buildings/CupronickelFurnace.tscn")
     item.texture = preload("res://assets/buildings/furnace2.png")
     item.cost[Stockpile.ItemType.BRICKS] = 100
-    item.cost[Stockpile.ItemType.IRON_INGOTS] = 10
+    item.cost[Stockpile.ItemType.RAW_TITANIUM] = 50
     item.allowed_deposits = [Stockpile.ItemType.NONE]
 
     item = CatalogItem.new()
@@ -54,7 +54,7 @@ func _ready() -> void:
     item.scene = preload("res://objects/buildings/LoggingCamp.tscn")
     item.texture = preload("res://assets/buildings/logging_camp.png")
     item.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 10
-    item.cost[Stockpile.ItemType.IRON_INGOTS] = 10
+    item.cost[Stockpile.ItemType.RAW_TITANIUM] = 10
     item.allowed_deposits = [Stockpile.ItemType.LUMBER]
 
     item = CatalogItem.new()
@@ -66,11 +66,12 @@ func _ready() -> void:
     item.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 10
     item.cost[Stockpile.ItemType.PLANKS] = 100
     item.allowed_deposits = [
-        Stockpile.ItemType.IRON_ORE,
+        Stockpile.ItemType.RAW_TITANIUM,
         Stockpile.ItemType.CLAY,
         Stockpile.ItemType.RAW_BRASS,
         Stockpile.ItemType.RAW_ELECTRUM,
         Stockpile.ItemType.SAND,
+        Stockpile.ItemType.RAW_CUPRONICKEL,
     ]
 
 

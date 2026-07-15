@@ -7,11 +7,14 @@ enum Capabilities {
 }
 
 enum RecipeType {
-	MAKE_IRON,
-	MAKE_BRICKS,
 	MAKE_PLANKS,
+	MAKE_BRICKS,
+
 	MAKE_BRASS,
 	MAKE_MECHANICAL_COMPONENTS,
+
+	MAKE_CUPRONICKEL,
+	MAKE_FLUID_HARDWARE,
 }
 
 var _recipe_map: Dictionary[RecipeType, Recipe] = {}
@@ -44,15 +47,6 @@ func recipes_with_capabilities_satisfied(capabilities: Array[Capabilities]) -> A
 
 func _ready() -> void:
 	var recipe: Recipe
-
-	recipe = Recipe.new()
-	_recipe_map[RecipeType.MAKE_IRON] = recipe
-
-	recipe.display_name = "Smelt Iron"
-	recipe.inputs[Stockpile.ItemType.IRON_ORE] = 1
-	recipe.outputs[Stockpile.ItemType.IRON_INGOTS] = 1
-	recipe.work = 4.0
-	recipe.needs_capabilities.append(Capabilities.FURNACE)
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_BRICKS] = recipe
@@ -90,3 +84,21 @@ func _ready() -> void:
 	recipe.outputs[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 1
 	recipe.work = 8.0
 	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_CUPRONICKEL] = recipe
+
+	recipe.display_name = "Smelt Cupronickel"
+	recipe.inputs[Stockpile.ItemType.RAW_CUPRONICKEL] = 1
+	recipe.outputs[Stockpile.ItemType.CUPRONICKEL_INGOTS] = 1
+	recipe.work = 4.0
+	recipe.needs_capabilities.append(Capabilities.FURNACE)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_FLUID_HARDWARE] = recipe
+
+	recipe.display_name = "Manufacture Fluid Hardware"
+	recipe.inputs[Stockpile.ItemType.CUPRONICKEL_INGOTS] = 2
+	recipe.outputs[Stockpile.ItemType.FLUID_PIPES] = 1
+	recipe.outputs[Stockpile.ItemType.PRESSURE_VESSELS] = 1
+	recipe.work = 16.0

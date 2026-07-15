@@ -5,11 +5,12 @@ var scene: PackedScene
 var cost: Dictionary[Stockpile.ItemType, int] = {}
 var allowed_deposits: Array[Stockpile.ItemType] = []
 
+const ICON_REGION := Rect2(0, 0, 120, 170)
+
 var _scene_probed := false
 var _items_produced: Array[Stockpile.ItemType] = []
+var _items_consumed: Array[Stockpile.ItemType] = []
 var _display_name: String
-
-const ICON_REGION := Rect2(0, 0, 120, 170)
 var _texture: Texture2D
 var _icon: AtlasTexture
 
@@ -21,7 +22,9 @@ func _try_scene_probe() -> void:
     var building = scene.instantiate() as Building
 
     if building is FactoryBuilding:
-        _items_produced = Crafting.get_recipe(building.recipe).outputs.keys()
+        var recipe = Crafting.get_recipe(building.recipe)
+        _items_produced.assign(recipe.outputs.keys())
+        _items_consumed.assign(recipe.inputs.keys())
 
     _texture = building.get_node("Sprite2D").texture
 
@@ -88,3 +91,8 @@ func get_display_name() -> String:
 func get_items_produced() -> Array[Stockpile.ItemType]:
     _try_scene_probe()
     return _items_produced
+
+
+func get_items_consumed() -> Array[Stockpile.ItemType]:
+    _try_scene_probe()
+    return _items_consumed

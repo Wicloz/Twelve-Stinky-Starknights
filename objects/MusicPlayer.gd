@@ -2,9 +2,9 @@ class_name MusicPlayer
 extends VBoxContainer
 
 
-const MUSIC_BUS := "Music"
-# Slider bottom = silence; above it the value maps straight to bus decibels.
-const MIN_DB := -40.0
+const MUSIC_BUS := &"Music"
+const MIN_DB := -24.0
+const MAX_DB := 6.0
 
 @export var play_icon: Texture2D
 @export var pause_icon: Texture2D
@@ -36,8 +36,8 @@ var _bus: int = -1
 func _ready() -> void:
 	_define_playlists()
 
-	for name in _names:
-		_picker.add_item(name)
+	for item in _names:
+		_picker.add_item(item)
 
 	# Assign every button icon here so none depend on being set in the scene.
 	_prev.texture_normal = prev_icon
@@ -58,7 +58,7 @@ func _ready() -> void:
 	# logic below, regardless of what the scene had set.
 	_bus = AudioServer.get_bus_index(MUSIC_BUS)
 	_volume.min_value = MIN_DB
-	_volume.max_value = 0.0
+	_volume.max_value = MAX_DB
 	_volume.step = 1.0
 	_volume.value = 0.0
 	_volume.value_changed.connect(_on_volume_changed)
@@ -181,8 +181,6 @@ func _on_mute_toggled(on: bool) -> void:
 # Single owner of the bus state, so the mute button and the slider's bottom-of-
 # range don't fight: silent if either asks for it, otherwise the slider's dB.
 func _apply_volume() -> void:
-	if _bus < 0:
-		return
 	if _muted or _volume.value <= MIN_DB:
 		AudioServer.set_bus_mute(_bus, true)
 	else:

@@ -38,7 +38,7 @@ func _on_cutscene_started(cutscene: Cutscene) -> void:
 		_fit_media(video_aspect, video.get_video_texture().get_size())
 
 	letterbox.color = Color(1, 1, 1, 1)
-	_reveal_text(cutscene.text, cutscene.duration)
+	_reveal_text(cutscene.text, cutscene.typing_speed, cutscene.min_duration)
 
 
 func _fit_media(aspect: AspectRatioContainer, px: Vector2) -> void:
@@ -46,20 +46,32 @@ func _fit_media(aspect: AspectRatioContainer, px: Vector2) -> void:
 		aspect.ratio = px.x / px.y
 
 
-func _reveal_text(bbcode: String, duration: float) -> void:
+func _reveal_text(bbcode: String, typing_speed: float, min_duration: float) -> void:
 	var from: int = narration.get_total_character_count()
 	narration.append_text(bbcode + "\n\n")
 	var to: int = narration.get_total_character_count() - 2
 
-	if duration <= 0.0 or to <= from:
+	var new_chars := to - from
+	var type_time := 0.0
+	if typing_speed > 0.0 and new_chars > 0:
+		type_time = new_chars / typing_speed
+
+	# End no sooner than min_duration, even when the text types out faster.
+	var total_time: float = max(type_time, min_duration)
+	var typing := new_chars > 0 and type_time > 0.0
+
+	narration.visible_characters = from if typing else -1
+
+	if total_time <= 0.0:
 		narration.visible_characters = -1
 		_on_text_revealed()
 		return
 
-	narration.visible_characters = from
-
 	_reveal = create_tween()
-	_reveal.tween_property(narration, "visible_characters", to, duration)
+	if typing:
+		_reveal.tween_property(narration, "visible_characters", to, type_time)
+	if total_time > type_time:
+		_reveal.tween_interval(total_time - type_time)
 	_reveal.finished.connect(func() -> void:
 		narration.visible_characters = -1
 		_on_text_revealed()

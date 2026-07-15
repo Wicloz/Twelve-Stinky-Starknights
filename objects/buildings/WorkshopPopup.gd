@@ -135,9 +135,6 @@ func _populate_recipes() -> void:
 		_recipe_list.deselect_all()
 		_refresh_details()
 
-	if _workshop.order != null and not _recipes.has(_workshop.order):
-		_workshop.clear_order()
-
 
 func _update_details_min_size() -> void:
 	var name_font: Font = _recipe_name.get_theme_font("font")

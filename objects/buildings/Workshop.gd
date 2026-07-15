@@ -108,3 +108,19 @@ func _order_active() -> bool:
 
 func _ready() -> void:
 	Stockpile.changed.connect(_try_post_job)
+	Stockpile.challenge_updated.connect(_on_challenge_updated)
+
+
+func _on_challenge_updated() -> void:
+	if order == null:
+		return
+
+	for item in order.outputs:
+		if Stockpile.is_unavailable_story_item(item):
+			clear_order()
+			return
+
+	for item in order.inputs:
+		if Stockpile.is_unavailable_story_item(item):
+			clear_order()
+			return

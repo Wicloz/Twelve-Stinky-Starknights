@@ -130,9 +130,12 @@ func _fill_tier(idle: Array[Starknight], jobs: Array[Job]) -> void:
 
 
 func complete(job: Job) -> void:
+	# Retire the job before running its handler: a handler that adds to the
+	# Stockpile can re-enter cancel_jobs_on_tile (e.g. a finished craft completes a
+	# challenge), and a still-active job would then fire on_cancel and double-refund.
+	active.erase(job)
 	if job.on_complete.is_valid():
 		job.on_complete.call()
-	active.erase(job)
 
 
 func cancel_jobs_on_tile(tile: HexTile) -> void:

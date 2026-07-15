@@ -24,10 +24,16 @@ func get_display_name() -> String:
 	return "Workshop"
 
 
+func has_popup() -> bool:
+	return not _under_construction
+
+
 func get_popup() -> PackedScene:
-	if _under_construction:
-		return null
 	return POPUP
+
+
+func can_demolish() -> bool:
+	return false
 
 
 func apply_order(recipe: Recipe, repeat: Repeat, target: int) -> void:

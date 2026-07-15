@@ -25,10 +25,11 @@ func show_for(building: Building) -> void:
 	_building = building
 
 	_title.text = building.get_display_name()
-	_popup_button.visible = building.get_popup() != null
+	_popup_button.visible = building.has_popup()
 
 	_building.constructed.connect(_set_destruct_icon)
 	_set_destruct_icon()
+	_destruct_button.visible = building.can_demolish()
 
 	show()
 	_open_popup()

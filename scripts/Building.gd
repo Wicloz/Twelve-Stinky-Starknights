@@ -16,8 +16,16 @@ func get_display_name() -> String:
 	return "???"
 
 
+func has_popup() -> bool:
+	return false
+
+
 func get_popup() -> PackedScene:
 	return null
+
+
+func can_demolish() -> bool:
+	return true
 
 
 func start_construction(cost: Dictionary[Stockpile.ItemType, int]) -> void:

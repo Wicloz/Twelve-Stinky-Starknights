@@ -11,10 +11,6 @@ Building System:
 - cancel construction
 - upgrade/research mechanic
 
-Story System:
-- music player
-- challenges/goals/requests
-
 Needs Rework:
 - UI
 - Job management

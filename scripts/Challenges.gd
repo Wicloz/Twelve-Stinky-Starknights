@@ -29,7 +29,7 @@ func _refresh() -> void:
 
 
 func _make_label_text(item: Stockpile.ItemType) -> String:
-	var text := "%s: %d" % [Stockpile.get_display_name(item), Stockpile.get_amount(item)]
+	var text := "%s: %d" % [Stockpile.get_display_name(item), Stockpile.get_cumulative(item)]
 
 	var limit = Stockpile.get_challenge_limit(item)
 	if limit != false:

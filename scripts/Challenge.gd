@@ -11,3 +11,7 @@ func _init(p_limit = false) -> void:
 
 func is_limit_reached(produced: int) -> bool:
 	return _limit != false and produced >= _limit
+
+
+func get_limit() -> int:
+	return _limit

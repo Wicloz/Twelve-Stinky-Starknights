@@ -178,4 +178,4 @@ func start_challenge(item: ItemType) -> void:
 func get_challenge_limit(item: ItemType):
 	if item not in _challenges:
 		return false
-	return _challenges[item].limit
+	return _challenges[item].get_limit()

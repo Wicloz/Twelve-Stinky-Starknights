@@ -16,6 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://c5fcwv0b5iau8" path="res://assets/hex_terrain/Mars/mars_06.png" id="11_cbp6q"]
 [ext_resource type="Script" uid="uid://t2dj705eag71" path="res://scripts/BuildingPanel.gd" id="11_ic0uy"]
 [ext_resource type="Script" uid="uid://cxog2xaur4sam" path="res://scripts/ConstructionPanel.gd" id="12_k3n1d"]
+[ext_resource type="Script" uid="uid://bkxvitvpwekgn" path="res://scripts/StoryUI.gd" id="14_ikiii"]
 [ext_resource type="Script" uid="uid://cbgru8xb55ygv" path="res://scripts/CutsceneViewer.gd" id="14_udxuc"]
 
 [sub_resource type="GDScript" id="GDScript_036b0"]
@@ -1404,6 +1405,7 @@ anchors_preset = -1
 anchor_left = 0.75
 anchor_right = 1.0
 anchor_bottom = 1.0
+script = ExtResource("14_ikiii")
 
 [node name="VBox" type="VBoxContainer" parent="UI/StoryUI" unique_id=97677321]
 layout_mode = 2
@@ -1423,11 +1425,36 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
+[node name="VideoAspect" type="AspectRatioContainer" parent="UI/StoryUI/VBox/CutsceneViewer" unique_id=664412102]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VideoDisplay" type="VideoStreamPlayer" parent="UI/StoryUI/VBox/CutsceneViewer/VideoAspect" unique_id=101716004]
+layout_mode = 2
+expand = true
+loop = true
+
+[node name="ImageAspect" type="AspectRatioContainer" parent="UI/StoryUI/VBox/CutsceneViewer" unique_id=824491419]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ImageDisplay" type="TextureRect" parent="UI/StoryUI/VBox/CutsceneViewer/ImageAspect" unique_id=1587102628]
+layout_mode = 2
+expand_mode = 1
+
 [node name="Narration" type="RichTextLabel" parent="UI/StoryUI/VBox" unique_id=1755871737]
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
-scroll_following = true
+scroll_following_visible_characters = true
 
 [node name="DepositPanel" type="PanelContainer" parent="UI" unique_id=1222018713]
 anchors_preset = -1

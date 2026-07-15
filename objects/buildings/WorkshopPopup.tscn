@@ -20,6 +20,10 @@ offset_bottom = 40.0
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1558470522]
 layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=1524465752]
 layout_mode = 2
@@ -73,6 +77,7 @@ popup/item_2/id = 2
 
 [node name="Count" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/OrderConfig" unique_id=385096690]
 layout_mode = 2
+update_on_text_changed = true
 
 [node name="Confirm" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/OrderConfig" unique_id=152213972]
 layout_mode = 2

@@ -13,6 +13,7 @@ var _selected_count: int
 @onready var _order_repeat := $PanelContainer/MarginContainer/VBoxContainer/OrderConfig/RepeatMode
 @onready var _order_count := $PanelContainer/MarginContainer/VBoxContainer/OrderConfig/Count
 
+@onready var _details := $PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Details
 @onready var _recipe_name := $PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Details/RecipeName
 @onready var _recipe_io := $PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Details/RecipeIO
 @onready var _recipe_work := $PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Details/RecipeWork
@@ -45,8 +46,13 @@ func _ready() -> void:
 	_clear_button.pressed.connect(_on_clear_pressed)
 	_header.gui_input.connect(_on_header_gui_input)
 
+	_update_details_min_size()
+
 	await get_tree().process_frame
-	_panel.global_position = (get_viewport_rect().size - _panel.size) / 2
+
+	var usable_screen_space := get_viewport_rect().size
+	usable_screen_space.x *= 0.75
+	_panel.global_position = (usable_screen_space - _panel.size) / 2
 
 
 func bind(building: Building) -> void:
@@ -127,3 +133,26 @@ func _populate_recipes() -> void:
 		_selected_recipe = null
 		_recipe_list.deselect_all()
 		_refresh_details()
+
+
+func _update_details_min_size() -> void:
+	var name_font: Font = _recipe_name.get_theme_font("font")
+	var name_size: int = _recipe_name.get_theme_font_size("font_size")
+	var io_font: Font = _recipe_io.get_theme_font("font")
+	var io_size: int = _recipe_io.get_theme_font_size("font_size")
+	var work_font: Font = _recipe_work.get_theme_font("font")
+	var work_size: int = _recipe_work.get_theme_font_size("font_size")
+
+	# Widest content any recipe (or the placeholder) could ever put in the labels.
+	var width: float = name_font.get_string_size("No Order", HORIZONTAL_ALIGNMENT_LEFT, -1, name_size).x
+	for recipe in Crafting.all_recipes():
+		var io_text := "%s  →  %s" % [_fmt_io(recipe.inputs), _fmt_io(recipe.outputs)]
+		width = max(width, name_font.get_string_size(recipe.display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, name_size).x)
+		width = max(width, io_font.get_string_size(io_text, HORIZONTAL_ALIGNMENT_LEFT, -1, io_size).x)
+		width = max(width, work_font.get_string_size("%ss" % recipe.work, HORIZONTAL_ALIGNMENT_LEFT, -1, work_size).x)
+
+	# Always three single-line labels, so the tallest state is fixed.
+	var height: float = name_font.get_height(name_size) + io_font.get_height(io_size) + work_font.get_height(work_size)
+	height += _details.get_theme_constant("separation") * 2
+
+	_details.custom_minimum_size = Vector2(width, height)

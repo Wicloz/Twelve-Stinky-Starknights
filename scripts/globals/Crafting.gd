@@ -21,6 +21,10 @@ func get_recipe(recipe_type: RecipeType) -> Recipe:
 	return _recipe_map[recipe_type]
 
 
+func all_recipes() -> Array[Recipe]:
+	return _recipe_map.values()
+
+
 func recipes_with_capabilities_satisfied(capabilities: Array[Capabilities]) -> Array[Recipe]:
 	var result: Array[Recipe] = []
 

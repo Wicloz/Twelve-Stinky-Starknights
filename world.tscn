@@ -22,7 +22,9 @@
 [ext_resource type="Texture2D" uid="uid://cjmg3bqnm6su6" path="res://assets/icons/play.svg" id="17_wjb0r"]
 [ext_resource type="Texture2D" uid="uid://caailu6wvhje" path="res://assets/icons/pause.svg" id="18_mc2jv"]
 [ext_resource type="Texture2D" uid="uid://cn352kml2i6dp" path="res://assets/icons/volume.svg" id="19_bo7i5"]
+[ext_resource type="Texture2D" uid="uid://dfq7v3d5d1uef" path="res://assets/icons/prev.svg" id="19_mc2jv"]
 [ext_resource type="Texture2D" uid="uid://bwx1anaixor23" path="res://assets/icons/mute.svg" id="20_4h6ng"]
+[ext_resource type="Texture2D" uid="uid://byc5j4qi1gukf" path="res://assets/icons/next.svg" id="20_bo7i5"]
 
 [sub_resource type="GDScript" id="GDScript_036b0"]
 resource_name = "_HexMapBuilder"
@@ -1467,6 +1469,8 @@ layout_mode = 2
 script = ExtResource("16_il2jm")
 play_icon = ExtResource("17_wjb0r")
 pause_icon = ExtResource("18_mc2jv")
+prev_icon = ExtResource("19_mc2jv")
+next_icon = ExtResource("20_bo7i5")
 volume_icon = ExtResource("19_bo7i5")
 mute_icon = ExtResource("20_4h6ng")
 

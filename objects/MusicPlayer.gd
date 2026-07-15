@@ -8,6 +8,8 @@ const MIN_DB := -40.0
 
 @export var play_icon: Texture2D
 @export var pause_icon: Texture2D
+@export var prev_icon: Texture2D
+@export var next_icon: Texture2D
 @export var volume_icon: Texture2D
 @export var mute_icon: Texture2D
 
@@ -36,6 +38,11 @@ func _ready() -> void:
 
 	for name in _names:
 		_picker.add_item(name)
+
+	# Assign every button icon here so none depend on being set in the scene.
+	_prev.texture_normal = prev_icon
+	_next.texture_normal = next_icon
+	_play_pause.texture_normal = play_icon
 
 	_picker.item_selected.connect(_on_playlist_selected)
 	_prev.pressed.connect(func() -> void: _step(-1))
@@ -70,19 +77,17 @@ func _process(_delta: float) -> void:
 		_seek.set_value_no_signal(_player.get_playback_position())
 
 
-# Filled imperatively, like Story/_define_cutscenes. Streams should have looping
-# DISABLED, or `finished` never fires and the playlist won't auto-advance.
 func _define_playlists() -> void:
-	pass
-	# _add("Exploration", preload("res://assets/music/explore_01.ogg"))
-	# _add("Exploration", preload("res://assets/music/explore_02.ogg"))
-	# _add("Debut",       preload("res://assets/music/debut_01.ogg"))
+	_add("Computer Generated", preload("res://assets/music/suno/Eating for Twelve.ogg"))
+	_add("Computer Generated", preload("res://assets/music/suno/Stinky Starknights.ogg"))
 
 
 func _add(playlist: String, stream: AudioStream) -> void:
 	if not _playlists.has(playlist):
 		_playlists[playlist] = []
 		_names.append(playlist)
+
+	stream.loop = false
 	_playlists[playlist].append(stream)
 
 

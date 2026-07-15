@@ -1,14 +1,38 @@
 class_name CatalogItem
 
 
-var display_name: String
 var scene: PackedScene
-var texture: Texture2D
 var cost: Dictionary[Stockpile.ItemType, int] = {}
 var allowed_deposits: Array[Stockpile.ItemType] = []
 
+var _scene_probed := false
+var _items_produced: Array[Stockpile.ItemType] = []
+var _display_name: String
+
 const ICON_REGION := Rect2(0, 0, 120, 170)
+var _texture: Texture2D
 var _icon: AtlasTexture
+
+
+func _try_scene_probe() -> void:
+    if _scene_probed or scene == null:
+        return
+
+    var building = scene.instantiate() as Building
+
+    if building is FactoryBuilding:
+        _items_produced = Crafting.get_recipe(building.recipe).outputs.keys()
+
+    _texture = building.get_node("Sprite2D").texture
+
+    _icon = AtlasTexture.new()
+    _icon.atlas = _texture
+    _icon.region = ICON_REGION
+
+    _display_name = building.get_display_name()
+    _scene_probed = true
+
+    building.queue_free()
 
 
 func can_place_on(tile: HexTile) -> bool:
@@ -47,8 +71,20 @@ func try_place_on(tile: HexTile) -> String:
 
 
 func get_icon() -> AtlasTexture:
-    if _icon == null:
-        _icon = AtlasTexture.new()
-        _icon.atlas = texture
-        _icon.region = ICON_REGION
+    _try_scene_probe()
     return _icon
+
+
+func get_texture() -> Texture2D:
+    _try_scene_probe()
+    return _texture
+
+
+func get_display_name() -> String:
+    _try_scene_probe()
+    return _display_name
+
+
+func get_items_produced() -> Array[Stockpile.ItemType]:
+    _try_scene_probe()
+    return _items_produced

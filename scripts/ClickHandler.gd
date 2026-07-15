@@ -22,7 +22,7 @@ func _ready() -> void:
 func _begin_placement(item: CatalogItem) -> void:
 	_cursor_item = item
 	_mode = Mode.PLACE
-	_cursor_ghost.texture = item.texture
+	_cursor_ghost.texture = item.get_texture()
 	_cursor_label.text = ""
 
 

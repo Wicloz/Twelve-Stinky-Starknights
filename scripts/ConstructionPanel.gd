@@ -47,7 +47,7 @@ func _make_button(item: CatalogItem) -> Button:
 	button.custom_minimum_size = CELL
 	button.custom_maximum_size = CELL
 
-	button.tooltip_text = item.display_name + "\n"
+	button.tooltip_text = item.get_display_name() + "\n"
 	for resource in item.cost:
 		button.tooltip_text += "\n%s: %d" % [Stockpile.get_display_name(resource), item.cost[resource]]
 

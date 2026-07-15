@@ -5,18 +5,21 @@ var _labels: Dictionary[Stockpile.ItemType, Label] = {}
 
 
 func _ready() -> void:
-	for item in Stockpile.ItemTypes:
-		var label := Label.new()
-		add_child(label)
-		_labels[item] = label
-		label.hide()
-
 	Stockpile.changed.connect(_refresh)
 	_refresh()
 
 
 func _refresh() -> void:
 	for item in Stockpile.ItemTypes:
-		if Stockpile.is_seen(item) and not Stockpile.is_story_item(item):
-			_labels[item].text = "%s: %d" % [Stockpile.get_display_name(item), Stockpile.get_amount(item)]
-			_labels[item].show()
+		if item in _labels:
+			_labels[item].text = _make_label_text(item)
+
+		elif not Stockpile.is_story_item(item) and Stockpile.is_seen(item):
+			var label := Label.new()
+			label.text = _make_label_text(item)
+			add_child(label)
+			_labels[item] = label
+
+
+func _make_label_text(item: Stockpile.ItemType) -> String:
+	return "%s: %d" % [Stockpile.get_display_name(item), Stockpile.get_amount(item)]

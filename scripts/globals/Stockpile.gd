@@ -166,6 +166,16 @@ func is_unavailable_story_item(item: ItemType) -> bool:
 	return item in _challenges and _challenges[item].state != ChallengeState.ACTIVE
 
 
+func is_available_story_item(item: ItemType) -> bool:
+	return item in _challenges and _challenges[item].state == ChallengeState.ACTIVE
+
+
 func start_challenge(item: ItemType) -> void:
 	_challenges[item].state = ChallengeState.ACTIVE
 	challenge_updated.emit()
+
+
+func get_challenge_limit(item: ItemType):
+	if item not in _challenges:
+		return false
+	return _challenges[item].limit

@@ -23,14 +23,14 @@ func _define_cutscenes() -> void:
     _locked_cutscenes.append(cutscene)
 
     cutscene.still = preload("res://assets/cutscenes/kevin.png")
-    cutscene.text = say(SAKANA, "Sakana", "We are debuting a new VTuber called Jeffrey Boshibumi or something. Whatever man. We sent our twelve stinkiest \"workers\" (thats you) to this \"unclaimed\" planet in the Gliese 67 system. [i]ruffles papers[/i] \"Your job is to support Jelly? Hoshiumi? during her VTuber activities using the local resources. You have been provided with an adaptive blueprint package and a workshop for optimal in-situ resource utilization ...\" What is this speech man I'm not doing this. Anyway outsourcing her support to you guys is a great way to save some money. Just make sure to build that [u]warehouse[/u] as soon as possible.")
+    cutscene.text = say(SAKANA, "Sakana", "We are debuting a new VTuber called Jeffrey Moshimoshi or something. Whatever man. We sent our twelve stinkiest \"workers\" (thats you) to this \"unclaimed\" planet in the Gliese 67 system. [i]ruffles papers[/i] \"Your job is to support Jelly? Hoshiumi? during her VTuber activities using the local resources. You have been provided with an adaptive blueprint package and a workshop for optimal in-situ resource utilization ...\" What is this speech man I'm not doing this. Anyway outsourcing her support to you guys is a great way to save some money. Just make sure to build that [u]warehouse[/u] as soon as possible.")
     cutscene.duration = 20.0
 
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)
 
     cutscene.still = preload("res://assets/cutscenes/aiko.jpg")
-    cutscene.text = say(AIKO, "Aiko", "Click on a deposit tile and enable harvesting to have a Starknight work it. Use the [u]workshop[/u] to manually craft small amounts of items. You will need 10 clay bricks and 10 iron ingots to get stated. Construct buildings from the picker at the bottom to speed up extraction and production. You have some time to build up your own infrastructure before the debut.")
+    cutscene.text = say(AIKO, "Aiko", "Click on a deposit tile and enable harvesting to have a Starknight work it. Use the [u]workshop[/u] to manually craft small amounts of items, you will need 10 clay bricks and 10 iron ingots to get started. Construct buildings from the picker at the bottom to speed up extraction and production. You have some time to build up your own infrastructure before the debut.")
     cutscene.duration = 10.0
 
     cutscene = Cutscene.new()

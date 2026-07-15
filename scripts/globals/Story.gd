@@ -5,6 +5,9 @@ signal cutscene_started(cutscene: Cutscene)
 var _locked_cutscenes: Array[Cutscene] = []
 var _cutscene_queue: Array[Cutscene] = []
 var _current_cutscene: Cutscene = null
+var _cooldown: bool = false
+
+const DELAY_BETWEEN_CUTSCENES := 3.0
 
 
 func _ready() -> void:
@@ -21,14 +24,34 @@ func _define_cutscenes() -> void:
 
     cutscene.still = preload("res://assets/cutscenes/kevin.png")
     cutscene.text = say(SAKANA, "Sakana", "We are debuting a new VTuber called Jeffrey Boshibumi or something. Whatever man. We sent our twelve stinkiest \"workers\" (thats you) to this \"unclaimed\" planet in the Gliese 67 system. [i]ruffles papers[/i] \"Your job is to support Jelly? Hoshiumi? during her VTuber activities using the local resources. You have been provided with an adaptive blueprint package and a workshop for optimal in-situ resource utilization ...\" What is this speech man I'm not doing this. Anyway outsourcing her support to you guys is a great way to save some money. Just make sure to build that [u]warehouse[/u] as soon as possible.")
-    cutscene.duration = 15.0
+    cutscene.duration = 20.0
 
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)
 
     cutscene.still = preload("res://assets/cutscenes/aiko.jpg")
     cutscene.text = say(AIKO, "Aiko", "Click on a deposit tile and enable harvesting to have a Starknight work it. Use the [u]workshop[/u] to manually craft small amounts of items. You will need 10 clay bricks and 10 iron ingots to get stated. Construct buildings from the picker at the bottom to speed up extraction and production. You have some time to build up your own infrastructure before the debut.")
-    cutscene.duration = 15.0
+    cutscene.duration = 10.0
+
+    cutscene = Cutscene.new()
+    _locked_cutscenes.append(cutscene)
+
+    cutscene.conditions[Stockpile.ItemType.IRON_INGOTS] = 1000
+    cutscene.conditions[Stockpile.ItemType.PLANKS] = 1000
+    cutscene.conditions[Stockpile.ItemType.BRICKS] = 1000
+    cutscene.still = preload("res://assets/cutscenes/kevin.png")
+    cutscene.text = say(SAKANA, "Sakana", "Wow it looks like you guys have been busy there. Anyway its time for Jerome's debut now.")
+    cutscene.duration = 5.0
+
+    cutscene = Cutscene.new()
+    _locked_cutscenes.append(cutscene)
+
+    cutscene.conditions[Stockpile.ItemType.IRON_INGOTS] = 1000
+    cutscene.conditions[Stockpile.ItemType.PLANKS] = 1000
+    cutscene.conditions[Stockpile.ItemType.BRICKS] = 1000
+    cutscene.video = preload("res://assets/cutscenes/jungus.ogv")
+    cutscene.text = say(JELLY, "Jelly", "[wave amp=40 freq=4]Awawawawawawawawa![/wave]")
+    cutscene.duration = 10.0
 
 
 const SAKANA := "#8682c6"
@@ -58,7 +81,7 @@ func play_next() -> void:
 
 
 func _try_play_next() -> void:
-    if _current_cutscene or _cutscene_queue.is_empty():
+    if _current_cutscene or _cooldown or _cutscene_queue.is_empty():
         return
 
     _current_cutscene = _cutscene_queue.pop_front()
@@ -73,4 +96,9 @@ func finish_current() -> void:
         _current_cutscene.on_complete.call()
 
     _current_cutscene = null
+
+    _cooldown = true
+    await get_tree().create_timer(DELAY_BETWEEN_CUTSCENES).timeout
+    _cooldown = false
+
     _try_play_next()

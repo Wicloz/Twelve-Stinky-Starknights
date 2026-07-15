@@ -6,6 +6,7 @@ extends PanelContainer
 @onready var narration := $VBox/Narration
 @onready var video_aspect := $VBox/CutsceneViewer/VideoAspect
 @onready var image_aspect := $VBox/CutsceneViewer/ImageAspect
+@onready var letterbox := $VBox/CutsceneViewer/Letterbox
 
 var _reveal: Tween
 
@@ -21,6 +22,7 @@ func _on_cutscene_started(cutscene: Cutscene) -> void:
 		narration.visible_characters = -1
 		image.visible = false
 		video.visible = false
+		letterbox.color = Color(0, 0, 0, 1)
 
 	if cutscene.still != null:
 		image.texture = cutscene.still
@@ -35,6 +37,7 @@ func _on_cutscene_started(cutscene: Cutscene) -> void:
 		await get_tree().process_frame
 		_fit_media(video_aspect, video.get_video_texture().get_size())
 
+	letterbox.color = Color(1, 1, 1, 1)
 	_reveal_text(cutscene.text, cutscene.duration)
 
 
@@ -66,4 +69,5 @@ func _reveal_text(bbcode: String, duration: float) -> void:
 func _on_text_revealed() -> void:
 	image.visible = false
 	video.visible = false
+	letterbox.color = Color(0, 0, 0, 1)
 	Story.finish_current()

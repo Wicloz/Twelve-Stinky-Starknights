@@ -18,6 +18,11 @@
 [ext_resource type="Script" uid="uid://cxog2xaur4sam" path="res://scripts/ConstructionPanel.gd" id="12_k3n1d"]
 [ext_resource type="Script" uid="uid://bkxvitvpwekgn" path="res://scripts/StoryUI.gd" id="14_ikiii"]
 [ext_resource type="Script" uid="uid://cbgru8xb55ygv" path="res://scripts/CutsceneViewer.gd" id="14_udxuc"]
+[ext_resource type="Script" uid="uid://dp6o4v4hxa7lt" path="res://objects/MusicPlayer.gd" id="16_il2jm"]
+[ext_resource type="Texture2D" uid="uid://cjmg3bqnm6su6" path="res://assets/icons/play.svg" id="17_wjb0r"]
+[ext_resource type="Texture2D" uid="uid://caailu6wvhje" path="res://assets/icons/pause.svg" id="18_mc2jv"]
+[ext_resource type="Texture2D" uid="uid://cn352kml2i6dp" path="res://assets/icons/volume.svg" id="19_bo7i5"]
+[ext_resource type="Texture2D" uid="uid://bwx1anaixor23" path="res://assets/icons/mute.svg" id="20_4h6ng"]
 
 [sub_resource type="GDScript" id="GDScript_036b0"]
 resource_name = "_HexMapBuilder"
@@ -1456,6 +1461,51 @@ size_flags_vertical = 3
 bbcode_enabled = true
 scroll_following_visible_characters = true
 horizontal_alignment = 1
+
+[node name="MusicPlayer" type="VBoxContainer" parent="UI/StoryUI/VBox" unique_id=240591314]
+layout_mode = 2
+script = ExtResource("16_il2jm")
+play_icon = ExtResource("17_wjb0r")
+pause_icon = ExtResource("18_mc2jv")
+volume_icon = ExtResource("19_bo7i5")
+mute_icon = ExtResource("20_4h6ng")
+
+[node name="Picker" type="OptionButton" parent="UI/StoryUI/VBox/MusicPlayer" unique_id=1625507575]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UI/StoryUI/VBox/MusicPlayer" unique_id=1656522307]
+layout_mode = 2
+
+[node name="Transport" type="HBoxContainer" parent="UI/StoryUI/VBox/MusicPlayer" unique_id=1514774984]
+layout_mode = 2
+
+[node name="Prev" type="TextureButton" parent="UI/StoryUI/VBox/MusicPlayer/Transport" unique_id=1307444426]
+layout_mode = 2
+
+[node name="PlayPause" type="TextureButton" parent="UI/StoryUI/VBox/MusicPlayer/Transport" unique_id=2090649875]
+layout_mode = 2
+toggle_mode = true
+
+[node name="Next" type="TextureButton" parent="UI/StoryUI/VBox/MusicPlayer/Transport" unique_id=2084980525]
+layout_mode = 2
+
+[node name="Seek" type="HSlider" parent="UI/StoryUI/VBox/MusicPlayer/Transport" unique_id=209804627]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VolumeRow" type="HBoxContainer" parent="UI/StoryUI/VBox/MusicPlayer" unique_id=635059516]
+layout_mode = 2
+
+[node name="Mute" type="TextureButton" parent="UI/StoryUI/VBox/MusicPlayer/VolumeRow" unique_id=2033230807]
+layout_mode = 2
+toggle_mode = true
+
+[node name="Volume" type="HSlider" parent="UI/StoryUI/VBox/MusicPlayer/VolumeRow" unique_id=1612642855]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Player" type="AudioStreamPlayer" parent="UI/StoryUI/VBox/MusicPlayer" unique_id=281882130]
+bus = &"Music"
 
 [node name="DepositPanel" type="PanelContainer" parent="UI" unique_id=1222018713]
 anchors_preset = -1

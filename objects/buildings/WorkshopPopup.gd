@@ -70,6 +70,7 @@ func bind(building: Building) -> void:
 	_order_count.set_value_no_signal(_selected_count)
 
 	_workshop.capabilities_changed.connect(_populate_recipes)
+	Stockpile.challenge_updated.connect(_populate_recipes)
 
 
 func register_close_handler(close_handler: Callable) -> void:
@@ -121,7 +122,7 @@ func _populate_recipes() -> void:
 	_recipes.clear()
 	_recipe_list.clear()
 
-	for recipe in Crafting.recipes_with_capabilities_satisfied(_workshop.capabilities):
+	for recipe in Crafting.recipes_for_workshop(_workshop.capabilities):
 		_recipes.append(recipe)
 		_recipe_list.add_item(recipe.display_name)
 

@@ -17,6 +17,6 @@ func _ready() -> void:
 
 func _refresh() -> void:
 	for item in Stockpile.ItemTypes:
-		if Stockpile.is_seen(item):
+		if Stockpile.is_seen(item) and not Stockpile.is_story_item(item):
 			_labels[item].text = "%s: %d" % [Stockpile.get_display_name(item), Stockpile.get_amount(item)]
 			_labels[item].show()

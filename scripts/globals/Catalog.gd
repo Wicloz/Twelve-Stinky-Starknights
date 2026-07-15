@@ -66,6 +66,18 @@ func _ready() -> void:
 func get_unlocked_buildings() -> Array[CatalogItem]:
     return _catalog.filter(func(item: CatalogItem) -> bool:
         for resource in item.cost:
+            if Stockpile.is_unavailable_story_item(resource):
+                return false
+        for resource in item.allowed_deposits:
+            if Stockpile.is_unavailable_story_item(resource):
+                return false
+        for resource in item.get_items_produced():
+            if Stockpile.is_unavailable_story_item(resource):
+                return false
+        for resource in item.get_items_consumed():
+            if Stockpile.is_unavailable_story_item(resource):
+                return false
+        for resource in item.cost:
             if Stockpile.is_seen(resource):
                 return true
         return false

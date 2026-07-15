@@ -28,7 +28,7 @@ func all_recipes() -> Array[Recipe]:
 	return _recipe_map.values()
 
 
-func recipes_with_capabilities_satisfied(capabilities: Array[Capabilities]) -> Array[Recipe]:
+func recipes_for_workshop(capabilities: Array[Capabilities]) -> Array[Recipe]:
 	var result: Array[Recipe] = []
 
 	for recipe in _recipe_map.values():
@@ -39,9 +39,26 @@ func recipes_with_capabilities_satisfied(capabilities: Array[Capabilities]) -> A
 				satisfied = false
 				break
 
-		if satisfied:
-			result.append(recipe)
+		if not satisfied:
+			continue
 
+		for resource in recipe.inputs:
+			if Stockpile.is_unavailable_story_item(resource):
+				satisfied = false
+				break
+
+		if not satisfied:
+			continue
+
+		for resource in recipe.outputs:
+			if Stockpile.is_unavailable_story_item(resource):
+				satisfied = false
+				break
+
+		if not satisfied:
+			continue
+
+		result.append(recipe)
 	return result
 
 

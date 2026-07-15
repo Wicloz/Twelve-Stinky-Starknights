@@ -1,5 +1,6 @@
 extends Node
 signal changed
+signal challenge_updated
 
 
 enum ItemType {
@@ -66,46 +67,73 @@ const _ITEM_NAMES: Dictionary[ItemType, String] = {
 	ItemType.JELLY_STANDEES: "Jelly Standees",
 }
 
-var _amounts: Dictionary[ItemType, int] = {}
+var _current: Dictionary[ItemType, int] = {}
+var _produced: Dictionary[ItemType, int] = {}
 var _seen: Dictionary[ItemType, bool] = {}
+
+enum ChallengeState {
+	LOCKED,
+	ACTIVE,
+	COMPLETED,
+}
+
+var _challenges: Dictionary[ItemType, Challenge] = {}
 
 
 func _ready() -> void:
 	for item in ItemType.values():
 		if item != ItemType.NONE:
 			ItemTypes.append(item)
-			_amounts[item] = 0
+			_current[item] = 0
+			_produced[item] = 0
 			_seen[item] = false
+
+	_register_challenges()
+
+
+func _register_challenges() -> void:
+	_challenges[ItemType.JELLY_STANDEES] = Challenge.new()
+
+
+func _add_once(item: ItemType, amount: int) -> void:
+	_current[item] += amount
+	_produced[item] += amount
+	_seen[item] = true
 
 
 func add(item: ItemType, amount: int) -> void:
-	_amounts[item] += amount
-	_seen[item] = true
+	_add_once(item, amount)
 	changed.emit()
 
 
 func add_bulk(items: Dictionary[ItemType, int]) -> void:
 	for item in items:
-		_amounts[item] += items[item]
-		_seen[item] = true
+		_add_once(item, items[item])
 	changed.emit()
 
 
-func remove(item: ItemType, amount: int) -> void:
-	_amounts[item] -= amount
+func _remove_once(item: ItemType, amount: int) -> void:
+	_current[item] -= amount
 	_seen[item] = true
+
+
+func remove(item: ItemType, amount: int) -> void:
+	_remove_once(item, amount)
 	changed.emit()
 
 
 func remove_bulk(items: Dictionary[ItemType, int]) -> void:
 	for item in items:
-		_amounts[item] -= items[item]
-		_seen[item] = true
+		_remove_once(item, items[item])
 	changed.emit()
 
 
 func get_amount(item: ItemType) -> int:
-	return _amounts[item]
+	return _current[item]
+
+
+func get_cumulative(item: ItemType) -> int:
+	return _produced[item]
 
 
 func get_display_name(item: ItemType) -> String:
@@ -116,3 +144,16 @@ func get_display_name(item: ItemType) -> String:
 
 func is_seen(item: ItemType) -> bool:
 	return _seen[item]
+
+
+func is_story_item(item: ItemType) -> bool:
+	return item in _challenges
+
+
+func is_unavailable_story_item(item: ItemType) -> bool:
+	return item in _challenges and _challenges[item].state != ChallengeState.ACTIVE
+
+
+func start_challenge(item: ItemType) -> void:
+	_challenges[item].state = ChallengeState.ACTIVE
+	challenge_updated.emit()

@@ -1,5 +1,6 @@
 class_name Building
 extends Node2D
+signal constructed
 
 
 @export var tile: HexTile
@@ -39,9 +40,19 @@ func start_construction(cost: Dictionary[Stockpile.ItemType, int]) -> void:
 func _construction_complete() -> void:
 	_sprite.material = null
 	_under_construction = false
+	constructed.emit()
 
 
 func _construction_aborted() -> void:
 	Stockpile.add_bulk(_refund)
 	tile.building = null
 	queue_free()
+
+
+func demolish() -> void:
+	JobManager.cancel_jobs_on_tile(tile)
+	_construction_aborted()
+
+
+func is_constructed() -> bool:
+	return not _under_construction

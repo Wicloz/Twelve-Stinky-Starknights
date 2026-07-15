@@ -27,6 +27,8 @@
 [ext_resource type="Texture2D" uid="uid://bwx1anaixor23" path="res://assets/icons/mute.svg" id="20_4h6ng"]
 [ext_resource type="Texture2D" uid="uid://byc5j4qi1gukf" path="res://assets/icons/next.svg" id="20_bo7i5"]
 [ext_resource type="Script" uid="uid://c2fq3bfp80uw1" path="res://scripts/Challenges.gd" id="24_4h6ng"]
+[ext_resource type="Texture2D" uid="uid://bmuo20cw6l57t" path="res://assets/icons/building_cancel.svg" id="27_k83mh"]
+[ext_resource type="Texture2D" uid="uid://dwba8qnudiyb4" path="res://assets/icons/building_delete.svg" id="28_qktwf"]
 
 [sub_resource type="GDScript" id="GDScript_036b0"]
 resource_name = "_HexMapBuilder"
@@ -1561,6 +1563,8 @@ offset_top = -23.0
 grow_horizontal = 2
 grow_vertical = 0
 script = ExtResource("11_ic0uy")
+cancel_icon = ExtResource("27_k83mh")
+demolish_icon = ExtResource("28_qktwf")
 
 [node name="VBox" type="VBoxContainer" parent="UI/BuildingPanel" unique_id=1042535700]
 layout_mode = 2
@@ -1569,6 +1573,9 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="HBox" type="HBoxContainer" parent="UI/BuildingPanel/VBox" unique_id=1494035763]
+layout_mode = 2
+
+[node name="DestructButton" type="TextureButton" parent="UI/BuildingPanel/VBox/HBox" unique_id=1045028468]
 layout_mode = 2
 
 [node name="Spacer" type="Control" parent="UI/BuildingPanel/VBox/HBox" unique_id=1146856730]

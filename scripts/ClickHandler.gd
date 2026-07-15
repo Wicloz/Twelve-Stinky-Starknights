@@ -17,6 +17,7 @@ var _cursor_item: CatalogItem
 
 func _ready() -> void:
 	construction_panel.building_selected.connect(_begin_placement)
+	building_panel.self_destruct.connect(_on_building_panel_destruct)
 
 
 func _begin_placement(item: CatalogItem) -> void:
@@ -94,6 +95,11 @@ func _select() -> void:
 		deposit_panel.hide()
 		building_panel.hide()
 		construction_panel.show()
+
+
+func _on_building_panel_destruct() -> void:
+	building_panel.hide()
+	construction_panel.show()
 
 
 func _hovered_tile() -> HexTile:

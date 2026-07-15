@@ -1,8 +1,13 @@
 class_name BuildingPanel
 extends PanelContainer
+signal self_destruct
 
+
+@export var cancel_icon: Texture2D
+@export var demolish_icon: Texture2D
 
 @onready var _title: Label = $VBox/Title
+@onready var _destruct_button: TextureButton = $VBox/HBox/DestructButton
 @onready var _popup_button: Button = $VBox/HBox/PopupButton
 
 var _building: Building
@@ -13,6 +18,7 @@ func _ready() -> void:
 	hide()
 	_popup_button.pressed.connect(_open_popup)
 	visibility_changed.connect(_on_visibility_changed)
+	_destruct_button.pressed.connect(_on_destruct_pressed)
 
 
 func show_for(building: Building) -> void:
@@ -21,8 +27,23 @@ func show_for(building: Building) -> void:
 	_title.text = building.get_display_name()
 	_popup_button.visible = building.get_popup() != null
 
+	_building.constructed.connect(_set_destruct_icon)
+	_set_destruct_icon()
+
 	show()
 	_open_popup()
+
+
+func _on_destruct_pressed() -> void:
+	_building.demolish()
+	self_destruct.emit()
+
+
+func _set_destruct_icon() -> void:
+	if _building.is_constructed():
+		_destruct_button.texture_normal = demolish_icon
+	else:
+		_destruct_button.texture_normal = cancel_icon
 
 
 func _close_popup() -> void:

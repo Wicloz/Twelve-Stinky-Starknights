@@ -7,8 +7,6 @@ Content:
 - challenge goals
 
 Building System:
-- deconstruct
-- cancel construction
 - upgrade/research mechanic
 
 Needs Rework:

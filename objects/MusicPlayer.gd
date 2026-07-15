@@ -81,6 +81,12 @@ func _define_playlists() -> void:
 	_add("Computer Generated", preload("res://assets/music/suno/Eating for Twelve.ogg"))
 	_add("Computer Generated", preload("res://assets/music/suno/Stinky Starknights.ogg"))
 
+	_add("Jelly Music", preload("res://assets/music/jelly/Aino Protocol.ogg"))
+	_add("Jelly Music", preload("res://assets/music/jelly/Break into my Heart.ogg"))
+	_add("Jelly Music", preload("res://assets/music/jelly/From our Hearts.ogg"))
+	_add("Jelly Music", preload("res://assets/music/jelly/Love Sucker.ogg"))
+	_add("Jelly Music", preload("res://assets/music/jelly/Luminary.ogg"))
+
 
 func _add(playlist: String, stream: AudioStream) -> void:
 	if not _playlists.has(playlist):

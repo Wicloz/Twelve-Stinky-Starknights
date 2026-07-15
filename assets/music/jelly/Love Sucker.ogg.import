@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://b4uotrk25dqff"
+path="res://.godot/imported/Love Sucker.ogg-ddb5bdcadd5b2ef1acee5006cf7cc23c.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/music/jelly/Love Sucker.ogg"
+dest_files=["res://.godot/imported/Love Sucker.ogg-ddb5bdcadd5b2ef1acee5006cf7cc23c.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

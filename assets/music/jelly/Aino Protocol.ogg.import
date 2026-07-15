@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://6juleoth8cfv"
+path="res://.godot/imported/Aino Protocol.ogg-0b38526cdbc88062a590871e032a131f.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/music/jelly/Aino Protocol.ogg"
+dest_files=["res://.godot/imported/Aino Protocol.ogg-0b38526cdbc88062a590871e032a131f.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

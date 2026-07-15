@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dl3q1ma53ksmh"
+path="res://.godot/imported/Break into my Heart.ogg-90e55f1574094cea4ccc5b493605e5dc.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/music/jelly/Break into my Heart.ogg"
+dest_files=["res://.godot/imported/Break into my Heart.ogg-90e55f1574094cea4ccc5b493605e5dc.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -100,6 +100,18 @@ func _add_once(item: ItemType, amount: int) -> void:
 	_produced[item] += amount
 	_seen[item] = true
 
+	if item not in _challenges:
+		return
+
+	var challenge := _challenges[item]
+
+	if challenge.state == ChallengeState.COMPLETED:
+		return
+
+	if challenge.is_limit_reached(_produced[item]):
+		challenge.state = ChallengeState.COMPLETED
+		challenge_updated.emit()
+
 
 func add(item: ItemType, amount: int) -> void:
 	_add_once(item, amount)

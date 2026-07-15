@@ -20,15 +20,24 @@ func _define_cutscenes() -> void:
     _locked_cutscenes.append(cutscene)
 
     cutscene.still = preload("res://assets/cutscenes/kevin.png")
-    cutscene.text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since 1966, when designers at Letraset and James Mosley, the librarian at St Bride Printing Library in London, took a 1914 Cicero translation and scrambled it to make dummy text for Letraset's Body Type sheets. It has survived not only many decades, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised thanks to these sheets and more recently with desktop publishing software like Aldus PageMaker and Microsoft Word including versions of Lorem Ipsum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-    cutscene.duration = 10.0
+    cutscene.text = say(SAKANA, "Sakana", "We are debuting a new VTuber called Jeffrey Boshibumi or something. Whatever man. We sent our twelve stinkiest \"workers\" (thats you) to this \"unclaimed\" planet in the Gliese 67 system. [i]ruffles papers[/i] \"Your job is to support Jelly? Hoshiumi? during her VTuber activities using the local resources. You have been provided with an adaptive blueprint package and a workshop for optimal in-situ resource utilization ...\" What is this speech man I'm not doing this. Anyway outsourcing her support to you guys is a great way to save some money. Just make sure to build that [u]warehouse[/u] as soon as possible.")
+    cutscene.duration = 15.0
 
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)
 
-    cutscene.video = preload("res://assets/cutscenes/jungus.ogv")
-    cutscene.text = "Jelly: Awawawawawa!"
-    cutscene.duration = 10.0
+    cutscene.still = preload("res://assets/cutscenes/aiko.jpg")
+    cutscene.text = say(AIKO, "Aiko", "Click on a deposit tile and enable harvesting to have a Starknight work it. Use the [u]workshop[/u] to manually craft small amounts of items. You will need 10 clay bricks and 10 iron ingots to get stated. Construct buildings from the picker at the bottom to speed up extraction and production. You have some time to build up your own infrastructure before the debut.")
+    cutscene.duration = 15.0
+
+
+const SAKANA := "#8682c6"
+const JELLY := "#23deff"
+const AIKO := "#ffffff"
+
+
+static func say(color: String, speaker: String, line: String) -> String:
+    return "[color=%s][b]%s:[/b] %s[/color]" % [color, speaker, line]
 
 
 func _queue_cutscenes() -> void:

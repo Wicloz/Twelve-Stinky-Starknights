@@ -8,8 +8,8 @@ var _mode: Mode = Mode.SELECT
 @export var building_panel: BuildingPanel
 @export var construction_panel: ConstructionPanel
 
-const HOLO_BLUE := preload("res://assets/buildings/holo_blue.tres")
-const HOLO_RED := preload("res://assets/buildings/holo_red.tres")
+const HOLO_BLUE := preload("res://assets/shaders/holo_blue.tres")
+const HOLO_RED := preload("res://assets/shaders/holo_red.tres")
 @onready var _cursor_ghost := $CursorGhost
 @onready var _cursor_label := $CursorGhost/Label
 var _cursor_item: CatalogItem

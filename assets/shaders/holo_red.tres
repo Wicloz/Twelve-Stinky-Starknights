@@ -1,6 +1,6 @@
 [gd_resource type="ShaderMaterial" format=3 uid="uid://cksrrnk3yjpd"]
 
-[ext_resource type="Shader" uid="uid://dqoswsetl4pdq" path="res://assets/buildings/holo.gdshader" id="1_o0414"]
+[ext_resource type="Shader" uid="uid://dqoswsetl4pdq" path="res://assets/shaders/holo.gdshader" id="1_o0414"]
 
 [resource]
 shader = ExtResource("1_o0414")

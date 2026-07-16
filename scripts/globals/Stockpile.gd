@@ -38,7 +38,7 @@ enum ItemType {
 var ItemTypes: Array[ItemType] = []
 
 const _ITEM_NAMES: Dictionary[ItemType, String] = {
-	ItemType.RAW_TITANIUM: "Compacted Titanium",
+	ItemType.RAW_TITANIUM: "Compacted Titanium Alloy",
 
 	ItemType.LUMBER: "Lumber",
 	ItemType.PLANKS: "Planks",

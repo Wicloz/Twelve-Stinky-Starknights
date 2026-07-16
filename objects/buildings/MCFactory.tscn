@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://bsjbvynqyf2xn"]
+
+[ext_resource type="Script" uid="uid://bh5adp4cwcapo" path="res://objects/buildings/MCFactory.gd" id="1_a218u"]
+[ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_a218u"]
+
+[node name="MCFactory" type="Node2D" unique_id=1403442536]
+script = ExtResource("1_a218u")
+recipe = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1456539947]
+texture = ExtResource("2_a218u")

@@ -31,7 +31,7 @@ func _define_cutscenes() -> void:
     _locked_cutscenes.append(cutscene)
 
     cutscene.still = preload("res://assets/cutscenes/kevin.png")
-    cutscene.text = say(SAKANA, "Sakana", "We are debuting a new VTuber called Jeffrey Moshimoshi or something. Whatever man. We sent our twelve stinkiest \"workers\" (thats you) to this \"unclaimed\" planet in the Gliese 67 system. [i]ruffles papers[/i] \"Your job is to support Jelly? Hoshiumi? during her VTuber activities using the local resources. You have been provided with an adaptive blueprint package and a workshop for optimal in-situ resource utilization ...\" What is this speech man I'm not doing this. Anyway outsourcing her support to you guys is a great way to save some money. Just make sure to build that [u]warehouse[/u] as soon as possible.")
+    cutscene.text = say(SAKANA, "Sakana", "We are debuting a new VTuber called Jeffrey Moshimoshi or something. Whatever man. We sent our twelve stinkiest \"workers\" (thats you) to this \"unclaimed\" planet in the Gliese 67 system. [i]clears throat[/i] \"Your job is to support Jelly? Hoshiumi? during her VTuber activities using the local resources. You have been provided with an adaptive blueprint package and a workshop for optimal in-situ resource utilization ...\" What is this speech man I'm not doing this. Anyway outsourcing her support to you guys is a great way to save some money. Just make sure to build that [u]warehouse[/u] as soon as possible.")
 
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)
@@ -55,8 +55,24 @@ func _define_cutscenes() -> void:
     cutscene.video = preload("res://assets/cutscenes/jungus.ogv")
     cutscene.text = say(JELLY, "Jelly", "[wave amp=40 freq=4]Awawawawawawawawa![/wave]")
     cutscene.min_duration = 60.0
+
+    cutscene = Cutscene.new()
+    _locked_cutscenes.append(cutscene)
+
+    cutscene.condition = func() -> bool:
+        return Catalog.has_finished_construction(MechanicalComponentFactory)
+    cutscene.still = preload("res://assets/cutscenes/kevin.png")
+    cutscene.text = say(SAKANA, "Sakana", "Now that that's over, its time for you to start producing merchandise. I'm not paying you nothing for nothing. Best get started on those standees and that coffee.")
     cutscene.on_complete = func() -> void:
         Stockpile.start_challenge(Stockpile.ItemType.JELLY_STANDEES)
+
+    cutscene = Cutscene.new()
+    _locked_cutscenes.append(cutscene)
+
+    cutscene.condition = func() -> bool:
+        return Catalog.has_finished_construction(MechanicalComponentFactory)
+    cutscene.still = preload("res://assets/cutscenes/aiko.jpg")
+    cutscene.text = say(AIKO, "Aiko", "Merchandise targets are listed below. You will need a [u]warehouse[/u] to store and ship this merchandise. Build one if you have not already.")
 
 
 const SAKANA := "#8682c6"

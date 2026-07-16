@@ -47,6 +47,7 @@ text = "✕"
 layout_mode = 2
 
 [node name="Recipes" type="ItemList" parent="PanelContainer/MarginContainer/VBoxContainer/OrderSelection" unique_id=858313223]
+custom_minimum_size = Vector2(0, 300)
 layout_mode = 2
 auto_width = true
 

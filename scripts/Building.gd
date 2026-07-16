@@ -28,27 +28,28 @@ func can_demolish() -> bool:
 	return true
 
 
-func start_construction(cost: Dictionary[Stockpile.ItemType, int]) -> void:
+func start_construction(source: CatalogItem) -> void:
 	_under_construction = true
 
 	_sprite.material = HOLO_BLUE
 
-	Stockpile.remove_bulk(cost)
-	_refund = cost
+	Stockpile.remove_bulk(source.cost)
+	_refund = source.cost
 
 	var job = Job.new()
 	job.priority = 11
 	job.duration = 10.0
 	job.target = tile
-	job.on_complete = _construction_complete
+	job.on_complete = _construction_complete.bind(source)
 	job.on_cancel = _construction_aborted
 	JobManager.post(job)
 
 
-func _construction_complete() -> void:
+func _construction_complete(source: CatalogItem) -> void:
 	_sprite.material = null
 	_under_construction = false
 	constructed.emit()
+	Catalog.building_finished_construction(source)
 
 
 func _construction_aborted() -> void:

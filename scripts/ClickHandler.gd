@@ -45,9 +45,9 @@ func _end_placement() -> void:
 
 
 func _try_place() -> void:
-	var error := _place_item.try_place_on(_hovered_tile())
+	var error = _place_item.try_place_on(_hovered_tile())
 
-	if error == "":
+	if error is not String:
 		_end_placement()
 
 	else:

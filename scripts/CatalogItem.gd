@@ -51,7 +51,7 @@ func can_place_on(tile: HexTile) -> bool:
     return true
 
 
-func try_place_on(tile: HexTile) -> String:
+func try_place_on(tile: HexTile):
     if not can_place_on(tile):
         return "Cannot place this building here."
 
@@ -68,9 +68,9 @@ func try_place_on(tile: HexTile) -> String:
     building.tile = tile
 
     tile.add_child(building)
-    building.start_construction(cost)
+    building.start_construction(self)
 
-    return ""
+    return false
 
 
 func get_icon() -> AtlasTexture:

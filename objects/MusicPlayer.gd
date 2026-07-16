@@ -78,8 +78,11 @@ func _process(_delta: float) -> void:
 
 
 func _define_playlists() -> void:
-	_add("Computer Generated", preload("res://assets/music/suno/Eating for Twelve.ogg"))
-	_add("Computer Generated", preload("res://assets/music/suno/Stinky Starknights.ogg"))
+	_add("BGM", preload("res://assets/music/bgm/Galactic Voyage.ogg"))
+
+	_add("AI Generated", preload("res://assets/music/suno/Stinky Starknights.ogg"))
+	_add("AI Generated", preload("res://assets/music/suno/Eating for Twelve.ogg"))
+	_add("AI Generated", preload("res://assets/music/suno/Wrong Star, Baby.ogg"))
 
 	_add("Jelly Music", preload("res://assets/music/jelly/Aino Protocol.ogg"))
 	_add("Jelly Music", preload("res://assets/music/jelly/Break into my Heart.ogg"))

@@ -33,7 +33,7 @@ func build(new_tiles: Dictionary[Vector2i, HexTile]) -> void:
 			var to_id := astar.ids_by_hex_coord[neighbor]
 			astar.connect_points(from_id, to_id, true)
 
-	_cache_spacing()
+	_cache_metrics()
 
 
 func find_path(from: Vector2i, to: Vector2i) -> Array[HexTile]:
@@ -60,13 +60,16 @@ func walkable_neighbors(coord: Vector2i) -> Array[HexTile]:
 
 
 var _spacing := Vector2.ZERO
+var tile_size := Vector2.ZERO
 
 
-func _cache_spacing() -> void:
+func _cache_metrics() -> void:
 	var q_ref: HexTile = tiles.get(Vector2i(1, 0))
 	var r_ref: HexTile = tiles.get(Vector2i(0, 1))
+
 	if q_ref and r_ref:
 		_spacing = Vector2(q_ref.position.x, r_ref.position.y)
+		tile_size = Vector2(q_ref.position.x, r_ref.position.y * 4 / 3)
 
 
 func world_to_axial(pos: Vector2) -> Vector2i:

@@ -31,59 +31,6 @@
 [ext_resource type="Texture2D" uid="uid://bmuo20cw6l57t" path="res://assets/icons/building_cancel.svg" id="27_k83mh"]
 [ext_resource type="Texture2D" uid="uid://dwba8qnudiyb4" path="res://assets/icons/building_delete.svg" id="28_qktwf"]
 
-[sub_resource type="GDScript" id="GDScript_036b0"]
-resource_name = "_HexMapBuilder"
-script/source = "@tool
-extends Node2D
-
-
-@export var tile_scene: PackedScene
-@export var tile_width: int
-@export var tile_height: int
-
-@export var parent: Node
-@export var radius: int
-@export var padding: int
-
-@export_tool_button(\"Generate Map\")
-var generate_action := generate
-
-@export_tool_button(\"Clear Map\")
-var clear_action := clear
-
-
-func clear():
-	for child in parent.get_children():
-		child.free()
-
-
-func generate():
-	for q in range(-radius, radius + 1):
-		for r in range(-radius, radius + 1):
-			var s = -q - r
-
-			if max(abs(q), abs(r), abs(s)) > radius:
-				continue
-
-			var tile = tile_scene.instantiate()
-
-			parent.add_child(tile)
-			tile.owner = parent.owner
-
-			tile.name = \"Tile=%d,%d\" % [q, r]
-			tile.position = axial_to_world(q, r)
-
-			tile.q = q
-			tile.r = r
-
-
-func axial_to_world(q: int, r: int) -> Vector2:
-	var x = (q + r * 0.5) * (tile_width + padding)
-	var y = r * (tile_height + padding) * 0.75
-
-	return Vector2(x, y)
-"
-
 [node name="World" type="Node2D" unique_id=1592913599]
 
 [node name="HexMap" type="Node2D" parent="." unique_id=1398524653]
@@ -1610,12 +1557,3 @@ vertical_scroll_mode = 0
 
 [node name="Columns" type="HBoxContainer" parent="UI/ConstructionPanel/Margin/Scroll" unique_id=1519381145]
 layout_mode = 2
-
-[node name="_HexMapBuilder" type="Node2D" parent="." unique_id=1275505773 node_paths=PackedStringArray("parent")]
-script = SubResource("GDScript_036b0")
-tile_scene = ExtResource("2_fj7yv")
-tile_width = 120
-tile_height = 140
-parent = NodePath("../HexMap")
-radius = 8
-padding = 8

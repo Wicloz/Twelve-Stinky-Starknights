@@ -58,7 +58,7 @@ func _ready() -> void:
     item = CatalogItem.new()
     _catalog.append(item)
 
-    item.scene = preload("res://objects/buildings/MCFactory.tscn")
+    item.scene = preload("res://objects/buildings/MechanicalComponentFactory.tscn")
     item.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 10
     item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
     item.cost[Stockpile.ItemType.BRICKS] = 800

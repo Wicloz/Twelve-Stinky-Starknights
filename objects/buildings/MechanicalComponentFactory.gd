@@ -1,4 +1,4 @@
-class_name MCFactory
+class_name MechanicalComponentFactory
 extends FactoryBuilding
 
 

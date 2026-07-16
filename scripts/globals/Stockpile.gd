@@ -28,8 +28,7 @@ enum ItemType {
 
 	RAW_CUPRONICKEL,
 	CUPRONICKEL_INGOTS,
-	FLUID_PIPES,
-	PRESSURE_VESSELS,
+	FLUID_HARDWARE,
 
 	HOSHIUMIUM,
 	JELLY_STANDEES,
@@ -60,8 +59,7 @@ const _ITEM_NAMES: Dictionary[ItemType, String] = {
 
 	ItemType.RAW_CUPRONICKEL: "Cu-Ni Sulfide Deposit",
 	ItemType.CUPRONICKEL_INGOTS: "Cupronickel Ingots",
-	ItemType.FLUID_PIPES: "Fluid Pipes",
-	ItemType.PRESSURE_VESSELS: "Pressure Vessels",
+	ItemType.FLUID_HARDWARE: "Fluid Hardware Package",
 
 	ItemType.HOSHIUMIUM: "Hoshiumium",
 	ItemType.JELLY_STANDEES: "Jelly Standees",

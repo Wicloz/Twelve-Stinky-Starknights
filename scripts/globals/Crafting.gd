@@ -98,6 +98,15 @@ func _ready() -> void:
 	recipe.needs_capabilities.append(Capabilities.FURNACE)
 
 	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_CUPRONICKEL] = recipe
+
+	recipe.display_name = "Smelt Cupronickel"
+	recipe.inputs[Stockpile.ItemType.RAW_CUPRONICKEL] = 1
+	recipe.outputs[Stockpile.ItemType.CUPRONICKEL_INGOTS] = 1
+	recipe.work = 4.0
+	recipe.needs_capabilities.append(Capabilities.FURNACE)
+
+	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_MECHANICAL_COMPONENTS] = recipe
 
 	recipe.display_name = "Craft Mechanical Components"
@@ -108,22 +117,13 @@ func _ready() -> void:
 	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
 
 	recipe = Recipe.new()
-	_recipe_map[RecipeType.MAKE_CUPRONICKEL] = recipe
-
-	recipe.display_name = "Smelt Cupronickel"
-	recipe.inputs[Stockpile.ItemType.RAW_CUPRONICKEL] = 1
-	recipe.outputs[Stockpile.ItemType.CUPRONICKEL_INGOTS] = 1
-	recipe.work = 4.0
-	recipe.needs_capabilities.append(Capabilities.FURNACE)
-
-	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_FLUID_HARDWARE] = recipe
 
 	recipe.display_name = "Manufacture Fluid Hardware"
-	recipe.inputs[Stockpile.ItemType.CUPRONICKEL_INGOTS] = 2
-	recipe.outputs[Stockpile.ItemType.FLUID_PIPES] = 1
-	recipe.outputs[Stockpile.ItemType.PRESSURE_VESSELS] = 1
-	recipe.work = 16.0
+	recipe.inputs[Stockpile.ItemType.CUPRONICKEL_INGOTS] = 8
+	recipe.inputs[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 2
+	recipe.outputs[Stockpile.ItemType.FLUID_HARDWARE] = 1
+	recipe.work = 80.0
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_ELECTRUM_WIRE] = recipe
@@ -136,7 +136,7 @@ func _ready() -> void:
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_SILICON_BOULE] = recipe
 
-	recipe.display_name = "Pull Silicon Boule"
+	recipe.display_name = "Grow Silicon Boule"
 	recipe.inputs[Stockpile.ItemType.SAND] = 1
 	recipe.outputs[Stockpile.ItemType.SILICON_BOULE] = 1
 	recipe.work = 8.0
@@ -147,4 +147,4 @@ func _ready() -> void:
 	recipe.display_name = "Operate Petrochemical Refinery"
 	recipe.inputs[Stockpile.ItemType.PETROCHEMICALS] = 1
 	recipe.outputs[Stockpile.ItemType.ACRYLIC_PLASTIC] = 1
-	recipe.work = 32.0
+	recipe.work = 40.0

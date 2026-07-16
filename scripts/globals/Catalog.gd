@@ -57,13 +57,6 @@ func _ready() -> void:
     item = CatalogItem.new()
     _catalog.append(item)
 
-    item.scene = preload("res://objects/buildings/OilRig.tscn")
-    item.cost[Stockpile.ItemType.FLUID_PIPES] = 2000
-    item.allowed_deposits = [Stockpile.ItemType.PETROCHEMICALS]
-
-    item = CatalogItem.new()
-    _catalog.append(item)
-
     item.scene = preload("res://objects/buildings/MCFactory.tscn")
     item.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 10
     item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
@@ -100,15 +93,22 @@ func _ready() -> void:
     item = CatalogItem.new()
     _catalog.append(item)
 
+    item.scene = preload("res://objects/buildings/OilRig.tscn")
+    item.cost[Stockpile.ItemType.FLUID_HARDWARE] = 20
+    item.allowed_deposits = [Stockpile.ItemType.PETROCHEMICALS]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
     item.scene = preload("res://objects/buildings/Refinery.tscn")
-    item.cost[Stockpile.ItemType.FLUID_PIPES] = 2000
+    item.cost[Stockpile.ItemType.FLUID_HARDWARE] = 20
     item.allowed_deposits = [Stockpile.ItemType.NONE]
 
 
 func get_unlocked_buildings() -> Array[CatalogItem]:
     return _catalog.filter(func(item: CatalogItem) -> bool:
         for resource in item.cost:
-            if Stockpile.is_unavailable_story_item(resource):
+            if not Stockpile.is_seen(resource) or Stockpile.is_unavailable_story_item(resource):
                 return false
         for resource in item.allowed_deposits:
             if Stockpile.is_unavailable_story_item(resource):
@@ -119,8 +119,5 @@ func get_unlocked_buildings() -> Array[CatalogItem]:
         for resource in item.get_items_consumed():
             if Stockpile.is_unavailable_story_item(resource):
                 return false
-        for resource in item.cost:
-            if Stockpile.is_seen(resource):
-                return true
-        return false
+        return true
     )

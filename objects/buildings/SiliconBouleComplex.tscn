@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://bsb5k9w2z7x3n"]
+
+[ext_resource type="Script" uid="uid://csb8k3x9p2m4q" path="res://objects/buildings/SiliconBouleComplex.gd" id="1_sboul"]
+[ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_sboul"]
+
+[node name="SiliconBouleComplex" type="Node2D" unique_id=1477209384]
+script = ExtResource("1_sboul")
+recipe = 7
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1602938475]
+texture = ExtResource("2_sboul")

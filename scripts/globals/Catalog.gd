@@ -63,6 +63,33 @@ func _ready() -> void:
     item.cost[Stockpile.ItemType.BRICKS] = 800
     item.allowed_deposits = [Stockpile.ItemType.NONE]
 
+    item = CatalogItem.new()
+    _catalog.append(item)
+
+    item.scene = preload("res://objects/buildings/WireMill.tscn")
+    item.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 10
+    item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
+    item.cost[Stockpile.ItemType.BRICKS] = 800
+    item.allowed_deposits = [Stockpile.ItemType.NONE]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
+    item.scene = preload("res://objects/buildings/FluidHardwareFactory.tscn")
+    item.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 10
+    item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
+    item.cost[Stockpile.ItemType.BRICKS] = 800
+    item.allowed_deposits = [Stockpile.ItemType.NONE]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
+    item.scene = preload("res://objects/buildings/SiliconBouleComplex.tscn")
+    item.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 10
+    item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
+    item.cost[Stockpile.ItemType.BRICKS] = 800
+    item.allowed_deposits = [Stockpile.ItemType.NONE]
+
 
 func get_unlocked_buildings() -> Array[CatalogItem]:
     return _catalog.filter(func(item: CatalogItem) -> bool:

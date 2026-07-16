@@ -15,6 +15,9 @@ enum RecipeType {
 
 	MAKE_CUPRONICKEL,
 	MAKE_FLUID_HARDWARE,
+
+	MAKE_ELECTRUM_WIRE,
+	MAKE_SILICON_BOULE,
 }
 
 var _recipe_map: Dictionary[RecipeType, Recipe] = {}
@@ -119,3 +122,19 @@ func _ready() -> void:
 	recipe.outputs[Stockpile.ItemType.FLUID_PIPES] = 1
 	recipe.outputs[Stockpile.ItemType.PRESSURE_VESSELS] = 1
 	recipe.work = 16.0
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_ELECTRUM_WIRE] = recipe
+
+	recipe.display_name = "Draw Electrum Wire"
+	recipe.inputs[Stockpile.ItemType.RAW_ELECTRUM] = 1
+	recipe.outputs[Stockpile.ItemType.ELECTRUM_WIRE] = 1
+	recipe.work = 4.0
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_SILICON_BOULE] = recipe
+
+	recipe.display_name = "Pull Silicon Boule"
+	recipe.inputs[Stockpile.ItemType.SAND] = 1
+	recipe.outputs[Stockpile.ItemType.SILICON_BOULE] = 1
+	recipe.work = 8.0

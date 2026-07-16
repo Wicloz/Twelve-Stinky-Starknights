@@ -8,11 +8,19 @@ var _current_cutscene: Cutscene = null
 var _cooldown: bool = false
 
 const DELAY_BETWEEN_CUTSCENES := 3.0
+const CONDITION_POLL_INTERVAL := 1.0
+
+var _poll_timer := Timer.new()
 
 
 func _ready() -> void:
     _define_cutscenes()
-    Stockpile.changed.connect(_on_stockpile_changed)
+
+    _poll_timer.wait_time = CONDITION_POLL_INTERVAL
+    _poll_timer.timeout.connect(_on_poll)
+    add_child(_poll_timer)
+    _poll_timer.start()
+
     _queue_cutscenes()
 
 
@@ -34,14 +42,16 @@ func _define_cutscenes() -> void:
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)
 
-    cutscene.conditions[Stockpile.ItemType.BRICKS] = 1000
+    cutscene.condition = func() -> bool:
+        return Stockpile.get_amount(Stockpile.ItemType.BRICKS) >= 1000
     cutscene.still = preload("res://assets/cutscenes/kevin.png")
     cutscene.text = say(SAKANA, "Sakana", "Wow it looks like you guys have been busy there. Anyway its time for Jerome's debut now.")
 
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)
 
-    cutscene.conditions[Stockpile.ItemType.BRICKS] = 1000
+    cutscene.condition = func() -> bool:
+        return Stockpile.get_amount(Stockpile.ItemType.BRICKS) >= 1000
     cutscene.video = preload("res://assets/cutscenes/jungus.ogv")
     cutscene.text = say(JELLY, "Jelly", "[wave amp=40 freq=4]Awawawawawawawawa![/wave]")
     cutscene.min_duration = 60.0
@@ -60,13 +70,13 @@ static func say(color: String, speaker: String, line: String) -> String:
 
 func _queue_cutscenes() -> void:
     for cutscene in _locked_cutscenes.filter(func(cutscene: Cutscene) -> bool:
-        return cutscene.conditions_met()
+        return cutscene.condition_met()
     ):
         _locked_cutscenes.erase(cutscene)
         _cutscene_queue.append(cutscene)
 
 
-func _on_stockpile_changed() -> void:
+func _on_poll() -> void:
     _queue_cutscenes()
     _try_play_next()
 
@@ -78,6 +88,10 @@ func play_next() -> void:
 func _try_play_next() -> void:
     if _current_cutscene or _cooldown or _cutscene_queue.is_empty():
         return
+
+    _cooldown = true
+    await get_tree().create_timer(DELAY_BETWEEN_CUTSCENES).timeout
+    _cooldown = false
 
     _current_cutscene = _cutscene_queue.pop_front()
     cutscene_started.emit(_current_cutscene)
@@ -91,9 +105,4 @@ func finish_current() -> void:
         _current_cutscene.on_complete.call()
 
     _current_cutscene = null
-
-    _cooldown = true
-    await get_tree().create_timer(DELAY_BETWEEN_CUTSCENES).timeout
-    _cooldown = false
-
     _try_play_next()

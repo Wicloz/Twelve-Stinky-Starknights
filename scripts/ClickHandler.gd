@@ -10,9 +10,14 @@ var _mode: Mode = Mode.SELECT
 
 const HOLO_BLUE := preload("res://assets/shaders/holo_blue.tres")
 const HOLO_RED := preload("res://assets/shaders/holo_red.tres")
-@onready var _cursor_ghost := $CursorGhost
-@onready var _cursor_label := $CursorGhost/Label
-var _cursor_item: CatalogItem
+var _place_item: CatalogItem
+
+@onready var _cursor_ghost_place: Node2D = $CursorGhostPlace
+@onready var _cursor_place_sprite: Sprite2D = $CursorGhostPlace/Sprite2D
+@onready var _cursor_place_label: Label = $CursorGhostPlace/Label
+
+@onready var _cursor_ghost_select: Node2D = $CursorGhostSelect
+@onready var _cursor_select_label: Label = $CursorGhostSelect/Label
 
 
 func _ready() -> void:
@@ -21,41 +26,62 @@ func _ready() -> void:
 
 
 func _begin_placement(item: CatalogItem) -> void:
-	_cursor_item = item
+	_place_item = item
 	_mode = Mode.PLACE
-	_cursor_ghost.texture = item.get_texture()
-	_cursor_label.text = ""
+
+	_cursor_place_sprite.texture = item.get_texture()
+	_cursor_place_label.text = ""
+
+	_cursor_ghost_select.hide()
+	_cursor_ghost_place.show()
 
 
 func _end_placement() -> void:
-	_cursor_item = null
+	_place_item = null
 	_mode = Mode.SELECT
-	_cursor_ghost.global_position = Vector2(-2000, -2000)
-	_cursor_label.text = ""
+
+	_cursor_ghost_place.hide()
+	_cursor_ghost_select.show()
 
 
 func _try_place() -> void:
-	var error := _cursor_item.try_place_on(_hovered_tile())
+	var error := _place_item.try_place_on(_hovered_tile())
 
 	if error == "":
 		_end_placement()
 
 	else:
-		_cursor_label.text = error
+		_cursor_place_label.text = error
 
 
 func _process(_delta: float) -> void:
-	if _mode != Mode.PLACE:
-		return
-
 	var tile := _hovered_tile()
 
-	if _cursor_item.can_place_on(tile):
-		_cursor_ghost.global_position = tile.global_position
-		_cursor_ghost.material = HOLO_BLUE
+	match _mode:
+		Mode.SELECT:
+			_cursor_ghost_select.global_position = get_global_mouse_position()
+			_set_hover_text(tile)
+
+		Mode.PLACE:
+			if _place_item.can_place_on(tile):
+				_cursor_ghost_place.global_position = tile.global_position
+				_cursor_place_sprite.material = HOLO_BLUE
+			else:
+				_cursor_ghost_place.global_position = get_global_mouse_position()
+				_cursor_place_sprite.material = HOLO_RED
+
+
+func _set_hover_text(tile: HexTile) -> void:
+	if tile == null:
+		_cursor_select_label.text = ""
+		return
+
+	if tile.building != null:
+		_cursor_select_label.text = tile.building.get_display_name()
+	elif tile.deposit != Stockpile.ItemType.NONE:
+		_cursor_select_label.text = Stockpile.get_display_name(tile.deposit)
 	else:
-		_cursor_ghost.global_position = get_global_mouse_position()
-		_cursor_ghost.material = HOLO_RED
+		_cursor_select_label.text = ""
 
 
 func _unhandled_input(event: InputEvent) -> void:

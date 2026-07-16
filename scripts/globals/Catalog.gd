@@ -2,7 +2,7 @@ extends Node
 
 
 var _catalog: Array[CatalogItem] = []
-var _ever_finished_construction: Dictionary[CatalogItem, bool] = {}
+var _ever_finished_construction: Dictionary[Script, bool] = {}
 
 
 func _ready() -> void:
@@ -106,12 +106,12 @@ func _ready() -> void:
     item.allowed_deposits = [Stockpile.ItemType.NONE]
 
 
-func building_finished_construction(item: CatalogItem) -> void:
-    _ever_finished_construction[item] = true
+func building_finished_construction(type: Script) -> void:
+    _ever_finished_construction[type] = true
 
 
-func has_finished_construction(item: CatalogItem) -> bool:
-    return _ever_finished_construction.get(item, false)
+func has_finished_construction(type: Script) -> bool:
+    return _ever_finished_construction.get(type, false)
 
 
 func get_unlocked_buildings() -> Array[CatalogItem]:

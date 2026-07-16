@@ -1,3 +1,4 @@
+class_name SiliconBouleComplex
 extends FactoryBuilding
 
 

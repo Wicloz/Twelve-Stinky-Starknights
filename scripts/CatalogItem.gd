@@ -68,7 +68,7 @@ func try_place_on(tile: HexTile):
     building.tile = tile
 
     tile.add_child(building)
-    building.start_construction(self)
+    building.start_construction(cost)
 
     return false
 

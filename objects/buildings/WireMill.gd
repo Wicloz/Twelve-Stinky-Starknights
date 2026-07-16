@@ -1,3 +1,4 @@
+class_name WireMill
 extends FactoryBuilding
 
 

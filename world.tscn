@@ -1372,6 +1372,7 @@ construction_panel = NodePath("../UI/ConstructionPanel")
 [node name="Label" type="Label" parent="ClickHandler/CursorGhostPlace" unique_id=1575017582]
 offset_right = 40.0
 offset_bottom = 23.0
+theme_override_constants/outline_size = 16
 theme_override_font_sizes/font_size = 32
 
 [node name="CursorGhostSelect" type="Node2D" parent="ClickHandler" unique_id=981135286]
@@ -1381,6 +1382,7 @@ offset_left = 32.0
 offset_top = -16.0
 offset_right = 72.0
 offset_bottom = 29.0
+theme_override_constants/outline_size = 16
 theme_override_font_sizes/font_size = 32
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=1946576123]

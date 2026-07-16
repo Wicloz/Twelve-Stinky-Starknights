@@ -57,6 +57,13 @@ func _ready() -> void:
     item = CatalogItem.new()
     _catalog.append(item)
 
+    item.scene = preload("res://objects/buildings/OilRig.tscn")
+    item.cost[Stockpile.ItemType.FLUID_PIPES] = 2000
+    item.allowed_deposits = [Stockpile.ItemType.PETROCHEMICALS]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
     item.scene = preload("res://objects/buildings/MCFactory.tscn")
     item.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 10
     item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
@@ -88,6 +95,13 @@ func _ready() -> void:
     item.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 10
     item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
     item.cost[Stockpile.ItemType.BRICKS] = 800
+    item.allowed_deposits = [Stockpile.ItemType.NONE]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
+    item.scene = preload("res://objects/buildings/Refinery.tscn")
+    item.cost[Stockpile.ItemType.FLUID_PIPES] = 2000
     item.allowed_deposits = [Stockpile.ItemType.NONE]
 
 

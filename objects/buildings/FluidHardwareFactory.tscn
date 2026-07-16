@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://bfh4dw8q2z7k1"]
+[gd_scene format=3 uid="uid://bfh4dw8q207k1"]
 
 [ext_resource type="Script" uid="uid://dfh9w2k7p1x3m" path="res://objects/buildings/FluidHardwareFactory.gd" id="1_fhfac"]
 [ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_fhfac"]

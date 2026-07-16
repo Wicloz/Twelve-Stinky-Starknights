@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://bwmill7x3z9k2"]
+[gd_scene format=3 uid="uid://bwmill7x31ak2"]
 
 [ext_resource type="Script" uid="uid://cwm2r8kx1p4qn" path="res://objects/buildings/WireMill.gd" id="1_wmill"]
 [ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_wmill"]

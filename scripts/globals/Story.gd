@@ -34,7 +34,6 @@ func _define_cutscenes() -> void:
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)
 
-    cutscene.conditions[Stockpile.ItemType.PLANKS] = 1000
     cutscene.conditions[Stockpile.ItemType.BRICKS] = 1000
     cutscene.still = preload("res://assets/cutscenes/kevin.png")
     cutscene.text = say(SAKANA, "Sakana", "Wow it looks like you guys have been busy there. Anyway its time for Jerome's debut now.")
@@ -42,11 +41,12 @@ func _define_cutscenes() -> void:
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)
 
-    cutscene.conditions[Stockpile.ItemType.PLANKS] = 1000
     cutscene.conditions[Stockpile.ItemType.BRICKS] = 1000
     cutscene.video = preload("res://assets/cutscenes/jungus.ogv")
     cutscene.text = say(JELLY, "Jelly", "[wave amp=40 freq=4]Awawawawawawawawa![/wave]")
     cutscene.min_duration = 60.0
+    cutscene.on_complete = func() -> void:
+        Stockpile.start_challenge(Stockpile.ItemType.JELLY_STANDEES)
 
 
 const SAKANA := "#8682c6"

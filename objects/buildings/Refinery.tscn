@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://brefn5k8w207q"]
+
+[ext_resource type="Script" uid="uid://crefn9k3x2p4m" path="res://objects/buildings/Refinery.gd" id="1_refin"]
+[ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_refin"]
+
+[node name="Refinery" type="Node2D" unique_id=1208734655]
+script = ExtResource("1_refin")
+recipe = 8
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1755093428]
+texture = ExtResource("2_refin")

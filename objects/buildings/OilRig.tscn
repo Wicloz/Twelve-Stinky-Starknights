@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://boilr5law207x"]
+
+[ext_resource type="Texture2D" uid="uid://fcyxn07nsofm" path="res://assets/buildings/pitmine.png" id="1_orig"]
+[ext_resource type="Script" uid="uid://coilr8k2x9p4q" path="res://objects/buildings/OilRig.gd" id="2_orig"]
+
+[node name="OilRig" type="Node2D" unique_id=1345820917]
+script = ExtResource("2_orig")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1934027581]
+texture = ExtResource("1_orig")

@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://3hejc4d4i3gw" path="res://assets/hex_terrain/Sand/sand_07.png" id="6_70uel"]
 [ext_resource type="Script" uid="uid://d22m0dkwwfmxq" path="res://scripts/ResourceList.gd" id="6_dwbse"]
 [ext_resource type="Script" uid="uid://2k071aqjpe3b" path="res://scripts/DepositPanel.gd" id="8_gbfbk"]
+[ext_resource type="Texture2D" uid="uid://de6ct2nich7m1" path="res://assets/hex_terrain/Stone/stone_16.png" id="8_qktwf"]
 [ext_resource type="Texture2D" uid="uid://5i3tpnr0x6mj" path="res://assets/hex_terrain/Stone/stone_06.png" id="9_bo7i5"]
 [ext_resource type="Texture2D" uid="uid://5ki8qysexsr0" path="res://assets/hex_terrain/Mars/mars_14.png" id="10_ikiii"]
 [ext_resource type="Texture2D" uid="uid://c5fcwv0b5iau8" path="res://assets/hex_terrain/Mars/mars_06.png" id="11_cbp6q"]
@@ -998,6 +999,8 @@ r = 1
 position = Vector2(512, 222)
 q = 3
 r = 2
+terrain_texture = ExtResource("8_qktwf")
+deposit = 13
 
 [node name="Tile=3,3" parent="HexMap" unique_id=1170344182 instance=ExtResource("2_fj7yv")]
 position = Vector2(576, 333)
@@ -1068,6 +1071,8 @@ q = 4
 position = Vector2(576, 111)
 q = 4
 r = 1
+terrain_texture = ExtResource("8_qktwf")
+deposit = 13
 
 [node name="Tile=4,2" parent="HexMap" unique_id=874388077 instance=ExtResource("2_fj7yv")]
 position = Vector2(640, 222)

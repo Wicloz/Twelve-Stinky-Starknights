@@ -58,8 +58,8 @@ func _set_zoom(value: float) -> void:
 	zoom = Vector2(value, value)
 	_clamp_to_map()
 
-	cursor_label_settings.font_size = int(24 / sqrt(value))
-	cursor_label_settings.outline_size = int(12 / sqrt(value))
+	cursor_label_settings.font_size = roundi(24 / sqrt(value))
+	cursor_label_settings.outline_size = roundi(12 / sqrt(value))
 
 
 func _zoom_by(delta: float) -> void:

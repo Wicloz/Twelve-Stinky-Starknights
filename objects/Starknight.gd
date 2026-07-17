@@ -4,13 +4,14 @@ extends Node2D
 
 enum State {IDLE, MOVING, WORKING}
 
-const BASE_MOVE_SPEED: float = 220.0
-const WANDER_SPEED_FACTOR: float = 0.35
+const WANDER_SPEED_FACTOR: float = 1.0 / 3.0
 const WANDER_PAUSE_MIN: float = 0.5
 const WANDER_PAUSE_MAX: float = 2.5
 
-@export var move_speed: float = BASE_MOVE_SPEED
+@export var move_speed: float
 @export var start_tile: HexTile
+
+static var speed_scale: float = 1.0
 
 var _state: State = State.IDLE
 var _current_tile: HexTile
@@ -45,6 +46,10 @@ func _process(delta: float) -> void:
 			_work(delta)
 
 
+func _get_speed() -> float:
+	return move_speed * speed_scale
+
+
 func is_idle() -> bool:
 	return _state == State.IDLE and _footing() != null
 
@@ -69,7 +74,7 @@ func travel_time(target: HexTile) -> float:
 		distance += from.distance_to(tile.position)
 		from = tile.position
 
-	return distance / move_speed
+	return distance / _get_speed()
 
 
 ## Take on the job. Fails if the target turned out to be unreachable after all.
@@ -135,7 +140,7 @@ func _wander(delta: float) -> void:
 		_wander_tile = neighbors.pick_random()
 		return
 
-	position = position.move_toward(_wander_tile.position, move_speed * WANDER_SPEED_FACTOR * delta)
+	position = position.move_toward(_wander_tile.position, _get_speed() * WANDER_SPEED_FACTOR * delta)
 	if position == _wander_tile.position:
 		_current_tile = _wander_tile
 		_wander_tile = null
@@ -150,7 +155,7 @@ func _rest() -> void:
 
 func _move(delta: float) -> void:
 	var next_tile := _path[0]
-	position = position.move_toward(next_tile.position, move_speed * delta)
+	position = position.move_toward(next_tile.position, _get_speed() * delta)
 
 	if position == next_tile.position:
 		_current_tile = next_tile

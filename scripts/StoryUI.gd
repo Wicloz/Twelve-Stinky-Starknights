@@ -7,6 +7,7 @@ extends PanelContainer
 @onready var video_aspect := $VBox/CutsceneViewer/VideoAspect
 @onready var image_aspect := $VBox/CutsceneViewer/ImageAspect
 @onready var letterbox := $VBox/CutsceneViewer/Letterbox
+@onready var music_player: MusicPlayer = $VBox/MusicPlayer
 
 var _reveal: Tween
 
@@ -36,6 +37,9 @@ func _on_cutscene_started(cutscene: Cutscene) -> void:
 		# The video texture isn't sized until the first frame is decoded.
 		await get_tree().process_frame
 		_fit_media(video_aspect, video.get_video_texture().get_size())
+
+	if cutscene.song != null:
+		music_player.unlock_jelly_song(cutscene.song)
 
 	letterbox.color = Color(1, 1, 1, 1)
 	_reveal_text(cutscene.text, cutscene.typing_speed, cutscene.min_duration)

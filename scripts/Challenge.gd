@@ -13,5 +13,5 @@ func is_limit_reached(produced: int) -> bool:
 	return _limit is int and produced >= _limit
 
 
-func get_limit() -> int:
+func get_limit():
 	return _limit

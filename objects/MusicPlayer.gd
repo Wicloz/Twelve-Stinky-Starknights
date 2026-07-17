@@ -32,9 +32,14 @@ var _scrubbing: bool = false
 var _muted: bool = false
 var _bus: int = -1
 
+const JELLY_PLAYLIST := "Jelly Music"
+
 
 func _ready() -> void:
 	_define_playlists()
+
+	_playlists[JELLY_PLAYLIST] = []
+	_names.append(JELLY_PLAYLIST)
 
 	for item in _names:
 		_picker.add_item(item)
@@ -84,12 +89,6 @@ func _define_playlists() -> void:
 	_add("AI Generated", preload("res://assets/music/suno/Eating for Twelve.ogg"))
 	_add("AI Generated", preload("res://assets/music/suno/Wrong Star, Baby.ogg"))
 
-	_add("Jelly Music", preload("res://assets/music/jelly/Aino Protocol.ogg"))
-	_add("Jelly Music", preload("res://assets/music/jelly/Break into my Heart.ogg"))
-	_add("Jelly Music", preload("res://assets/music/jelly/From our Hearts.ogg"))
-	_add("Jelly Music", preload("res://assets/music/jelly/Love Sucker.ogg"))
-	_add("Jelly Music", preload("res://assets/music/jelly/Luminary.ogg"))
-
 
 func _add(playlist: String, stream: AudioStream) -> void:
 	if not _playlists.has(playlist):
@@ -100,13 +99,13 @@ func _add(playlist: String, stream: AudioStream) -> void:
 	_playlists[playlist].append(stream)
 
 
-# Story effects can grow a playlist as the game progresses; the dropdown updates
-# live when a brand-new playlist appears.
-func add_to_playlist(playlist: String, stream: AudioStream) -> void:
-	var is_new := not _playlists.has(playlist)
-	_add(playlist, stream)
-	if is_new:
-		_picker.add_item(playlist)
+func unlock_jelly_song(stream: AudioStream) -> void:
+	_add(JELLY_PLAYLIST, stream)
+	_select_playlist(JELLY_PLAYLIST)
+
+	var index := _playlists[JELLY_PLAYLIST].size() - 1
+	_play_index(index)
+	_play_pause.button_pressed = true
 
 
 func _current_list() -> Array:

@@ -1,28 +1,30 @@
 extends BuildingPopup
 
 
+const BUILDING_PANEL_HEIGHT := 210
+
 var _workshop: Workshop
 var _recipes: Array[Recipe] = []
 
-@onready var _recipe_list := $PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Recipes
+@onready var _recipe_list := $PanelContainer/VBoxContainer/OrderSelection/Recipes
 
 var _selected_recipe: Recipe
 var _selected_repeat: Workshop.Repeat
 var _selected_count: int
 
-@onready var _order_repeat := $PanelContainer/MarginContainer/VBoxContainer/OrderConfig/RepeatMode
-@onready var _order_count := $PanelContainer/MarginContainer/VBoxContainer/OrderConfig/Count
+@onready var _order_repeat := $PanelContainer/VBoxContainer/OrderConfig/RepeatMode
+@onready var _order_count := $PanelContainer/VBoxContainer/OrderConfig/Count
 
-@onready var _details := $PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Details
-@onready var _recipe_name := $PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Details/RecipeName
-@onready var _recipe_io := $PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Details/RecipeIO
-@onready var _recipe_work := $PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Details/RecipeWork
+@onready var _details := $PanelContainer/VBoxContainer/OrderSelection/Details
+@onready var _recipe_name := $PanelContainer/VBoxContainer/OrderSelection/Details/RecipeName
+@onready var _recipe_io := $PanelContainer/VBoxContainer/OrderSelection/Details/RecipeIO
+@onready var _recipe_work := $PanelContainer/VBoxContainer/OrderSelection/Details/RecipeWork
 
-@onready var _order_confirm := $PanelContainer/MarginContainer/VBoxContainer/OrderConfig/Confirm
-@onready var _clear_button := $PanelContainer/MarginContainer/VBoxContainer/ClearButton
+@onready var _order_confirm := $PanelContainer/VBoxContainer/OrderConfig/Confirm
+@onready var _clear_button := $PanelContainer/VBoxContainer/ClearButton
 
 @onready var _panel := $PanelContainer
-@onready var _header := $PanelContainer/MarginContainer/VBoxContainer/Header
+@onready var _header := $PanelContainer/VBoxContainer/Header
 @export var close_button: BaseButton
 
 var _dragging := false
@@ -52,6 +54,8 @@ func _ready() -> void:
 
 	var usable_screen_space := get_viewport_rect().size
 	usable_screen_space.x *= 0.75
+	usable_screen_space.y -= BUILDING_PANEL_HEIGHT
+
 	_panel.global_position = (usable_screen_space - _panel.size) / 2
 
 

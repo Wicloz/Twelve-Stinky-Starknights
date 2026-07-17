@@ -1448,6 +1448,7 @@ size_flags_vertical = 3
 bbcode_enabled = true
 scroll_following_visible_characters = true
 horizontal_alignment = 1
+visible_characters_behavior = 1
 
 [node name="Challenges" type="VBoxContainer" parent="UI/StoryUI/VBox" unique_id=926767048]
 layout_mode = 2

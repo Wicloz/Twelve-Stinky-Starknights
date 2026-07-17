@@ -48,8 +48,11 @@ func _ready() -> void:
 	_clear_button.pressed.connect(_on_clear_pressed)
 	_header.gui_input.connect(_on_header_gui_input)
 
-	_update_details_min_size()
+	_populate_recipes()
+	Research.changed.connect(_populate_recipes)
+	Stockpile.challenge_updated.connect(_populate_recipes)
 
+	_update_details_min_size()
 	await get_tree().process_frame
 
 	var usable_screen_space := get_viewport_rect().size
@@ -64,7 +67,6 @@ func bind(building: Building) -> void:
 
 	_selected_recipe = _workshop.order
 	_refresh_details()
-	_populate_recipes()
 
 	_selected_repeat = _workshop.order_repeat
 	_order_repeat.select(_selected_repeat)
@@ -72,9 +74,6 @@ func bind(building: Building) -> void:
 
 	_selected_count = _workshop.order_target
 	_order_count.set_value_no_signal(_selected_count)
-
-	_workshop.capabilities_changed.connect(_populate_recipes)
-	Stockpile.challenge_updated.connect(_populate_recipes)
 
 
 func register_close_handler(close_handler: Callable) -> void:
@@ -126,7 +125,7 @@ func _populate_recipes() -> void:
 	_recipes.clear()
 	_recipe_list.clear()
 
-	for recipe in Crafting.recipes_for_workshop(_workshop.capabilities):
+	for recipe in Crafting.recipes_for_workshop():
 		_recipes.append(recipe)
 		_recipe_list.add_item(recipe.display_name)
 

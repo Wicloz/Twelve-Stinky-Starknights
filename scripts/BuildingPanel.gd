@@ -12,8 +12,12 @@ signal self_destruct
 @onready var _destruct_button: TextureButton = $VBox/HBox/DestructButton
 @onready var _popup_button: Button = $VBox/HBox/PopupButton
 
+@onready var _research: GridContainer = $VBox/HBox/Research
+var _research_buttons: Array[Button] = []
+
 var _building: Building
 var _popup: BuildingPopup
+var _research_items: Array[ResearchItem] = []
 
 
 func _ready() -> void:
@@ -22,6 +26,16 @@ func _ready() -> void:
 	visibility_changed.connect(_on_visibility_changed)
 	_destruct_button.pressed.connect(_on_destruct_pressed)
 	_close.pressed.connect(_on_close_pressed)
+
+	for button in _research.get_children():
+		_research_buttons.append(button)
+
+	for idx in _research_buttons.size():
+		_research_buttons[idx].pressed.connect(_on_research_button_pressed.bind(idx))
+		_research_items.append(null)
+
+	Research.changed.connect(_refresh_research)
+	Stockpile.changed.connect(_refresh_research)
 
 
 func show_for(building: Building) -> void:
@@ -35,7 +49,43 @@ func show_for(building: Building) -> void:
 	_destruct_button.visible = building.can_demolish()
 
 	show()
+
+	_refresh_research()
 	_open_popup()
+
+
+func _refresh_research() -> void:
+	if not visible:
+		return
+
+	_research_items.fill(null)
+	for item in Research.available_for(_building):
+		_research_items[item.slot] = item
+
+	for i in _research_buttons.size():
+		_bind_research_button(_research_buttons[i], _research_items[i])
+
+
+func _bind_research_button(research_button: Button, item: ResearchItem) -> void:
+	if item == null:
+		research_button.icon = null
+		research_button.text = ""
+		research_button.tooltip_text = ""
+		research_button.disabled = true
+		return
+
+	research_button.icon = item.texture
+	research_button.text = "" if item.texture else item.acronym()
+	research_button.tooltip_text = item.tooltip()
+	research_button.disabled = not Research.can_research(item)
+
+
+func _on_research_button_pressed(index: int) -> void:
+	var item := _research_items[index]
+	if item == null:
+		return
+
+	Research.start_research(item, _building)
 
 
 func _unhandled_input(event: InputEvent) -> void:

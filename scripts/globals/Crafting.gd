@@ -33,14 +33,14 @@ func all_recipes() -> Array[Recipe]:
 	return _recipe_map.values()
 
 
-func recipes_for_workshop(capabilities: Array[Capabilities]) -> Array[Recipe]:
+func recipes_for_workshop() -> Array[Recipe]:
 	var result: Array[Recipe] = []
 
 	for recipe in _recipe_map.values():
 		var satisfied = true
 
 		for capability in recipe.needs_capabilities:
-			if not capabilities.has(capability):
+			if not Workshop.capabilities.has(capability):
 				satisfied = false
 				break
 

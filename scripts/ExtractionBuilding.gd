@@ -2,31 +2,69 @@ class_name ExtractionBuilding
 extends Building
 
 
+static var work_scale: Dictionary[Script, float] = {}
+static var automated: Dictionary[Script, bool] = {}
+static var yield_scale: Dictionary[Script, int] = {}
+
+const BASE_WORK_SPEEDUP: float = 2.0
+
 var _has_active_job: bool = false
+var _will_harvest: int
 
 
-func _process(delta: float) -> void:
+func _get_work_scale() -> float:
+    return work_scale.get(get_script(), 1.0)
+
+
+func _is_automated() -> bool:
+    return automated.get(get_script(), false)
+
+
+func _get_yield_scale() -> int:
+    return yield_scale.get(get_script(), 1)
+
+
+func _process(_delta: float) -> void:
     if _under_construction or _has_active_job:
+        return
+
+    if _is_automated():
+        _automated_run()
         return
 
     _post_job()
 
 
+func _duration() -> float:
+    return tile.HARVEST_DURATION / BASE_WORK_SPEEDUP / _get_work_scale()
+
+
+func _automated_run() -> void:
+    _has_active_job = true
+    _will_harvest = tile.deposit * tile.HARVEST_AMOUNT * _get_yield_scale()
+
+    await get_tree().create_timer(_duration()).timeout
+
+    Stockpile.add(tile.deposit, _will_harvest)
+    _has_active_job = false
+
+
 func _post_job() -> void:
     _has_active_job = true
+    _will_harvest = tile.deposit * tile.HARVEST_AMOUNT * _get_yield_scale()
 
     var job = Job.new()
     job.target = tile
     job.priority = 2
-    job.duration = tile.HARVEST_DURATION / 10
+    job.duration = _duration()
     job.on_complete = _on_mine_complete
     job.on_cancel = _on_mine_aborted
     JobManager.post(job)
 
 
 func _on_mine_complete() -> void:
-    Stockpile.add(tile.deposit, tile.HARVEST_AMOUNT)
-    _post_job()
+    Stockpile.add(tile.deposit, _will_harvest)
+    _has_active_job = false
 
 
 func _on_mine_aborted() -> void:

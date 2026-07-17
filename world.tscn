@@ -1588,6 +1588,70 @@ layout_mode = 2
 
 [node name="Research" type="GridContainer" parent="UI/BuildingPanel/VBox/HBox" unique_id=235991187]
 layout_mode = 2
+columns = 3
+
+[node name="Button1" type="Button" parent="UI/BuildingPanel/VBox/HBox/Research" unique_id=450880294]
+custom_minimum_size = Vector2(50, 50)
+custom_maximum_size = Vector2(50, 50)
+layout_mode = 2
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button2" type="Button" parent="UI/BuildingPanel/VBox/HBox/Research" unique_id=411018121]
+custom_minimum_size = Vector2(50, 50)
+custom_maximum_size = Vector2(50, 50)
+layout_mode = 2
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button3" type="Button" parent="UI/BuildingPanel/VBox/HBox/Research" unique_id=2046076862]
+custom_minimum_size = Vector2(50, 50)
+custom_maximum_size = Vector2(50, 50)
+layout_mode = 2
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button4" type="Button" parent="UI/BuildingPanel/VBox/HBox/Research" unique_id=1206150483]
+custom_minimum_size = Vector2(50, 50)
+custom_maximum_size = Vector2(50, 50)
+layout_mode = 2
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button5" type="Button" parent="UI/BuildingPanel/VBox/HBox/Research" unique_id=579598591]
+custom_minimum_size = Vector2(50, 50)
+custom_maximum_size = Vector2(50, 50)
+layout_mode = 2
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button6" type="Button" parent="UI/BuildingPanel/VBox/HBox/Research" unique_id=697552980]
+custom_minimum_size = Vector2(50, 50)
+custom_maximum_size = Vector2(50, 50)
+layout_mode = 2
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button7" type="Button" parent="UI/BuildingPanel/VBox/HBox/Research" unique_id=674196541]
+custom_minimum_size = Vector2(50, 50)
+custom_maximum_size = Vector2(50, 50)
+layout_mode = 2
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button8" type="Button" parent="UI/BuildingPanel/VBox/HBox/Research" unique_id=158151664]
+custom_minimum_size = Vector2(50, 50)
+custom_maximum_size = Vector2(50, 50)
+layout_mode = 2
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button9" type="Button" parent="UI/BuildingPanel/VBox/HBox/Research" unique_id=1279682200]
+custom_minimum_size = Vector2(50, 50)
+custom_maximum_size = Vector2(50, 50)
+layout_mode = 2
+icon_alignment = 1
+expand_icon = true
 
 [node name="Spacer1" type="Control" parent="UI/BuildingPanel/VBox/HBox" unique_id=529905656]
 layout_mode = 2

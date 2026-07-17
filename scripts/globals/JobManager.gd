@@ -138,17 +138,33 @@ func complete(job: Job) -> void:
 		job.on_complete.call()
 
 
+## Cancel one job wherever it currently sits. Cancelling by tile takes out everything
+## posted there, which is too blunt once more than one thing can be posted on the same
+## tile — a Workshop dropping its own craft job must leave research on that tile alone.
+func cancel(job: Job) -> void:
+	var was_active := job in active
+
+	if not was_active and job not in available:
+		return
+
+	if was_active:
+		active.erase(job)
+	else:
+		available.erase(job)
+
+	if job.on_cancel.is_valid():
+		job.on_cancel.call()
+
+	if was_active:
+		job.abort()
+
+
 func cancel_jobs_on_tile(tile: HexTile) -> void:
 	var filter := func(job: Job) -> bool:
 		return job.target == tile
 
 	for job in available.filter(filter):
-		if job.on_cancel.is_valid():
-			job.on_cancel.call()
-		available.erase(job)
+		cancel(job)
 
 	for job in active.filter(filter):
-		if job.on_cancel.is_valid():
-			job.on_cancel.call()
-		job.abort()
-		active.erase(job)
+		cancel(job)

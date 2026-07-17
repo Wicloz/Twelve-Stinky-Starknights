@@ -3,45 +3,104 @@ extends Building
 
 
 @export var recipe: Crafting.RecipeType
+const BASE_WORK_SPEEDUP: float = 2.0
+
+static var work_scale: Dictionary[Script, float] = {}
+static var automated: Dictionary[Script, bool] = {}
+static var efficiency_scale: Dictionary[Script, float] = {}
+static var yield_scale: Dictionary[Script, int] = {}
 
 var _recipe: Recipe
 var _has_active_job: bool = false
+var _has_consumed: Dictionary[Stockpile.ItemType, int] = {}
+var _will_produce: Dictionary[Stockpile.ItemType, int] = {}
 
 
 func _ready() -> void:
     _recipe = Crafting.get_recipe(recipe)
 
 
-func _process(delta: float) -> void:
+func _get_work_scale() -> float:
+    return work_scale.get(get_script(), 1.0)
+
+
+func _is_automated() -> bool:
+    return automated.get(get_script(), false)
+
+
+func _get_efficiency_scale() -> float:
+    return efficiency_scale.get(get_script(), 1.0)
+
+
+func _get_yield_scale() -> int:
+    return yield_scale.get(get_script(), 1)
+
+
+func _process(_delta: float) -> void:
     if _under_construction or _has_active_job:
+        return
+
+    if _is_automated():
+        _try_automated_run()
         return
 
     _try_post_job()
 
 
-func _try_post_job() -> void:
-    for item in _recipe.inputs:
-        if Stockpile.get_amount(item) < _recipe.inputs[item]:
-            return
+func _duration() -> float:
+    return _recipe.work / BASE_WORK_SPEEDUP / _get_work_scale()
+
+
+func _try_consume() -> bool:
+    var inputs := _recipe.inputs
+
+    for item in inputs:
+        inputs[item] = roundi(inputs[item] * _get_yield_scale() / _get_efficiency_scale())
+        if Stockpile.get_amount(item) < inputs[item]:
+            return false
+
+    Stockpile.remove_bulk(inputs)
+    _has_consumed = inputs
+
+    _will_produce.clear()
+    for item in _recipe.outputs:
+        _will_produce[item] = _recipe.outputs[item] * _get_yield_scale()
+
+    return true
+
+
+func _try_automated_run() -> void:
+    if not _try_consume():
+        return
 
     _has_active_job = true
-    Stockpile.remove_bulk(_recipe.inputs)
+
+    await get_tree().create_timer(_duration()).timeout
+
+    Stockpile.add_bulk(_will_produce)
+    _has_active_job = false
+
+
+func _try_post_job() -> void:
+    if not _try_consume():
+        return
+
+    _has_active_job = true
 
     var job = Job.new()
     job.target = tile
     job.priority = 2
-    job.duration = _recipe.work / 10
+    job.duration = _duration()
     job.on_complete = _on_craft_complete
     job.on_cancel = _on_craft_aborted
     JobManager.post(job)
 
 
 func _on_craft_complete() -> void:
-    Stockpile.add_bulk(_recipe.outputs)
+    Stockpile.add_bulk(_will_produce)
     _has_active_job = false
-    _try_post_job()
 
 
 func _on_craft_aborted() -> void:
-    Stockpile.add_bulk(_recipe.inputs)
+    Stockpile.add_bulk(_has_consumed)
     _has_active_job = false

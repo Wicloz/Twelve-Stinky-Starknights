@@ -52,10 +52,10 @@ func _define_cutscenes() -> void:
 
     cutscene.condition = func() -> bool:
         return Catalog.has_finished_construction(MechanicalComponentFactory)
-    cutscene.video = preload("res://assets/cutscenes/jungus.ogv")
+    cutscene.video = preload("res://assets/cutscenes/jelly_debut.ogv")
     cutscene.song = preload("res://assets/music/jelly/Luminary.ogg")
     cutscene.text = say(JELLY, "Jelly", "[wave amp=40 freq=4]Awawawawawawawawa![/wave]")
-    cutscene.min_duration = 60.0
+    cutscene.min_duration = 73.0
 
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)

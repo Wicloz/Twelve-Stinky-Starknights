@@ -55,9 +55,18 @@ func try_place_on(tile: HexTile):
     if not can_place_on(tile):
         return "Cannot place this building here."
 
+    var missing: Dictionary[Stockpile.ItemType, int] = {}
+
     for resource in cost:
-        if Stockpile.get_amount(resource) < cost[resource]:
-            return "Not enough resources to place this building."
+        var missing_amount := cost[resource] - Stockpile.get_amount(resource)
+        if missing_amount > 0:
+            missing[resource] = missing_amount
+
+    if missing.size() > 0:
+        var error := "Not enough resources to place this building:"
+        for resource in missing:
+            error += "\n" + "  - missing %d %s" % [missing[resource], Stockpile.get_display_name(resource)]
+        return error
 
     var building = scene.instantiate() as Building
     building.z_index = tile.z_index + 1

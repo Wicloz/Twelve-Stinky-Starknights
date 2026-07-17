@@ -52,8 +52,10 @@ func _on_destruct_pressed() -> void:
 func _set_destruct_icon() -> void:
 	if _building.is_constructed():
 		_destruct_button.texture_normal = demolish_icon
+		_destruct_button.tooltip_text = "Demolish (del)"
 	else:
 		_destruct_button.texture_normal = cancel_icon
+		_destruct_button.tooltip_text = "Cancel Construction (del)"
 
 
 func _close_popup() -> void:

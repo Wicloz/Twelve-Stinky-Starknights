@@ -63,7 +63,7 @@ func _define_cutscenes() -> void:
     cutscene.condition = func() -> bool:
         return Catalog.has_finished_construction(MechanicalComponentFactory)
     cutscene.still = preload("res://assets/cutscenes/kevin.png")
-    cutscene.text = say(SAKANA, "Sakana", "Now that that's over, its time for you to start producing merchandise. I'm not paying you nothing for nothing. Best get started on those standees and that coffee.")
+    cutscene.text = say(SAKANA, "Sakana", "Now that that's over, its time for you to start producing merchandise. I'm not paying you nothing for nothing. Best get started on those standees, every VTuber needs standees.")
     cutscene.on_complete = func() -> void:
         Stockpile.start_challenge(Stockpile.ItemType.JELLY_STANDEES)
 

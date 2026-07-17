@@ -56,7 +56,7 @@ func _ready() -> void:
 	_player.finished.connect(func() -> void: _step(1))
 
 	_seek.value_changed.connect(_on_seek_changed)
-	_seek.drag_started.connect(func() -> void: _scrubbing = true)
+	_seek.drag_started.connect(_on_seek_drag_started)
 	_seek.drag_ended.connect(_on_seek_drag_ended)
 
 	# Configure the volume slider as a dB fader so its range matches the mute
@@ -101,9 +101,10 @@ func unlock_jelly_song(stream: AudioStream) -> void:
 	_add(JELLY_PLAYLIST, stream)
 	_select_playlist(JELLY_PLAYLIST)
 
+	_play_pause.button_pressed = true
+
 	var index := _playlists[JELLY_PLAYLIST].size() - 1
 	_play_index(index)
-	_play_pause.button_pressed = true
 
 
 func _current_list() -> Array:
@@ -119,8 +120,6 @@ func _select_playlist(playlist: String) -> void:
 	_index = 0
 	_picker.select(_names.find(playlist))
 
-	# Switching while playing hops straight into the new list; otherwise just
-	# prime the title and wait for the user to hit play.
 	if _play_pause.button_pressed:
 		_play_index(0)
 	else:
@@ -140,10 +139,7 @@ func _on_play_toggled(on: bool) -> void:
 
 
 func _step(offset: int) -> void:
-	if _current_list().is_empty():
-		return
 	_play_index(_index + offset)
-	_play_pause.button_pressed = true
 
 
 func _play_index(index: int) -> void:
@@ -153,19 +149,23 @@ func _play_index(index: int) -> void:
 
 	_index = wrapi(index, 0, list.size())
 	_player.stream = list[_index]
-	_player.stream_paused = false
 	_player.play()
 
-	_seek.max_value = maxf(_player.stream.get_length(), 0.1)
+	if not _play_pause.button_pressed:
+		_player.stream_paused = true
+
+	_seek.max_value = _player.stream.get_length()
 	_seek.set_value_no_signal(0.0)
 	_refresh_title()
 
 
 func _on_seek_changed(value: float) -> void:
-	# Fired only by user input; _process uses set_value_no_signal. Ignore the
-	# stream of changes mid-drag and commit once on release instead.
 	if not _scrubbing and _player.stream != null:
 		_player.seek(value)
+
+
+func _on_seek_drag_started() -> void:
+	_scrubbing = true
 
 
 func _on_seek_drag_ended(_changed: bool) -> void:
@@ -184,8 +184,6 @@ func _on_mute_toggled(on: bool) -> void:
 	_apply_volume()
 
 
-# Single owner of the bus state, so the mute button and the slider's bottom-of-
-# range don't fight: silent if either asks for it, otherwise the slider's dB.
 func _apply_volume() -> void:
 	if _muted or _volume.value <= MIN_DB:
 		AudioServer.set_bus_mute(_bus, true)

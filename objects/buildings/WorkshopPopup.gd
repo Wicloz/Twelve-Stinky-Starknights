@@ -105,7 +105,7 @@ func _on_confirm_pressed() -> void:
 
 func _refresh_details() -> void:
 	if _selected_recipe == null:
-		_recipe_name.text = "No Order"
+		_recipe_name.text = ""
 		_recipe_io.text = ""
 		_recipe_work.text = ""
 		return
@@ -149,7 +149,7 @@ func _update_details_min_size() -> void:
 	var work_size: int = _recipe_work.get_theme_font_size("font_size")
 
 	# Widest content any recipe (or the placeholder) could ever put in the labels.
-	var width: float = name_font.get_string_size("No Order", HORIZONTAL_ALIGNMENT_LEFT, -1, name_size).x
+	var width: float = 0
 	for recipe in Crafting.all_recipes():
 		var io_text := "%s  =>  %s" % [_fmt_io(recipe.inputs), _fmt_io(recipe.outputs)]
 		width = max(width, name_font.get_string_size(recipe.display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, name_size).x)

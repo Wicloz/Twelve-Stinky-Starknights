@@ -12,62 +12,55 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_7p4gc")
-close_button = NodePath("PanelContainer/MarginContainer/VBoxContainer/Header/Close")
+close_button = NodePath("PanelContainer/VBoxContainer/Header/Close")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=499549731]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1558470522]
-layout_mode = 2
-theme_override_constants/margin_left = 5
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 5
-theme_override_constants/margin_bottom = 5
-
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer" unique_id=1524465752]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=1524465752]
 layout_mode = 2
 
-[node name="Header" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=278245300]
+[node name="Header" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=278245300]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/Header" unique_id=1582423811]
+[node name="Title" type="Label" parent="PanelContainer/VBoxContainer/Header" unique_id=1582423811]
 layout_mode = 2
 text = "Workshop"
 
-[node name="Spacer" type="Control" parent="PanelContainer/MarginContainer/VBoxContainer/Header" unique_id=1315776295]
+[node name="Spacer" type="Control" parent="PanelContainer/VBoxContainer/Header" unique_id=1315776295]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Close" type="TextureButton" parent="PanelContainer/MarginContainer/VBoxContainer/Header" unique_id=391795082]
+[node name="Close" type="TextureButton" parent="PanelContainer/VBoxContainer/Header" unique_id=391795082]
 layout_mode = 2
 texture_normal = ExtResource("2_sge2c")
 
-[node name="OrderSelection" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=646804814]
+[node name="OrderSelection" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=646804814]
 layout_mode = 2
 
-[node name="Recipes" type="ItemList" parent="PanelContainer/MarginContainer/VBoxContainer/OrderSelection" unique_id=858313223]
+[node name="Recipes" type="ItemList" parent="PanelContainer/VBoxContainer/OrderSelection" unique_id=858313223]
 custom_minimum_size = Vector2(0, 300)
 layout_mode = 2
 auto_width = true
 
-[node name="Details" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/OrderSelection" unique_id=987804275]
+[node name="Details" type="VBoxContainer" parent="PanelContainer/VBoxContainer/OrderSelection" unique_id=987804275]
 layout_mode = 2
 
-[node name="RecipeName" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Details" unique_id=1576396022]
+[node name="RecipeName" type="Label" parent="PanelContainer/VBoxContainer/OrderSelection/Details" unique_id=1576396022]
 layout_mode = 2
 
-[node name="RecipeIO" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Details" unique_id=332784122]
+[node name="RecipeIO" type="Label" parent="PanelContainer/VBoxContainer/OrderSelection/Details" unique_id=332784122]
 layout_mode = 2
 
-[node name="RecipeWork" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/OrderSelection/Details" unique_id=603595288]
+[node name="RecipeWork" type="Label" parent="PanelContainer/VBoxContainer/OrderSelection/Details" unique_id=603595288]
 layout_mode = 2
 
-[node name="OrderConfig" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=439511777]
+[node name="OrderConfig" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=439511777]
 layout_mode = 2
 
-[node name="RepeatMode" type="OptionButton" parent="PanelContainer/MarginContainer/VBoxContainer/OrderConfig" unique_id=1393575984]
+[node name="RepeatMode" type="OptionButton" parent="PanelContainer/VBoxContainer/OrderConfig" unique_id=1393575984]
 layout_mode = 2
 item_count = 3
 popup/item_0/text = "Forever"
@@ -77,14 +70,14 @@ popup/item_1/id = 1
 popup/item_2/text = "Until"
 popup/item_2/id = 2
 
-[node name="Count" type="SpinBox" parent="PanelContainer/MarginContainer/VBoxContainer/OrderConfig" unique_id=385096690]
+[node name="Count" type="SpinBox" parent="PanelContainer/VBoxContainer/OrderConfig" unique_id=385096690]
 layout_mode = 2
 update_on_text_changed = true
 
-[node name="Confirm" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/OrderConfig" unique_id=152213972]
+[node name="Confirm" type="Button" parent="PanelContainer/VBoxContainer/OrderConfig" unique_id=152213972]
 layout_mode = 2
 text = "Confirm"
 
-[node name="ClearButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=1646209328]
+[node name="ClearButton" type="Button" parent="PanelContainer/VBoxContainer" unique_id=1646209328]
 layout_mode = 2
 text = "Cancel Current Order"

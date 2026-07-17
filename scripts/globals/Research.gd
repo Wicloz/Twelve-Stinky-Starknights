@@ -3,11 +3,7 @@ signal changed
 
 
 var _items: Array[ResearchItem] = []
-
-
-func _ready() -> void:
-	_define_research()
-	_refresh_states()
+var _registered: Array[Script] = []
 
 
 func available_for(building: Building) -> Array[ResearchItem]:
@@ -26,17 +22,6 @@ func available_for(building: Building) -> Array[ResearchItem]:
 
 	var result: Array[ResearchItem] = by_slot.values()
 	return result
-
-
-func slot_count_for(building: Building) -> int:
-	var type: Script = building.get_script()
-	var count := 0
-
-	for item in _items:
-		if item.research_at == type:
-			count = maxi(count, item.slot + 1)
-
-	return count
 
 
 func can_research(item: ResearchItem) -> bool:
@@ -104,40 +89,17 @@ func _prerequisites_met(item: ResearchItem) -> bool:
 	return true
 
 
-static func _scale_float(modifiers: Dictionary, type: Script, factor: float) -> void:
-	modifiers[type] = factor
+func register_research(building: Building, research: Array[ResearchItem]) -> void:
+	var script: Script = building.get_script()
+
+	for item in research:
+		item.research_at = script
+		_items.append(item)
+
+	_refresh_states()
+	_registered.append(script)
 
 
-static func _scale_int(modifiers: Dictionary, type: Script, factor: int) -> void:
-	modifiers[type] = factor
-
-
-static func _enable(flags: Dictionary, type: Script) -> void:
-	flags[type] = true
-
-
-func _define_research() -> void:
-	var ergonomic_tools := ResearchItem.new()
-	_items.append(ergonomic_tools)
-
-	ergonomic_tools.display_name = "Ergonomic Tools"
-	ergonomic_tools.description = "Starknights move 25% faster."
-	ergonomic_tools.research_at = Workshop
-	ergonomic_tools.slot = 0
-	ergonomic_tools.cost[Stockpile.ItemType.PLANKS] = 50
-	ergonomic_tools.cost[Stockpile.ItemType.BRASS_INGOTS] = 10
-	ergonomic_tools.on_complete = func() -> void:
-		Starknight.speed_scale = 1.25
-
-	var powered_exoskeletons := ResearchItem.new()
-	_items.append(powered_exoskeletons)
-
-	powered_exoskeletons.display_name = "Powered Exoskeletons"
-	powered_exoskeletons.description = "Starknights move a further 25% faster."
-	powered_exoskeletons.research_at = Workshop
-	powered_exoskeletons.slot = 0
-	powered_exoskeletons.prerequisites.append(ergonomic_tools)
-	powered_exoskeletons.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 25
-	powered_exoskeletons.cost[Stockpile.ItemType.ELECTRUM_WIRE] = 25
-	powered_exoskeletons.on_complete = func() -> void:
-		Starknight.speed_scale = 1.50
+func can_register(building: Building) -> bool:
+	var script: Script = building.get_script()
+	return not script in _registered

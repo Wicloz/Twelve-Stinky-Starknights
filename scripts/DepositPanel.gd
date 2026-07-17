@@ -23,5 +23,14 @@ func show_for(tile: HexTile) -> void:
 	show()
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if not visible or not _toggle.visible:
+		return
+
+	if event.is_action_pressed("toggle_harvest"):
+		_toggle.button_pressed = not _toggle.button_pressed
+		get_viewport().set_input_as_handled()
+
+
 func _on_harvest_toggled(pressed: bool) -> void:
 	_tile.set_harvesting(pressed)

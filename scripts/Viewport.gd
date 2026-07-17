@@ -22,8 +22,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	var input := Vector2(
-		Input.get_axis("ui_left", "ui_right"),
-		Input.get_axis("ui_up", "ui_down"),
+		Input.get_axis("pan_left", "pan_right"),
+		Input.get_axis("pan_up", "pan_down"),
 	)
 	position += input * pan_speed * delta / sqrt(zoom.x)
 	_clamp_to_map()
@@ -40,11 +40,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			_zoom_by(1 / (1 + zoom_factor))
 		elif event.button_index == MOUSE_BUTTON_MIDDLE:
 			_panning = true
-	elif event is InputEventKey and event.pressed:
-		if event.keycode == KEY_EQUAL or event.keycode == KEY_KP_ADD:
-			_zoom_by(1 + zoom_factor)
-		elif event.keycode == KEY_MINUS or event.keycode == KEY_KP_SUBTRACT:
-			_zoom_by(1 / (1 + zoom_factor))
+	elif event.is_action_pressed("zoom_in"):
+		_zoom_by(1 + zoom_factor)
+	elif event.is_action_pressed("zoom_out"):
+		_zoom_by(1 / (1 + zoom_factor))
 
 
 func _input(event: InputEvent) -> void:

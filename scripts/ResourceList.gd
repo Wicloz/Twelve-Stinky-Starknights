@@ -1,6 +1,7 @@
 extends VBoxContainer
 
 
+@export var label_settings: LabelSettings
 var _labels: Dictionary[Stockpile.ItemType, Label] = {}
 
 
@@ -16,6 +17,7 @@ func _refresh() -> void:
 
 		elif not Stockpile.is_story_item(item) and Stockpile.is_seen(item):
 			var label := Label.new()
+			label.label_settings = label_settings
 			label.text = _make_label_text(item)
 			add_child(label)
 			_labels[item] = label

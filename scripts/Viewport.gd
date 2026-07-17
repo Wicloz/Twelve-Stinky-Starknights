@@ -8,6 +8,8 @@ extends Camera2D
 
 ## Fraction of the viewport width covered by the StoryUI sidebar on the right.
 @export var ui_width_ratio: float = 0.25
+@export var cursor_label_settings: LabelSettings
+
 
 var _panning := false
 var _tile_centers: PackedVector2Array = []
@@ -16,7 +18,7 @@ var _tile_centers: PackedVector2Array = []
 func _ready() -> void:
 	_cache_map()
 
-	zoom = Vector2(min_zoom, min_zoom)
+	_set_zoom(min_zoom)
 	position.x = get_viewport_rect().size.x * ui_width_ratio * 0.5 / zoom.x
 
 
@@ -52,10 +54,17 @@ func _input(event: InputEvent) -> void:
 		_clamp_to_map()
 
 
+func _set_zoom(value: float) -> void:
+	zoom = Vector2(value, value)
+	_clamp_to_map()
+
+	cursor_label_settings.font_size = int(24 / sqrt(value))
+	cursor_label_settings.outline_size = int(12 / sqrt(value))
+
+
 func _zoom_by(delta: float) -> void:
 	var new_zoom := clampf(zoom.x * delta, min_zoom, max_zoom)
-	zoom = Vector2(new_zoom, new_zoom)
-	_clamp_to_map()
+	_set_zoom(new_zoom)
 
 
 func _cache_map() -> void:

@@ -8,7 +8,7 @@ const BASE_WORK_SPEEDUP: float = 2.0
 static var work_scale: Dictionary[Script, float] = {}
 static var automated: Dictionary[Script, bool] = {}
 static var efficiency_scale: Dictionary[Script, float] = {}
-static var yield_scale: Dictionary[Script, int] = {}
+static var production_scale: Dictionary[Script, int] = {}
 
 var _recipe: Recipe
 var _has_active_job: bool = false
@@ -32,8 +32,8 @@ func _get_efficiency_scale() -> float:
     return efficiency_scale.get(get_script(), 1.0)
 
 
-func _get_yield_scale() -> int:
-    return yield_scale.get(get_script(), 1)
+func _get_production_scale() -> int:
+    return production_scale.get(get_script(), 1)
 
 
 func _process(_delta: float) -> void:
@@ -55,7 +55,7 @@ func _try_consume() -> bool:
     var inputs := _recipe.inputs
 
     for item in inputs:
-        inputs[item] = roundi(inputs[item] * _get_yield_scale() / _get_efficiency_scale())
+        inputs[item] = ceili(inputs[item] * _get_production_scale() / _get_efficiency_scale())
         if Stockpile.get_amount(item) < inputs[item]:
             return false
 
@@ -64,7 +64,7 @@ func _try_consume() -> bool:
 
     _will_produce.clear()
     for item in _recipe.outputs:
-        _will_produce[item] = _recipe.outputs[item] * _get_yield_scale()
+        _will_produce[item] = _recipe.outputs[item] * _get_production_scale()
 
     return true
 

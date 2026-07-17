@@ -41,7 +41,7 @@ func _duration() -> float:
 
 func _automated_run() -> void:
     _has_active_job = true
-    _will_harvest = tile.deposit * tile.HARVEST_AMOUNT * _get_yield_scale()
+    _will_harvest = tile.HARVEST_AMOUNT * _get_yield_scale()
 
     await get_tree().create_timer(_duration()).timeout
 
@@ -51,7 +51,7 @@ func _automated_run() -> void:
 
 func _post_job() -> void:
     _has_active_job = true
-    _will_harvest = tile.deposit * tile.HARVEST_AMOUNT * _get_yield_scale()
+    _will_harvest = tile.HARVEST_AMOUNT * _get_yield_scale()
 
     var job = Job.new()
     job.target = tile

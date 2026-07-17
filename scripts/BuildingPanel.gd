@@ -60,7 +60,7 @@ func _refresh_research() -> void:
 
 	_research_items.fill(null)
 	for item in Research.available_for(_building):
-		_research_items[item.slot] = item
+		_research_items[item.slot - 1] = item
 
 	for i in _research_buttons.size():
 		_bind_research_button(_research_buttons[i], _research_items[i])

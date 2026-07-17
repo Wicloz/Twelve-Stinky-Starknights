@@ -52,10 +52,10 @@ func _duration() -> float:
 
 
 func _try_consume() -> bool:
-    var inputs := _recipe.inputs
+    var inputs: Dictionary[Stockpile.ItemType, int] = {}
 
-    for item in inputs:
-        inputs[item] = ceili(inputs[item] * _get_production_scale() / _get_efficiency_scale())
+    for item in _recipe.inputs:
+        inputs[item] = ceili(_recipe.inputs[item] * _get_production_scale() / _get_efficiency_scale())
         if Stockpile.get_amount(item) < inputs[item]:
             return false
 

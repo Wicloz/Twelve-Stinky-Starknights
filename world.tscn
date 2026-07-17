@@ -1309,51 +1309,51 @@ q = 8
 
 [node name="Starknight=01" parent="Workers" unique_id=887805097 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
 position = Vector2(-2885, -1183)
-start_tile = NodePath("../../HexMap/Tile=0,0")
+start_tile = NodePath("../../HexMap/Tile=2,-1")
 
 [node name="Starknight=02" parent="Workers" unique_id=299301697 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
 position = Vector2(-2806, -1183)
-start_tile = NodePath("../../HexMap/Tile=0,0")
+start_tile = NodePath("../../HexMap/Tile=2,-1")
 
 [node name="Starknight=03" parent="Workers" unique_id=1867069163 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
 position = Vector2(-2724, -1183)
-start_tile = NodePath("../../HexMap/Tile=0,0")
+start_tile = NodePath("../../HexMap/Tile=2,-1")
 
 [node name="Starknight=04" parent="Workers" unique_id=605398808 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
 position = Vector2(-2642, -1183)
-start_tile = NodePath("../../HexMap/Tile=0,0")
+start_tile = NodePath("../../HexMap/Tile=2,-1")
 
 [node name="Starknight=05" parent="Workers" unique_id=1674593392 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
 position = Vector2(-2885, -1103)
-start_tile = NodePath("../../HexMap/Tile=0,0")
+start_tile = NodePath("../../HexMap/Tile=2,-1")
 
 [node name="Starknight=06" parent="Workers" unique_id=1764657432 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
 position = Vector2(-2806, -1103)
-start_tile = NodePath("../../HexMap/Tile=0,0")
+start_tile = NodePath("../../HexMap/Tile=2,-1")
 
 [node name="Starknight=07" parent="Workers" unique_id=1551025656 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
 position = Vector2(-2724, -1103)
-start_tile = NodePath("../../HexMap/Tile=0,0")
+start_tile = NodePath("../../HexMap/Tile=2,-1")
 
 [node name="Starknight=08" parent="Workers" unique_id=1590892771 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
 position = Vector2(-2642, -1103)
-start_tile = NodePath("../../HexMap/Tile=0,0")
+start_tile = NodePath("../../HexMap/Tile=2,-1")
 
 [node name="Starknight=09" parent="Workers" unique_id=1360817510 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
 position = Vector2(-2885, -1027)
-start_tile = NodePath("../../HexMap/Tile=0,0")
+start_tile = NodePath("../../HexMap/Tile=2,-1")
 
 [node name="Starknight=10" parent="Workers" unique_id=73803431 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
 position = Vector2(-2806, -1027)
-start_tile = NodePath("../../HexMap/Tile=0,0")
+start_tile = NodePath("../../HexMap/Tile=2,-1")
 
 [node name="Starknight=11" parent="Workers" unique_id=343814708 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
 position = Vector2(-2724, -1027)
-start_tile = NodePath("../../HexMap/Tile=0,0")
+start_tile = NodePath("../../HexMap/Tile=2,-1")
 
 [node name="Starknight=12" parent="Workers" unique_id=635410187 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
 position = Vector2(-2642, -1027)
-start_tile = NodePath("../../HexMap/Tile=0,0")
+start_tile = NodePath("../../HexMap/Tile=2,-1")
 
 [node name="Viewport" type="Camera2D" parent="." unique_id=1775877281]
 limit_enabled = false
@@ -1449,6 +1449,10 @@ bbcode_enabled = true
 scroll_following_visible_characters = true
 horizontal_alignment = 1
 
+[node name="Challenges" type="VBoxContainer" parent="UI/StoryUI/VBox" unique_id=926767048]
+layout_mode = 2
+script = ExtResource("24_4h6ng")
+
 [node name="MusicPlayer" type="VBoxContainer" parent="UI/StoryUI/VBox" unique_id=240591314]
 layout_mode = 2
 script = ExtResource("16_il2jm")
@@ -1495,10 +1499,6 @@ size_flags_horizontal = 3
 
 [node name="Player" type="AudioStreamPlayer" parent="UI/StoryUI/VBox/MusicPlayer" unique_id=281882130]
 bus = &"Music"
-
-[node name="Challenges" type="VBoxContainer" parent="UI/StoryUI/VBox" unique_id=926767048]
-layout_mode = 2
-script = ExtResource("24_4h6ng")
 
 [node name="DepositPanel" type="PanelContainer" parent="UI" unique_id=1222018713]
 anchors_preset = -1

@@ -119,11 +119,7 @@ func _select_playlist(playlist: String) -> void:
 	_current = playlist
 	_index = 0
 	_picker.select(_names.find(playlist))
-
-	if _play_pause.button_pressed:
-		_play_index(0)
-	else:
-		_refresh_title()
+	_play_index(_index)
 
 
 func _on_play_toggled(on: bool) -> void:

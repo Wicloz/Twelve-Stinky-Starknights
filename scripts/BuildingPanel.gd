@@ -6,7 +6,9 @@ signal self_destruct
 @export var cancel_icon: Texture2D
 @export var demolish_icon: Texture2D
 
-@onready var _title: Label = $VBox/Title
+@onready var _title: Label = $VBox/Header/Title
+@onready var _close: TextureButton = $VBox/Header/Close
+
 @onready var _destruct_button: TextureButton = $VBox/HBox/DestructButton
 @onready var _popup_button: Button = $VBox/HBox/PopupButton
 
@@ -19,6 +21,7 @@ func _ready() -> void:
 	_popup_button.pressed.connect(_open_popup)
 	visibility_changed.connect(_on_visibility_changed)
 	_destruct_button.pressed.connect(_on_destruct_pressed)
+	_close.pressed.connect(_on_close_pressed)
 
 
 func show_for(building: Building) -> void:
@@ -46,6 +49,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _on_destruct_pressed() -> void:
 	_building.demolish()
+	self_destruct.emit()
+
+
+func _on_close_pressed() -> void:
 	self_destruct.emit()
 
 

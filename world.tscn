@@ -32,6 +32,7 @@
 [ext_resource type="Script" uid="uid://c2fq3bfp80uw1" path="res://scripts/Challenges.gd" id="24_4h6ng"]
 [ext_resource type="Texture2D" uid="uid://bmuo20cw6l57t" path="res://assets/icons/building_cancel.svg" id="27_k83mh"]
 [ext_resource type="Texture2D" uid="uid://dwba8qnudiyb4" path="res://assets/icons/building_delete.svg" id="28_qktwf"]
+[ext_resource type="Texture2D" uid="uid://bfpoe3u077q62" path="res://assets/icons/close.svg" id="29_gggvi"]
 
 [node name="World" type="Node2D" unique_id=1592913599]
 
@@ -1516,12 +1517,30 @@ script = ExtResource("8_gbfbk")
 [node name="VBox" type="VBoxContainer" parent="UI/DepositPanel" unique_id=800082505]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="UI/DepositPanel/VBox" unique_id=761461730]
+[node name="Header" type="HBoxContainer" parent="UI/DepositPanel/VBox" unique_id=544221446]
 layout_mode = 2
 
-[node name="Toggle" type="CheckButton" parent="UI/DepositPanel/VBox" unique_id=1631508977]
+[node name="Title" type="Label" parent="UI/DepositPanel/VBox/Header" unique_id=761461730]
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="UI/DepositPanel/VBox/Header" unique_id=348492649]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Close" type="TextureButton" parent="UI/DepositPanel/VBox/Header" unique_id=1694782623]
+layout_mode = 2
+texture_normal = ExtResource("29_gggvi")
+
+[node name="HBox" type="HBoxContainer" parent="UI/DepositPanel/VBox" unique_id=856103709]
+layout_mode = 2
+
+[node name="Toggle" type="CheckButton" parent="UI/DepositPanel/VBox/HBox" unique_id=1631508977]
 layout_mode = 2
 text = "Harvest (H)"
+
+[node name="Spacer" type="Control" parent="UI/DepositPanel/VBox/HBox" unique_id=1455959908]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="BuildingPanel" type="PanelContainer" parent="UI" unique_id=1190837471]
 anchors_preset = -1
@@ -1538,8 +1557,19 @@ demolish_icon = ExtResource("28_qktwf")
 [node name="VBox" type="VBoxContainer" parent="UI/BuildingPanel" unique_id=1042535700]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="UI/BuildingPanel/VBox" unique_id=1259757163]
+[node name="Header" type="HBoxContainer" parent="UI/BuildingPanel/VBox" unique_id=107226929]
 layout_mode = 2
+
+[node name="Title" type="Label" parent="UI/BuildingPanel/VBox/Header" unique_id=1259757163]
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="UI/BuildingPanel/VBox/Header" unique_id=2092430380]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Close" type="TextureButton" parent="UI/BuildingPanel/VBox/Header" unique_id=1389926148]
+layout_mode = 2
+texture_normal = ExtResource("29_gggvi")
 
 [node name="HBox" type="HBoxContainer" parent="UI/BuildingPanel/VBox" unique_id=1494035763]
 layout_mode = 2
@@ -1571,13 +1601,23 @@ grow_horizontal = 2
 grow_vertical = 0
 script = ExtResource("12_k3n1d")
 
-[node name="Margin" type="MarginContainer" parent="UI/ConstructionPanel" unique_id=1630822402]
+[node name="VBox" type="VBoxContainer" parent="UI/ConstructionPanel" unique_id=696623966]
 layout_mode = 2
 
-[node name="Scroll" type="ScrollContainer" parent="UI/ConstructionPanel/Margin" unique_id=414275933]
+[node name="Header" type="HBoxContainer" parent="UI/ConstructionPanel/VBox" unique_id=1598048259]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UI/ConstructionPanel/VBox/Header" unique_id=473776436]
+layout_mode = 2
+text = "Construction Blueprints:"
+
+[node name="Margin" type="MarginContainer" parent="UI/ConstructionPanel/VBox" unique_id=1630822402]
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="UI/ConstructionPanel/VBox/Margin" unique_id=414275933]
 layout_mode = 2
 horizontal_scroll_mode = 2
 vertical_scroll_mode = 0
 
-[node name="Columns" type="HBoxContainer" parent="UI/ConstructionPanel/Margin/Scroll" unique_id=1519381145]
+[node name="Columns" type="HBoxContainer" parent="UI/ConstructionPanel/VBox/Margin/Scroll" unique_id=1519381145]
 layout_mode = 2

@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://b2h63kdst8h3f"]
 
 [ext_resource type="Script" uid="uid://cowikp7nojeed" path="res://objects/buildings/WorkshopPopup.gd" id="1_7p4gc"]
+[ext_resource type="Texture2D" uid="uid://bfpoe3u077q62" path="res://assets/icons/close.svg" id="2_sge2c"]
 
 [node name="WorkshopPopup" type="Control" unique_id=1695030635 node_paths=PackedStringArray("close_button")]
 layout_mode = 3
@@ -39,9 +40,9 @@ text = "Workshop"
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Close" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/Header" unique_id=974737499]
+[node name="Close" type="TextureButton" parent="PanelContainer/MarginContainer/VBoxContainer/Header" unique_id=391795082]
 layout_mode = 2
-text = "✕"
+texture_normal = ExtResource("2_sge2c")
 
 [node name="OrderSelection" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=646804814]
 layout_mode = 2

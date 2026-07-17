@@ -23,7 +23,7 @@ var _selected_count: int
 
 @onready var _panel := $PanelContainer
 @onready var _header := $PanelContainer/MarginContainer/VBoxContainer/Header
-@export var close_button: Button
+@export var close_button: BaseButton
 
 var _dragging := false
 var _drag_offset := Vector2.ZERO
@@ -107,7 +107,7 @@ func _refresh_details() -> void:
 		return
 
 	_recipe_name.text = _selected_recipe.display_name
-	_recipe_io.text = "%s  →  %s" % [_fmt_io(_selected_recipe.inputs), _fmt_io(_selected_recipe.outputs)]
+	_recipe_io.text = "%s  =>  %s" % [_fmt_io(_selected_recipe.inputs), _fmt_io(_selected_recipe.outputs)]
 	_recipe_work.text = "%ss" % _selected_recipe.work
 
 
@@ -147,7 +147,7 @@ func _update_details_min_size() -> void:
 	# Widest content any recipe (or the placeholder) could ever put in the labels.
 	var width: float = name_font.get_string_size("No Order", HORIZONTAL_ALIGNMENT_LEFT, -1, name_size).x
 	for recipe in Crafting.all_recipes():
-		var io_text := "%s  →  %s" % [_fmt_io(recipe.inputs), _fmt_io(recipe.outputs)]
+		var io_text := "%s  =>  %s" % [_fmt_io(recipe.inputs), _fmt_io(recipe.outputs)]
 		width = max(width, name_font.get_string_size(recipe.display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, name_size).x)
 		width = max(width, io_font.get_string_size(io_text, HORIZONTAL_ALIGNMENT_LEFT, -1, io_size).x)
 		width = max(width, work_font.get_string_size("%ss" % recipe.work, HORIZONTAL_ALIGNMENT_LEFT, -1, work_size).x)

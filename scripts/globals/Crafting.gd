@@ -12,6 +12,7 @@ enum Capabilities {
 	OVERHEAD_CRANE,
 	SOLDERING_STATION,
 	ASSEMBLY_STATION,
+	LITHOGRAPHY,
 }
 
 enum RecipeType {
@@ -201,6 +202,7 @@ func _ready() -> void:
 	recipe.outputs[Stockpile.ItemType.INTEGRATED_CIRCUITS] = 9
 	recipe.work = WORK_ASSEMBLING * 3.0
 	recipe.needs_capabilities.append(Capabilities.CLEANROOM)
+	recipe.needs_capabilities.append(Capabilities.LITHOGRAPHY)
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_ELECTRONIC_COMPONENTS] = recipe

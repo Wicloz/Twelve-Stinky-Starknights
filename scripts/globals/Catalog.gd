@@ -1,12 +1,22 @@
 extends Node
+signal building_set_changed
 
 
 var _catalog: Array[CatalogItem] = []
 var _ever_finished_construction: Dictionary[Script, bool] = {}
+var _amount_constructed: Dictionary[Script, int] = {}
 
 
 func _ready() -> void:
     var item: CatalogItem
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
+    item.scene = preload("res://objects/buildings/Warehouse.tscn")
+    item.cost[Stockpile.ItemType.CLAY] = 100
+    item.cost[Stockpile.ItemType.RAW_TITANIUM] = 100
+    item.allowed_deposits = [Stockpile.ItemType.NONE]
 
     item = CatalogItem.new()
     _catalog.append(item)
@@ -108,10 +118,21 @@ func _ready() -> void:
 
 func building_finished_construction(type: Script) -> void:
     _ever_finished_construction[type] = true
+    _amount_constructed[type] = _amount_constructed.get(type, 0) + 1
+    building_set_changed.emit()
+
+
+func building_destroyed(type: Script) -> void:
+    _amount_constructed[type] = _amount_constructed.get(type, 0) - 1
+    building_set_changed.emit()
 
 
 func has_finished_construction(type: Script) -> bool:
     return _ever_finished_construction.get(type, false)
+
+
+func currently_exists(type: Script) -> bool:
+    return type in _amount_constructed and _amount_constructed[type] > 0
 
 
 func get_unlocked_buildings() -> Array[CatalogItem]:

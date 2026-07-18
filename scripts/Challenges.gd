@@ -5,6 +5,7 @@ var _labels: Dictionary[Stockpile.ItemType, Label] = {}
 
 
 func _ready() -> void:
+	Catalog.building_set_changed.connect(_refresh)
 	Stockpile.changed.connect(_refresh)
 	Stockpile.challenge_updated.connect(_refresh)
 	_refresh()
@@ -29,10 +30,19 @@ func _refresh() -> void:
 
 
 func _make_label_text(item: Stockpile.ItemType) -> String:
-	var text := "%s: %d" % [Stockpile.get_display_name(item), Stockpile.get_cumulative(item)]
+	var warehouse: bool = Catalog.currently_exists(Warehouse)
+	var text: String = ""
+
+	if not warehouse:
+		text += "%s: ???" % Stockpile.get_display_name(item)
+	else:
+		text += "%s: %d" % [Stockpile.get_display_name(item), Stockpile.get_cumulative(item)]
 
 	var limit = Stockpile.get_challenge_limit(item)
 	if limit is int:
-		text += " / %d" % limit
+		if not warehouse:
+			text += " / ???"
+		else:
+			text += " / %d" % limit
 
 	return text

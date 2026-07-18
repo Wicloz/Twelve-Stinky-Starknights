@@ -58,9 +58,14 @@ func _construction_aborted() -> void:
 	queue_free()
 
 
+func abort() -> void:
+	JobManager.cancel_jobs_on_tile(tile)
+
+
 func demolish() -> void:
 	JobManager.cancel_jobs_on_tile(tile)
 	_construction_aborted()
+	Catalog.building_destroyed(get_script())
 
 
 func is_constructed() -> bool:

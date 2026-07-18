@@ -98,7 +98,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _on_destruct_pressed() -> void:
-	_building.demolish()
+	if _building.is_constructed():
+		_building.demolish()
+	else:
+		_building.abort()
 	self_destruct.emit()
 
 

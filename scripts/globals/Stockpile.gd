@@ -7,6 +7,7 @@ enum ItemType {
 	NONE,
 
 	RAW_TITANIUM,
+	HOSHIUMIUM,
 
 	LUMBER,
 	PLANKS,
@@ -21,20 +22,27 @@ enum ItemType {
 	ELECTRUM_WIRE,
 
 	SAND,
-	SILICON_BOULE,
+	EVAPORITES,
+	WATER,
 
 	PETROCHEMICALS,
-	ACRYLIC_PLASTIC,
+	ACRYLIC,
+	PLASTIC,
 
 	RAW_CUPRONICKEL,
 	CUPRONICKEL_INGOTS,
 	FLUID_HARDWARE,
 
-	HOSHIUMIUM,
-	JELLY_STANDEES,
-
 	BATTERY_ACID,
 	POWER_CELLS,
+
+	SEMICONDUCTORS,
+	INTEGRATED_CIRCUITS,
+
+	ELECTRONIC_COMPONENTS,
+	INDUSTRIAL_CONTROLLERS,
+
+	JELLY_STANDEES,
 }
 
 var ItemTypes: Array[ItemType] = []
@@ -43,6 +51,7 @@ const _ITEM_NAMES: Dictionary[ItemType, String] = {
 	ItemType.NONE: "???",
 
 	ItemType.RAW_TITANIUM: "Compacted Titanium Alloy",
+	ItemType.HOSHIUMIUM: "Hoshiumium",
 
 	ItemType.LUMBER: "Lumber",
 	ItemType.PLANKS: "Planks",
@@ -57,20 +66,27 @@ const _ITEM_NAMES: Dictionary[ItemType, String] = {
 	ItemType.ELECTRUM_WIRE: "Electrum Wire",
 
 	ItemType.SAND: "Silica Sand",
-	ItemType.SILICON_BOULE: "Silicon Boule",
+	ItemType.EVAPORITES: "Evaporites",
+	ItemType.WATER: "Water",
 
 	ItemType.PETROCHEMICALS: "Petrochemicals",
-	ItemType.ACRYLIC_PLASTIC: "Acrylic Plastic",
+	ItemType.ACRYLIC: "Acrylic Plastic",
+	ItemType.PLASTIC: "Multi-Purpose Polymer",
 
 	ItemType.RAW_CUPRONICKEL: "Cu-Ni Sulfide Deposit",
 	ItemType.CUPRONICKEL_INGOTS: "Cupronickel Ingots",
 	ItemType.FLUID_HARDWARE: "Fluid Hardware Package",
 
-	ItemType.HOSHIUMIUM: "Hoshiumium",
-	ItemType.JELLY_STANDEES: "Jelly Standees",
-
 	ItemType.BATTERY_ACID: "Sulfuric Acid",
 	ItemType.POWER_CELLS: "Power Cells",
+
+	ItemType.SEMICONDUCTORS: "Semiconductor Precursors",
+	ItemType.INTEGRATED_CIRCUITS: "Integrated Circuits",
+
+	ItemType.ELECTRONIC_COMPONENTS: "Electronic Components",
+	ItemType.INDUSTRIAL_CONTROLLERS: "Industrial Computer Modules",
+
+	ItemType.JELLY_STANDEES: "Jelly Standees",
 }
 
 var _current: Dictionary[ItemType, int] = {}

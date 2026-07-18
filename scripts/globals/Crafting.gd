@@ -4,6 +4,10 @@ extends Node
 enum Capabilities {
 	FURNACE,
 	WORKBENCH,
+	REFINERY,
+	CLEAN_ROOM,
+	WIRE_MILL,
+	INJECTION_MOLDING,
 }
 
 enum RecipeType {
@@ -17,10 +21,16 @@ enum RecipeType {
 	MAKE_FLUID_HARDWARE,
 
 	MAKE_ELECTRUM_WIRE,
-	MAKE_SILICON_BOULE,
+	MAKE_SEMICONDUCTORS,
 
 	OPERATE_REFINERY,
 	MAKE_POWER_CELLS,
+
+	MAKE_INTEGRATED_CIRCUITS,
+	MAKE_ELECTRONIC_COMPONENTS,
+	MAKE_INDUSTRIAL_CONTROLLERS,
+
+	MAKE_JELLY_STANDEES,
 }
 
 var _recipe_map: Dictionary[RecipeType, Recipe] = {}
@@ -154,19 +164,68 @@ func _ready() -> void:
 	recipe.inputs[Stockpile.ItemType.RAW_ELECTRUM] = 1
 	recipe.outputs[Stockpile.ItemType.ELECTRUM_WIRE] = 1
 	recipe.work = WORK_CRAFTING
+	recipe.needs_capabilities.append(Capabilities.WIRE_MILL)
 
 	recipe = Recipe.new()
-	_recipe_map[RecipeType.MAKE_SILICON_BOULE] = recipe
+	_recipe_map[RecipeType.MAKE_SEMICONDUCTORS] = recipe
 
-	recipe.display_name = "Grow Silicon Boule"
+	recipe.display_name = "Manufacture Semiconductor Precursors"
 	recipe.inputs[Stockpile.ItemType.SAND] = 1
-	recipe.outputs[Stockpile.ItemType.SILICON_BOULE] = 1
+	recipe.inputs[Stockpile.ItemType.EVAPORITES] = 1
+	recipe.outputs[Stockpile.ItemType.SEMICONDUCTORS] = 1
 	recipe.work = WORK_CRAFTING
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.OPERATE_REFINERY] = recipe
 
 	recipe.display_name = "Operate Petrochemical Refinery"
-	recipe.inputs[Stockpile.ItemType.PETROCHEMICALS] = 1
-	recipe.outputs[Stockpile.ItemType.ACRYLIC_PLASTIC] = 1
+	recipe.inputs[Stockpile.ItemType.PETROCHEMICALS] = 2
+	recipe.outputs[Stockpile.ItemType.ACRYLIC] = 1
+	recipe.outputs[Stockpile.ItemType.PLASTIC] = 1
 	recipe.work = WORK_OPERATING
+	recipe.needs_capabilities.append(Capabilities.REFINERY)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_INTEGRATED_CIRCUITS] = recipe
+
+	recipe.display_name = "Assemble Integrated Circuits"
+	recipe.inputs[Stockpile.ItemType.SEMICONDUCTORS] = 1
+	recipe.inputs[Stockpile.ItemType.ELECTRUM_WIRE] = 1
+	recipe.inputs[Stockpile.ItemType.CLAY] = 1
+	recipe.outputs[Stockpile.ItemType.INTEGRATED_CIRCUITS] = 9
+	recipe.work = WORK_ASSEMBLING * 3.0
+	recipe.needs_capabilities.append(Capabilities.CLEAN_ROOM)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_ELECTRONIC_COMPONENTS] = recipe
+
+	recipe.display_name = "Craft Electronic Components"
+	recipe.inputs[Stockpile.ItemType.INTEGRATED_CIRCUITS] = 1
+	recipe.inputs[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 1
+	recipe.inputs[Stockpile.ItemType.ELECTRUM_WIRE] = 1
+	recipe.inputs[Stockpile.ItemType.EVAPORITES] = 1
+	recipe.inputs[Stockpile.ItemType.CUPRONICKEL_INGOTS] = 1
+	recipe.inputs[Stockpile.ItemType.PLASTIC] = 1
+	recipe.outputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 3
+	recipe.work = WORK_CRAFTING * 3.0
+	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_INDUSTRIAL_CONTROLLERS] = recipe
+
+	recipe.display_name = "Manufacture Industrial Computer Modules"
+	recipe.inputs[Stockpile.ItemType.INTEGRATED_CIRCUITS] = 6
+	recipe.inputs[Stockpile.ItemType.ELECTRUM_WIRE] = 6
+	recipe.inputs[Stockpile.ItemType.PLASTIC] = 3
+	recipe.outputs[Stockpile.ItemType.INDUSTRIAL_CONTROLLERS] = 1
+	recipe.work = WORK_PACKAGES
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_JELLY_STANDEES] = recipe
+
+	recipe.display_name = "Assemble Jelly Standees"
+	recipe.inputs[Stockpile.ItemType.ACRYLIC] = 1
+	recipe.inputs[Stockpile.ItemType.HOSHIUMIUM] = 1
+	recipe.outputs[Stockpile.ItemType.JELLY_STANDEES] = 1
+	recipe.work = WORK_SMELTING
+	recipe.needs_capabilities.append(Capabilities.INJECTION_MOLDING)

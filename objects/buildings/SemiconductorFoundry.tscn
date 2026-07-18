@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://bsb5law207x3n"]
 
-[ext_resource type="Script" uid="uid://csb8k3x9p2m4q" path="res://objects/buildings/SiliconBouleComplex.gd" id="1_sboul"]
+[ext_resource type="Script" uid="uid://csb8k3x9p2m4q" path="res://objects/buildings/SemiconductorFoundry.gd" id="1_sboul"]
 [ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_sboul"]
 
-[node name="SiliconBouleComplex" type="Node2D" unique_id=1477209384]
+[node name="SemiconductorFoundry" type="Node2D" unique_id=1477209384]
 script = ExtResource("1_sboul")
 recipe = 7
 

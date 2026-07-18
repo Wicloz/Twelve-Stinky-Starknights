@@ -44,7 +44,7 @@ func show_for(building: Building) -> void:
 	_title.text = building.get_display_name()
 	_popup_button.visible = building.has_popup()
 
-	_building.constructed.connect(_set_destruct_icon)
+	building.constructed.connect(_on_building_constructed)
 	_set_destruct_icon()
 	_destruct_button.visible = building.can_demolish()
 
@@ -52,6 +52,11 @@ func show_for(building: Building) -> void:
 
 	_refresh_research()
 	_open_popup()
+
+
+func _on_building_constructed() -> void:
+	_set_destruct_icon()
+	_refresh_research()
 
 
 func _refresh_research() -> void:
@@ -77,7 +82,7 @@ func _bind_research_button(research_button: Button, item: ResearchItem) -> void:
 	research_button.icon = item.texture
 	research_button.text = "" if item.texture else item.acronym()
 	research_button.tooltip_text = item.tooltip()
-	research_button.disabled = not Research.can_research(item)
+	research_button.disabled = not _building.is_constructed() or not Research.can_research(item)
 
 
 func _on_research_button_pressed(index: int) -> void:

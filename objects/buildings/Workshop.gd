@@ -221,8 +221,6 @@ func _try_post_job() -> void:
 	if _order_job != null or order == null or not _order_active() or not _can_afford(order):
 		return
 
-	Stockpile.remove_bulk(order.inputs)
-
 	var job := Job.new()
 	job.target = tile
 	job.priority = 10
@@ -231,6 +229,8 @@ func _try_post_job() -> void:
 	job.on_cancel = _on_craft_aborted
 
 	_order_job = job
+
+	Stockpile.remove_bulk(order.inputs)
 	JobManager.post(job)
 
 

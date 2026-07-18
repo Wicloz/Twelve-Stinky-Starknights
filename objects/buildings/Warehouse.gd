@@ -13,8 +13,8 @@ func _define_research() -> void:
 	ergonomic_tools.display_name = "Ergonomic Tools"
 	ergonomic_tools.description = "Starknights move 25% faster."
 	ergonomic_tools.slot = 5
-	ergonomic_tools.cost[Stockpile.ItemType.PLANKS] = 50
-	ergonomic_tools.cost[Stockpile.ItemType.BRASS_INGOTS] = 10
+	ergonomic_tools.cost[Stockpile.ItemType.PLANKS] = 120
+	ergonomic_tools.cost[Stockpile.ItemType.BRASS_INGOTS] = 120
 	ergonomic_tools.on_complete = func() -> void:
 		Starknight.speed_scale = 1.25
 
@@ -25,8 +25,9 @@ func _define_research() -> void:
 	powered_exoskeletons.description = "Starknights move a further 25% faster."
 	powered_exoskeletons.slot = 5
 	powered_exoskeletons.prerequisites.append(ergonomic_tools)
-	powered_exoskeletons.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 25
-	powered_exoskeletons.cost[Stockpile.ItemType.ELECTRUM_WIRE] = 25
+	powered_exoskeletons.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 120
+	powered_exoskeletons.cost[Stockpile.ItemType.ELECTRUM_WIRE] = 120
+	powered_exoskeletons.cost[Stockpile.ItemType.POWER_CELLS] = 12
 	powered_exoskeletons.on_complete = func() -> void:
 		Starknight.speed_scale = 1.50
 

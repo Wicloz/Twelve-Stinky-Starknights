@@ -32,11 +32,16 @@ enum ItemType {
 
 	HOSHIUMIUM,
 	JELLY_STANDEES,
+
+	BATTERY_ACID,
+	POWER_CELLS,
 }
 
 var ItemTypes: Array[ItemType] = []
 
 const _ITEM_NAMES: Dictionary[ItemType, String] = {
+	ItemType.NONE: "???",
+
 	ItemType.RAW_TITANIUM: "Compacted Titanium Alloy",
 
 	ItemType.LUMBER: "Lumber",
@@ -63,6 +68,9 @@ const _ITEM_NAMES: Dictionary[ItemType, String] = {
 
 	ItemType.HOSHIUMIUM: "Hoshiumium",
 	ItemType.JELLY_STANDEES: "Jelly Standees",
+
+	ItemType.BATTERY_ACID: "Sulfuric Acid",
+	ItemType.POWER_CELLS: "Power Cells",
 }
 
 var _current: Dictionary[ItemType, int] = {}

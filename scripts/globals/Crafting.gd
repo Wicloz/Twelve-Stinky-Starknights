@@ -20,6 +20,7 @@ enum RecipeType {
 	MAKE_SILICON_BOULE,
 
 	OPERATE_REFINERY,
+	MAKE_POWER_CELLS,
 }
 
 var _recipe_map: Dictionary[RecipeType, Recipe] = {}
@@ -67,6 +68,14 @@ func recipes_for_workshop() -> Array[Recipe]:
 	return result
 
 
+const WORK_SMELTING := 4.0
+const WORK_CRAFTING := 8.0
+
+const WORK_ASSEMBLING := WORK_CRAFTING * 5.0
+const WORK_OPERATING := WORK_SMELTING * 10.0
+const WORK_PACKAGES := WORK_CRAFTING * 10.0
+
+
 func _ready() -> void:
 	var recipe: Recipe
 
@@ -76,7 +85,7 @@ func _ready() -> void:
 	recipe.display_name = "Bake Bricks"
 	recipe.inputs[Stockpile.ItemType.CLAY] = 1
 	recipe.outputs[Stockpile.ItemType.BRICKS] = 1
-	recipe.work = 4.0
+	recipe.work = WORK_SMELTING
 	recipe.needs_capabilities.append(Capabilities.FURNACE)
 
 	recipe = Recipe.new()
@@ -85,25 +94,27 @@ func _ready() -> void:
 	recipe.display_name = "Saw Planks"
 	recipe.inputs[Stockpile.ItemType.LUMBER] = 1
 	recipe.outputs[Stockpile.ItemType.PLANKS] = 8
-	recipe.work = 8.0
+	recipe.work = WORK_CRAFTING
 	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_BRASS] = recipe
 
 	recipe.display_name = "Smelt Brass"
-	recipe.inputs[Stockpile.ItemType.RAW_BRASS] = 1
-	recipe.outputs[Stockpile.ItemType.BRASS_INGOTS] = 1
-	recipe.work = 4.0
+	recipe.inputs[Stockpile.ItemType.RAW_BRASS] = 3
+	recipe.outputs[Stockpile.ItemType.BRASS_INGOTS] = 3
+	recipe.outputs[Stockpile.ItemType.BATTERY_ACID] = 1
+	recipe.work = WORK_SMELTING * 3.0
 	recipe.needs_capabilities.append(Capabilities.FURNACE)
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_CUPRONICKEL] = recipe
 
 	recipe.display_name = "Smelt Cupronickel"
-	recipe.inputs[Stockpile.ItemType.RAW_CUPRONICKEL] = 1
-	recipe.outputs[Stockpile.ItemType.CUPRONICKEL_INGOTS] = 1
-	recipe.work = 4.0
+	recipe.inputs[Stockpile.ItemType.RAW_CUPRONICKEL] = 3
+	recipe.outputs[Stockpile.ItemType.CUPRONICKEL_INGOTS] = 3
+	recipe.outputs[Stockpile.ItemType.BATTERY_ACID] = 1
+	recipe.work = WORK_SMELTING * 3.0
 	recipe.needs_capabilities.append(Capabilities.FURNACE)
 
 	recipe = Recipe.new()
@@ -113,7 +124,7 @@ func _ready() -> void:
 	recipe.inputs[Stockpile.ItemType.BRASS_INGOTS] = 1
 	recipe.inputs[Stockpile.ItemType.PLANKS] = 1
 	recipe.outputs[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 1
-	recipe.work = 8.0
+	recipe.work = WORK_CRAFTING
 	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
 
 	recipe = Recipe.new()
@@ -123,7 +134,18 @@ func _ready() -> void:
 	recipe.inputs[Stockpile.ItemType.CUPRONICKEL_INGOTS] = 8
 	recipe.inputs[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 2
 	recipe.outputs[Stockpile.ItemType.FLUID_HARDWARE] = 1
-	recipe.work = 80.0
+	recipe.work = WORK_PACKAGES
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_POWER_CELLS] = recipe
+
+	recipe.display_name = "Assemble Power Cell"
+	recipe.inputs[Stockpile.ItemType.RAW_TITANIUM] = 3
+	recipe.inputs[Stockpile.ItemType.RAW_ELECTRUM] = 1
+	recipe.inputs[Stockpile.ItemType.CUPRONICKEL_INGOTS] = 1
+	recipe.inputs[Stockpile.ItemType.BATTERY_ACID] = 1
+	recipe.outputs[Stockpile.ItemType.POWER_CELLS] = 1
+	recipe.work = WORK_ASSEMBLING
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_ELECTRUM_WIRE] = recipe
@@ -131,7 +153,7 @@ func _ready() -> void:
 	recipe.display_name = "Draw Electrum Wire"
 	recipe.inputs[Stockpile.ItemType.RAW_ELECTRUM] = 1
 	recipe.outputs[Stockpile.ItemType.ELECTRUM_WIRE] = 1
-	recipe.work = 8.0
+	recipe.work = WORK_CRAFTING
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_SILICON_BOULE] = recipe
@@ -139,7 +161,7 @@ func _ready() -> void:
 	recipe.display_name = "Grow Silicon Boule"
 	recipe.inputs[Stockpile.ItemType.SAND] = 1
 	recipe.outputs[Stockpile.ItemType.SILICON_BOULE] = 1
-	recipe.work = 8.0
+	recipe.work = WORK_CRAFTING
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.OPERATE_REFINERY] = recipe
@@ -147,4 +169,4 @@ func _ready() -> void:
 	recipe.display_name = "Operate Petrochemical Refinery"
 	recipe.inputs[Stockpile.ItemType.PETROCHEMICALS] = 1
 	recipe.outputs[Stockpile.ItemType.ACRYLIC_PLASTIC] = 1
-	recipe.work = 40.0
+	recipe.work = WORK_OPERATING

@@ -145,6 +145,17 @@ func _register_challenges() -> void:
 
 	_challenges[ItemType.STEAM_ENGINE] = Challenge.new(1)
 
+	_challenges[ItemType.PC_RAM] = Challenge.new(1, false)
+	_challenges[ItemType.PC_CPU] = Challenge.new(1, false)
+	_challenges[ItemType.PC_GPU] = Challenge.new(1, false)
+	_challenges[ItemType.PC_MOTHERBOARD] = Challenge.new(1, false)
+	_challenges[ItemType.PC_POWER_SUPPLY] = Challenge.new(1, false)
+	_challenges[ItemType.PC_GLASS] = Challenge.new(1, false)
+	_challenges[ItemType.PC_CASE] = Challenge.new(1, false)
+	_challenges[ItemType.PC_FANS] = Challenge.new(1, false)
+	_challenges[ItemType.PC_AIO_COOLER] = Challenge.new(1, false)
+	_challenges[ItemType.PC_PC] = Challenge.new(1)
+
 
 func _add_once(item: ItemType, amount: int) -> void:
 	_current[item] += amount

@@ -41,6 +41,7 @@ func _ready() -> void:
     item.cost[Stockpile.ItemType.BRICKS] = 10
     item.cost[Stockpile.ItemType.LUMBER] = 10
     item.allowed_deposits = [Stockpile.ItemType.NONE]
+    item.always_unlocked = true
 
     item = CatalogItem.new()
     _catalog.append(item)
@@ -49,6 +50,7 @@ func _ready() -> void:
     item.cost[Stockpile.ItemType.BRICKS] = 10
     item.cost[Stockpile.ItemType.LUMBER] = 10
     item.allowed_deposits = [Stockpile.ItemType.NONE]
+    item.always_unlocked = true
 
     item = CatalogItem.new()
     _catalog.append(item)
@@ -95,7 +97,7 @@ func _ready() -> void:
     item = CatalogItem.new()
     _catalog.append(item)
 
-    item.scene = preload("res://objects/buildings/SiliconBouleComplex.tscn")
+    item.scene = preload("res://objects/buildings/SemiconductorFoundry.tscn")
     item.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 10
     item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
     item.cost[Stockpile.ItemType.BRICKS] = 800
@@ -221,6 +223,8 @@ func currently_exists(type: Script) -> bool:
 
 func get_unlocked_buildings() -> Array[CatalogItem]:
     return _catalog.filter(func(item: CatalogItem) -> bool:
+        if item.always_unlocked:
+            return true
         for resource in item.cost:
             if not Stockpile.is_seen(resource) or Stockpile.is_unavailable_story_item(resource):
                 return false

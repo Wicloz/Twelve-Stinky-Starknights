@@ -4,6 +4,7 @@ class_name CatalogItem
 var scene: PackedScene
 var cost: Dictionary[Stockpile.ItemType, int] = {}
 var allowed_deposits: Array[Stockpile.ItemType] = []
+var always_unlocked: bool = false
 
 const ICON_REGION := Rect2(0, 0, 120, 170)
 

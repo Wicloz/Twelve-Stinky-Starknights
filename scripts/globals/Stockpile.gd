@@ -62,8 +62,6 @@ enum ItemType {
 var ItemTypes: Array[ItemType] = []
 
 const _ITEM_NAMES: Dictionary[ItemType, String] = {
-	ItemType.NONE: "???",
-
 	ItemType.RAW_TITANIUM: "Compacted Titanium Alloy",
 	ItemType.HOSHIUMIUM: "Hoshiumium",
 

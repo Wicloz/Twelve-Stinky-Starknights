@@ -3,7 +3,7 @@ extends Building
 
 
 @export var recipe: Crafting.RecipeType
-const BASE_WORK_SPEEDUP: float = 2.0
+const BASE_WORK_SPEEDUP: float = 10.0
 
 static var work_scale: Dictionary[Script, float] = {}
 static var automated: Dictionary[Script, bool] = {}
@@ -18,6 +18,22 @@ var _will_produce: Dictionary[Stockpile.ItemType, int] = {}
 
 func _ready() -> void:
     _recipe = Crafting.get_recipe(recipe)
+    _define_research()
+
+
+func _define_research() -> void:
+    if not Research.can_register(self):
+        return
+
+    var automation := ResearchItem.new()
+    automation.display_name = "Automation"
+    automation.description = "Fully automate this factory to run without a Starknight operator."
+    automation.slot = 9
+    automation.cost[Stockpile.ItemType.INDUSTRIAL_CONTROLLERS] = 10
+    automation.on_complete = func() -> void:
+        automated[get_script()] = true
+
+    Research.register_research(self, [automation])
 
 
 func _get_work_scale() -> float:

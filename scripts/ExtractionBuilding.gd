@@ -6,7 +6,7 @@ static var work_scale: Dictionary[Script, float] = {}
 static var automated: Dictionary[Script, bool] = {}
 static var yield_scale: Dictionary[Script, int] = {}
 
-const BASE_WORK_SPEEDUP: float = 2.0
+const BASE_WORK_SPEEDUP: float = 10.0
 
 var _has_active_job: bool = false
 var _will_harvest: Dictionary[Stockpile.ItemType, int] = {}
@@ -22,6 +22,25 @@ func _is_automated() -> bool:
 
 func _get_yield_scale() -> int:
     return yield_scale.get(get_script(), 1)
+
+
+func _ready() -> void:
+    _define_research()
+
+
+func _define_research() -> void:
+    if not Research.can_register(self):
+        return
+
+    var automation := ResearchItem.new()
+    automation.display_name = "Automation"
+    automation.description = "Fully automate this operation to run without a Starknight."
+    automation.slot = 9
+    automation.cost[Stockpile.ItemType.INDUSTRIAL_CONTROLLERS] = 10
+    automation.on_complete = func() -> void:
+        automated[get_script()] = true
+
+    Research.register_research(self, [automation])
 
 
 func _process(_delta: float) -> void:

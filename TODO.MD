@@ -3,15 +3,11 @@ Content:
 - map/deposits
 - recipes
 - buildings/upgrades
-- cutscenes
-- challenge goals
-
-Building System:
-- upgrade/research mechanic
+- cutscenes/story
 
 Needs Rework:
 - UI
-- Job management
+- job management
 
 Polish:
 - BGM

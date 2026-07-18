@@ -37,7 +37,7 @@ func _define_cutscenes() -> void:
     _locked_cutscenes.append(cutscene)
 
     cutscene.still = preload("res://assets/cutscenes/aiko.jpg")
-    cutscene.text = say(AIKO, "Aiko", "Click on a deposit tile and enable harvesting to have a Starknight work it. Use the [u]workshop[/u] to manually craft small amounts of items. Construct buildings from the picker at the bottom to speed up extraction and production. You will need 10 clay bricks and 10 lumber to get started. You have some time to build up your own infrastructure before the debut.")
+    cutscene.text = say(AIKO, "Aiko", "Click on a deposit tile and enable harvesting to have a Starknight work it. Use the [u]workshop[/u] to manually craft small amounts of items, you will need 10 clay bricks and 10 mechanical components to get started. Construct buildings from the picker at the bottom to speed up extraction and production. Buildings only show up after you have discovered all of their construction materials, so make sure to explore everything you can.")
 
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)
@@ -45,7 +45,7 @@ func _define_cutscenes() -> void:
     cutscene.condition = func() -> bool:
         return Catalog.has_finished_construction(MechanicalComponentFactory)
     cutscene.still = preload("res://assets/cutscenes/kevin.png")
-    cutscene.text = say(SAKANA, "Sakana", "Wow it looks like you guys have been busy there. Anyway its time for Jerome's debut now.")
+    cutscene.text = say(SAKANA, "Sakana", "Wow it looks like you guys have been busy up there. Anyway its time for Jerome's debut now.")
 
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)

@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://bpcf5k8w3z7xn"]
+[gd_scene format=3 uid="uid://bpcf5k8w307xn"]
 
 [ext_resource type="Script" uid="uid://cpcf9k2x7p3mq" path="res://objects/buildings/PowerCellFactory.gd" id="1_pcell"]
 [ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_pcell"]

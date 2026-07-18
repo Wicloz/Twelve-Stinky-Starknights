@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dos3u14pmnma4"
+path="res://.godot/imported/Twelve Starknights Forever.ogg-c9828b6cc2ac7646432fe7d490e9d7eb.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/music/suno/Twelve Starknights Forever.ogg"
+dest_files=["res://.godot/imported/Twelve Starknights Forever.ogg-c9828b6cc2ac7646432fe7d490e9d7eb.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

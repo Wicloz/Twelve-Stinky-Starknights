@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://charxfmx7hv0q"
+path="res://.godot/imported/Starknights build tonight.ogg-fccae80df14cd0d1886b6bccffcc1904.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/music/suno/Starknights build tonight.ogg"
+dest_files=["res://.godot/imported/Starknights build tonight.ogg-fccae80df14cd0d1886b6bccffcc1904.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -145,9 +145,7 @@ func _register_challenges() -> void:
 	_challenges[ItemType.JELLY_STANDEES] = Challenge.new()
 	_challenges[ItemType.JELLY_COFFEE] = Challenge.new()
 
-	var steam_engine_challenge := Challenge.new()
-	steam_engine_challenge.limit = 1
-	_challenges[ItemType.STEAM_ENGINE] = steam_engine_challenge
+	_challenges[ItemType.STEAM_ENGINE] = Challenge.new(1)
 
 
 func _add_once(item: ItemType, amount: int) -> void:
@@ -234,3 +232,9 @@ func get_challenge_limit(item: ItemType):
 	if item not in _challenges:
 		return false
 	return _challenges[item].get_limit()
+
+
+func is_visible(item: ItemType) -> bool:
+	if item in _challenges:
+		return _challenges[item].is_shown()
+	return true

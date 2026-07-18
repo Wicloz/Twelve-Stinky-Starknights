@@ -16,13 +16,13 @@ func _refresh() -> void:
 		pass
 
 		if item in _labels:
-			if Stockpile.is_unavailable_story_item(item):
+			if Stockpile.is_unavailable_story_item(item) or not Stockpile.is_visible(item):
 				_labels[item].queue_free()
 				_labels.erase(item)
 			else:
 				_labels[item].text = _make_label_text(item)
 
-		elif Stockpile.is_available_story_item(item):
+		elif Stockpile.is_available_story_item(item) and Stockpile.is_visible(item):
 			var label := Label.new()
 			label.text = _make_label_text(item)
 			add_child(label)

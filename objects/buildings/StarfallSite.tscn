@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://bstar5law307x"]
+
+[ext_resource type="Texture2D" uid="uid://fcyxn07nsofm" path="res://assets/buildings/pitmine.png" id="1_star"]
+[ext_resource type="Script" uid="uid://cstar8k3x2p7q" path="res://objects/buildings/StarfallSite.gd" id="2_star"]
+
+[node name="StarfallSite" type="Node2D" unique_id=1183726094]
+script = ExtResource("2_star")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1552048371]
+texture = ExtResource("1_star")

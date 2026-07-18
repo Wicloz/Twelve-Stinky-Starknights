@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://bbrew5law307x"]
+
+[ext_resource type="Script" uid="uid://cbrew8k3x2p7q" path="res://objects/buildings/JellyCoffeeBrewery.gd" id="1_brew"]
+[ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_brew"]
+
+[node name="JellyCoffeeBrewery" type="Node2D" unique_id=1652049837]
+script = ExtResource("1_brew")
+recipe = 15
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1908374625]
+texture = ExtResource("2_brew")

@@ -112,6 +112,22 @@ func _ready() -> void:
     item = CatalogItem.new()
     _catalog.append(item)
 
+    item.scene = preload("res://objects/buildings/PumpingStation.tscn")
+    item.cost[Stockpile.ItemType.FLUID_HARDWARE] = 20
+    item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
+    item.allowed_deposits = [Stockpile.ItemType.WATER]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
+    item.scene = preload("res://objects/buildings/EvaporationBasin.tscn")
+    item.cost[Stockpile.ItemType.FLUID_HARDWARE] = 20
+    item.cost[Stockpile.ItemType.CLAY] = 400
+    item.allowed_deposits = [Stockpile.ItemType.NONE]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
     item.scene = preload("res://objects/buildings/Refinery.tscn")
     item.cost[Stockpile.ItemType.FLUID_HARDWARE] = 20
     item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
@@ -121,7 +137,65 @@ func _ready() -> void:
     _catalog.append(item)
 
     item.scene = preload("res://objects/buildings/PowerCellFactory.tscn")
+    item.cost[Stockpile.ItemType.FLUID_HARDWARE] = 10
+    item.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 10
+    item.cost[Stockpile.ItemType.BRICKS] = 800
+    item.allowed_deposits = [Stockpile.ItemType.NONE]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
+    item.scene = preload("res://objects/buildings/StarfallSite.tscn")
+    item.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 40
+    item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
+    item.allowed_deposits = [Stockpile.ItemType.HOSHIUMIUM]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
+    item.scene = preload("res://objects/buildings/IntegratedCircuitFab.tscn")
     item.cost[Stockpile.ItemType.FLUID_HARDWARE] = 20
+    item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
+    item.allowed_deposits = [Stockpile.ItemType.NONE]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
+    item.scene = preload("res://objects/buildings/ElectronicComponentFactory.tscn")
+    item.cost[Stockpile.ItemType.FLUID_HARDWARE] = 20
+    item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
+    item.allowed_deposits = [Stockpile.ItemType.NONE]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
+    item.scene = preload("res://objects/buildings/IndustrialControllerFactory.tscn")
+    item.cost[Stockpile.ItemType.FLUID_HARDWARE] = 20
+    item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
+    item.allowed_deposits = [Stockpile.ItemType.NONE]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
+    item.scene = preload("res://objects/buildings/JellyStandeeProductionLine.tscn")
+    item.cost[Stockpile.ItemType.FLUID_HARDWARE] = 20
+    item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
+    item.allowed_deposits = [Stockpile.ItemType.NONE]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
+    item.scene = preload("res://objects/buildings/SumatraCoffeeFarm.tscn")
+    item.cost[Stockpile.ItemType.BRASS_INGOTS] = 10
+    item.cost[Stockpile.ItemType.PLANKS] = 200
+    item.cost[Stockpile.ItemType.LUMBER] = 200
+    item.allowed_deposits = [Stockpile.ItemType.NONE]
+
+    item = CatalogItem.new()
+    _catalog.append(item)
+
+    item.scene = preload("res://objects/buildings/JellyCoffeeBrewery.tscn")
+    item.cost[Stockpile.ItemType.FLUID_HARDWARE] = 10
     item.cost[Stockpile.ItemType.BRICKS] = 800
     item.allowed_deposits = [Stockpile.ItemType.NONE]
 

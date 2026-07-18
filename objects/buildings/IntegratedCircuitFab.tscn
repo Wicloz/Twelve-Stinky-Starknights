@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://dockflera3anb"]
+
+[ext_resource type="Script" uid="uid://cicfab8k3x2p7q" path="res://objects/buildings/IntegratedCircuitFab.gd" id="1_icfab"]
+[ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_icfab"]
+
+[node name="IntegratedCircuitFab" type="Node2D" unique_id=1361204875]
+script = ExtResource("1_icfab")
+recipe = 10
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1487350629]
+texture = ExtResource("2_icfab")

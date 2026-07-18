@@ -9,7 +9,6 @@
 [ext_resource type="PackedScene" uid="uid://b1vwf74qjibx1" path="res://objects/buildings/Workshop.tscn" id="5_ic0uy"]
 [ext_resource type="Texture2D" uid="uid://dbrueh6kw534c" path="res://assets/hex_terrain/Grass/grass_12.png" id="5_wse8f"]
 [ext_resource type="Texture2D" uid="uid://c2wygi68802r2" path="res://assets/hex_terrain/Stone/stone_07.png" id="6_2u3nc"]
-[ext_resource type="Texture2D" uid="uid://co10wtvfeki4o" path="res://assets/hex_terrain/Sand/sand_11.png" id="6_6ah6f"]
 [ext_resource type="Texture2D" uid="uid://3hejc4d4i3gw" path="res://assets/hex_terrain/Sand/sand_07.png" id="6_70uel"]
 [ext_resource type="Script" uid="uid://d22m0dkwwfmxq" path="res://scripts/ResourceList.gd" id="6_dwbse"]
 [ext_resource type="Script" uid="uid://2k071aqjpe3b" path="res://scripts/DepositPanel.gd" id="8_gbfbk"]
@@ -703,14 +702,10 @@ r = 3
 [node name="Tile=0,4" parent="HexMap" unique_id=729849976 instance=ExtResource("2_fj7yv")]
 position = Vector2(256, 444)
 r = 4
-deposit = 13
-deposit_texture = ExtResource("6_6ah6f")
 
 [node name="Tile=0,5" parent="HexMap" unique_id=425022420 instance=ExtResource("2_fj7yv")]
 position = Vector2(320, 555)
 r = 5
-deposit = 13
-deposit_texture = ExtResource("6_6ah6f")
 
 [node name="Tile=0,6" parent="HexMap" unique_id=524378324 instance=ExtResource("2_fj7yv")]
 position = Vector2(384, 666)
@@ -791,15 +786,11 @@ r = 2
 position = Vector2(320, 333)
 q = 1
 r = 3
-deposit = 13
-deposit_texture = ExtResource("6_6ah6f")
 
 [node name="Tile=1,4" parent="HexMap" unique_id=977119767 instance=ExtResource("2_fj7yv")]
 position = Vector2(384, 444)
 q = 1
 r = 4
-deposit = 13
-deposit_texture = ExtResource("6_6ah6f")
 
 [node name="Tile=1,5" parent="HexMap" unique_id=1071184681 instance=ExtResource("2_fj7yv")]
 position = Vector2(448, 555)

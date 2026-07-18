@@ -43,6 +43,20 @@ enum ItemType {
 	INDUSTRIAL_CONTROLLERS,
 
 	JELLY_STANDEES,
+	COFFEE_CHERRIES,
+	JELLY_COFFEE,
+
+	STEAM_ENGINE,
+	PC_RAM,
+	PC_CPU,
+	PC_GPU,
+	PC_MOTHERBOARD,
+	PC_POWER_SUPPLY,
+	PC_GLASS,
+	PC_CASE,
+	PC_FANS,
+	PC_AIO_COOLER,
+	PC_PC,
 }
 
 var ItemTypes: Array[ItemType] = []
@@ -67,7 +81,7 @@ const _ITEM_NAMES: Dictionary[ItemType, String] = {
 
 	ItemType.SAND: "Silica Sand",
 	ItemType.EVAPORITES: "Evaporites",
-	ItemType.WATER: "Water",
+	ItemType.WATER: "Mineral Water",
 
 	ItemType.PETROCHEMICALS: "Petrochemicals",
 	ItemType.ACRYLIC: "Acrylic Plastic",
@@ -87,6 +101,20 @@ const _ITEM_NAMES: Dictionary[ItemType, String] = {
 	ItemType.INDUSTRIAL_CONTROLLERS: "Industrial Computer Modules",
 
 	ItemType.JELLY_STANDEES: "Jelly Standees",
+	ItemType.COFFEE_CHERRIES: "Sumatra Cherries",
+	ItemType.JELLY_COFFEE: "Jelly Coffee",
+
+	ItemType.STEAM_ENGINE: "Steam Engine",
+	ItemType.PC_RAM: "Phase™ RAM",
+	ItemType.PC_CPU: "Phase™ CPU",
+	ItemType.PC_GPU: "Phase™ GPU",
+	ItemType.PC_MOTHERBOARD: "PC Motherboard",
+	ItemType.PC_POWER_SUPPLY: "PC Power Supply",
+	ItemType.PC_GLASS: "Tempered Glass Panel",
+	ItemType.PC_CASE: "PC Case",
+	ItemType.PC_FANS: "PC Fans",
+	ItemType.PC_AIO_COOLER: "AIO Cooler",
+	ItemType.PC_PC: "Personal Computer",
 }
 
 var _current: Dictionary[ItemType, int] = {}
@@ -115,6 +143,11 @@ func _ready() -> void:
 
 func _register_challenges() -> void:
 	_challenges[ItemType.JELLY_STANDEES] = Challenge.new()
+	_challenges[ItemType.JELLY_COFFEE] = Challenge.new()
+
+	var steam_engine_challenge := Challenge.new()
+	steam_engine_challenge.limit = 1
+	_challenges[ItemType.STEAM_ENGINE] = steam_engine_challenge
 
 
 func _add_once(item: ItemType, amount: int) -> void:

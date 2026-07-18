@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://dwo1ojbmrgu00"]
+
+[ext_resource type="Script" uid="uid://cinjmold8k3x2p7q" path="res://objects/buildings/JellyStandeeProductionLine.gd" id="1_injml"]
+[ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_injml"]
+
+[node name="JellyStandeeProductionLine" type="Node2D" unique_id=1573920486]
+script = ExtResource("1_injml")
+recipe = 13
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1360285974]
+texture = ExtResource("2_injml")

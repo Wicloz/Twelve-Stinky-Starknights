@@ -5,32 +5,33 @@ enum Capabilities {
 	FURNACE,
 	WORKBENCH,
 	REFINERY,
-	CLEAN_ROOM,
+	CLEANROOM,
 	WIRE_MILL,
 	INJECTION_MOLDING,
+	LATHE, CNC_MILL,
+	OVERHEAD_CRANE,
+	SOLDERING_STATION,
+	ASSEMBLY_STATION,
 }
 
 enum RecipeType {
 	MAKE_PLANKS,
 	MAKE_BRICKS,
-
 	MAKE_BRASS,
 	MAKE_MECHANICAL_COMPONENTS,
-
 	MAKE_CUPRONICKEL,
 	MAKE_FLUID_HARDWARE,
-
 	MAKE_ELECTRUM_WIRE,
 	MAKE_SEMICONDUCTORS,
-
 	OPERATE_REFINERY,
 	MAKE_POWER_CELLS,
-
 	MAKE_INTEGRATED_CIRCUITS,
 	MAKE_ELECTRONIC_COMPONENTS,
 	MAKE_INDUSTRIAL_CONTROLLERS,
-
 	MAKE_JELLY_STANDEES,
+	MAKE_EVAPORITES,
+	MAKE_JELLY_COFFEE,
+	MAKE_STEAM_ENGINE,
 }
 
 var _recipe_map: Dictionary[RecipeType, Recipe] = {}
@@ -80,8 +81,8 @@ func recipes_for_workshop() -> Array[Recipe]:
 
 const WORK_SMELTING := 4.0
 const WORK_CRAFTING := 8.0
+const WORK_ASSEMBLING := 16.0
 
-const WORK_ASSEMBLING := WORK_CRAFTING * 5.0
 const WORK_OPERATING := WORK_SMELTING * 10.0
 const WORK_PACKAGES := WORK_CRAFTING * 10.0
 
@@ -145,6 +146,9 @@ func _ready() -> void:
 	recipe.inputs[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 2
 	recipe.outputs[Stockpile.ItemType.FLUID_HARDWARE] = 1
 	recipe.work = WORK_PACKAGES
+	recipe.needs_capabilities.append(Capabilities.LATHE)
+	recipe.needs_capabilities.append(Capabilities.CNC_MILL)
+	recipe.needs_capabilities.append(Capabilities.OVERHEAD_CRANE)
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_POWER_CELLS] = recipe
@@ -156,6 +160,7 @@ func _ready() -> void:
 	recipe.inputs[Stockpile.ItemType.BATTERY_ACID] = 1
 	recipe.outputs[Stockpile.ItemType.POWER_CELLS] = 1
 	recipe.work = WORK_ASSEMBLING
+	recipe.needs_capabilities.append(Capabilities.ASSEMBLY_STATION)
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_ELECTRUM_WIRE] = recipe
@@ -174,6 +179,7 @@ func _ready() -> void:
 	recipe.inputs[Stockpile.ItemType.EVAPORITES] = 1
 	recipe.outputs[Stockpile.ItemType.SEMICONDUCTORS] = 1
 	recipe.work = WORK_CRAFTING
+	recipe.needs_capabilities.append(Capabilities.CLEANROOM)
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.OPERATE_REFINERY] = recipe
@@ -194,7 +200,7 @@ func _ready() -> void:
 	recipe.inputs[Stockpile.ItemType.CLAY] = 1
 	recipe.outputs[Stockpile.ItemType.INTEGRATED_CIRCUITS] = 9
 	recipe.work = WORK_ASSEMBLING * 3.0
-	recipe.needs_capabilities.append(Capabilities.CLEAN_ROOM)
+	recipe.needs_capabilities.append(Capabilities.CLEANROOM)
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_ELECTRONIC_COMPONENTS] = recipe
@@ -208,7 +214,9 @@ func _ready() -> void:
 	recipe.inputs[Stockpile.ItemType.PLASTIC] = 1
 	recipe.outputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 3
 	recipe.work = WORK_CRAFTING * 3.0
-	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
+	recipe.needs_capabilities.append(Capabilities.LATHE)
+	recipe.needs_capabilities.append(Capabilities.CNC_MILL)
+	recipe.needs_capabilities.append(Capabilities.SOLDERING_STATION)
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_INDUSTRIAL_CONTROLLERS] = recipe
@@ -219,13 +227,46 @@ func _ready() -> void:
 	recipe.inputs[Stockpile.ItemType.PLASTIC] = 3
 	recipe.outputs[Stockpile.ItemType.INDUSTRIAL_CONTROLLERS] = 1
 	recipe.work = WORK_PACKAGES
+	recipe.needs_capabilities.append(Capabilities.ASSEMBLY_STATION)
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_JELLY_STANDEES] = recipe
 
-	recipe.display_name = "Assemble Jelly Standees"
+	recipe.display_name = "Mold Jelly Standees"
 	recipe.inputs[Stockpile.ItemType.ACRYLIC] = 1
 	recipe.inputs[Stockpile.ItemType.HOSHIUMIUM] = 1
 	recipe.outputs[Stockpile.ItemType.JELLY_STANDEES] = 1
 	recipe.work = WORK_SMELTING
 	recipe.needs_capabilities.append(Capabilities.INJECTION_MOLDING)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_EVAPORITES] = recipe
+
+	recipe.display_name = "Evaporate Brine"
+	recipe.inputs[Stockpile.ItemType.WATER] = 3
+	recipe.outputs[Stockpile.ItemType.EVAPORITES] = 1
+	recipe.work = WORK_OPERATING
+	recipe.needs_capabilities.append(Capabilities.REFINERY)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_JELLY_COFFEE] = recipe
+
+	recipe.display_name = "Brew Jelly Coffee"
+	recipe.inputs[Stockpile.ItemType.COFFEE_CHERRIES] = 1
+	recipe.inputs[Stockpile.ItemType.WATER] = 1
+	recipe.outputs[Stockpile.ItemType.JELLY_COFFEE] = 1
+	recipe.work = WORK_CRAFTING
+	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_STEAM_ENGINE] = recipe
+
+	recipe.display_name = "Manufacture Steam Engine"
+	recipe.inputs[Stockpile.ItemType.RAW_TITANIUM] = 10000
+	recipe.inputs[Stockpile.ItemType.WATER] = 10000
+	recipe.inputs[Stockpile.ItemType.FLUID_HARDWARE] = 100
+	recipe.inputs[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 100
+	recipe.outputs[Stockpile.ItemType.STEAM_ENGINE] = 1
+	recipe.work = 120.0
+	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
+	recipe.needs_capabilities.append(Capabilities.OVERHEAD_CRANE)

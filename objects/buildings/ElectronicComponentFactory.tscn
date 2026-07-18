@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://djqf1nb0ua5e2"]
+
+[ext_resource type="Script" uid="uid://cecfac8k3x2p7q" path="res://objects/buildings/ElectronicComponentFactory.gd" id="1_ecfac"]
+[ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_ecfac"]
+
+[node name="ElectronicComponentFactory" type="Node2D" unique_id=1729384560]
+script = ExtResource("1_ecfac")
+recipe = 11
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1093847215]
+texture = ExtResource("2_ecfac")

@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://cl5ghdpq1arl8"]
+
+[ext_resource type="Texture2D" uid="uid://fcyxn07nsofm" path="res://assets/buildings/pitmine.png" id="1_pump"]
+[ext_resource type="Script" uid="uid://cwpump8k3x2p7q" path="res://objects/buildings/PumpingStation.gd" id="2_pump"]
+
+[node name="PumpingStation" type="Node2D" unique_id=1096472538]
+script = ExtResource("2_pump")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1418305762]
+texture = ExtResource("1_pump")

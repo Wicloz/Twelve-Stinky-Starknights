@@ -33,6 +33,17 @@ enum RecipeType {
 	MAKE_EVAPORITES,
 	MAKE_JELLY_COFFEE,
 	MAKE_STEAM_ENGINE,
+
+	MAKE_PC_GLASS,
+	MAKE_PC_CASE,
+	MAKE_PC_FANS,
+	MAKE_PC_POWER_SUPPLY,
+	MAKE_PC_MOTHERBOARD,
+	MAKE_PC_RAM,
+	MAKE_PC_CPU,
+	MAKE_PC_GPU,
+	MAKE_PC_AIO_COOLER,
+	MAKE_PC,
 }
 
 var _recipe_map: Dictionary[RecipeType, Recipe] = {}
@@ -272,3 +283,123 @@ func _ready() -> void:
 	recipe.work = 120.0
 	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
 	recipe.needs_capabilities.append(Capabilities.OVERHEAD_CRANE)
+
+	##########################
+	### PC related recipes ###
+	##########################
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_PC_GLASS] = recipe
+
+	recipe.display_name = "Fabricate Tempered Glass Panel"
+	recipe.inputs[Stockpile.ItemType.SAND] = 20
+	recipe.outputs[Stockpile.ItemType.PC_GLASS] = 1
+	recipe.work = WORK_CRAFTING
+	recipe.needs_capabilities.append(Capabilities.FURNACE)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_PC_CASE] = recipe
+
+	recipe.display_name = "Fabricate PC Case"
+	recipe.inputs[Stockpile.ItemType.RAW_TITANIUM] = 10
+	recipe.outputs[Stockpile.ItemType.PC_CASE] = 1
+	recipe.work = WORK_CRAFTING
+	recipe.needs_capabilities.append(Capabilities.LATHE)
+	recipe.needs_capabilities.append(Capabilities.CNC_MILL)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_PC_FANS] = recipe
+
+	recipe.display_name = "Mold PC Fans"
+	recipe.inputs[Stockpile.ItemType.PLASTIC] = 5
+	recipe.inputs[Stockpile.ItemType.ELECTRUM_WIRE] = 5
+	recipe.inputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 1
+	recipe.outputs[Stockpile.ItemType.PC_FANS] = 1
+	recipe.work = WORK_CRAFTING
+	recipe.needs_capabilities.append(Capabilities.INJECTION_MOLDING)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_PC_POWER_SUPPLY] = recipe
+
+	recipe.display_name = "Assemble PC Power Supply"
+	recipe.inputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 5
+	recipe.inputs[Stockpile.ItemType.POWER_CELLS] = 2
+	recipe.inputs[Stockpile.ItemType.ELECTRUM_WIRE] = 10
+	recipe.inputs[Stockpile.ItemType.PC_FANS] = 1
+	recipe.outputs[Stockpile.ItemType.PC_POWER_SUPPLY] = 1
+	recipe.work = WORK_CRAFTING
+	recipe.needs_capabilities.append(Capabilities.SOLDERING_STATION)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_PC_MOTHERBOARD] = recipe
+
+	recipe.display_name = "Assemble PC Motherboard"
+	recipe.inputs[Stockpile.ItemType.INTEGRATED_CIRCUITS] = 20
+	recipe.inputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 5
+	recipe.inputs[Stockpile.ItemType.ELECTRUM_WIRE] = 20
+	recipe.inputs[Stockpile.ItemType.PLASTIC] = 5
+	recipe.outputs[Stockpile.ItemType.PC_MOTHERBOARD] = 1
+	recipe.work = WORK_CRAFTING
+	recipe.needs_capabilities.append(Capabilities.SOLDERING_STATION)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_PC_RAM] = recipe
+
+	recipe.display_name = "Fabricate Phase™ RAM"
+	recipe.inputs[Stockpile.ItemType.SEMICONDUCTORS] = 16
+	recipe.inputs[Stockpile.ItemType.PLASTIC] = 1
+	recipe.outputs[Stockpile.ItemType.PC_RAM] = 1
+	recipe.work = WORK_CRAFTING
+	recipe.needs_capabilities.append(Capabilities.CLEANROOM)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_PC_CPU] = recipe
+
+	recipe.display_name = "Fabricate Phase™ CPU"
+	recipe.inputs[Stockpile.ItemType.SEMICONDUCTORS] = 64
+	recipe.outputs[Stockpile.ItemType.PC_CPU] = 1
+	recipe.work = WORK_CRAFTING
+	recipe.needs_capabilities.append(Capabilities.CLEANROOM)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_PC_GPU] = recipe
+
+	recipe.display_name = "Fabricate Phase™ GPU"
+	recipe.inputs[Stockpile.ItemType.SEMICONDUCTORS] = 20
+	recipe.inputs[Stockpile.ItemType.INTEGRATED_CIRCUITS] = 20
+	recipe.inputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 2
+	recipe.inputs[Stockpile.ItemType.PC_FANS] = 3
+	recipe.outputs[Stockpile.ItemType.PC_GPU] = 1
+	recipe.work = WORK_CRAFTING
+	recipe.needs_capabilities.append(Capabilities.CLEANROOM)
+	recipe.needs_capabilities.append(Capabilities.SOLDERING_STATION)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_PC_AIO_COOLER] = recipe
+
+	recipe.display_name = "Assemble AIO Cooler"
+	recipe.inputs[Stockpile.ItemType.FLUID_HARDWARE] = 1
+	recipe.inputs[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 3
+	recipe.inputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 3
+	recipe.inputs[Stockpile.ItemType.WATER] = 100
+	recipe.inputs[Stockpile.ItemType.PC_FANS] = 3
+	recipe.outputs[Stockpile.ItemType.PC_AIO_COOLER] = 1
+	recipe.work = WORK_CRAFTING
+	recipe.needs_capabilities.append(Capabilities.ASSEMBLY_STATION)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_PC] = recipe
+
+	recipe.display_name = "Assemble Personal Computer"
+	recipe.inputs[Stockpile.ItemType.PC_GLASS] = 1
+	recipe.inputs[Stockpile.ItemType.PC_CASE] = 1
+	recipe.inputs[Stockpile.ItemType.PC_FANS] = 2
+	recipe.inputs[Stockpile.ItemType.PC_POWER_SUPPLY] = 1
+	recipe.inputs[Stockpile.ItemType.PC_MOTHERBOARD] = 1
+	recipe.inputs[Stockpile.ItemType.PC_RAM] = 4
+	recipe.inputs[Stockpile.ItemType.PC_CPU] = 1
+	recipe.inputs[Stockpile.ItemType.PC_GPU] = 1
+	recipe.inputs[Stockpile.ItemType.PC_AIO_COOLER] = 1
+	recipe.outputs[Stockpile.ItemType.PC_PC] = 1
+	recipe.work = WORK_PACKAGES
+	recipe.needs_capabilities.append(Capabilities.ASSEMBLY_STATION)

@@ -65,7 +65,7 @@ func _ready() -> void:
 	_volume.min_value = MIN_DB
 	_volume.max_value = MAX_DB
 	_volume.step = 1.0
-	_volume.value = 0.0
+	_volume.value = -6.0
 	_volume.value_changed.connect(_on_volume_changed)
 
 	_mute.texture_normal = volume_icon

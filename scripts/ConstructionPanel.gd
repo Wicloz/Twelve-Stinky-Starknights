@@ -51,8 +51,10 @@ func _make_button(item: CatalogItem) -> Button:
 	for resource in item.cost:
 		button.tooltip_text += "\n%s: %d" % [Stockpile.get_display_name(resource), item.cost[resource]]
 
-	button.icon = item.get_icon()
+	button.icon = item.get_texture()
 	button.expand_icon = true
+	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
 
 	button.pressed.connect(func() -> void:
 		building_selected.emit(item)

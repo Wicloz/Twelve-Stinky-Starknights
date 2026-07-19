@@ -9,6 +9,7 @@ signal constructed
 		_fit_sprite_to_tile()
 
 const HOLO_BLUE := preload("res://assets/shaders/holo_blue.tres")
+const SCALE_FACTOR: float = 0.9
 
 var _sprite_holder: Sprite2D = null
 var _sprite: Sprite2D:
@@ -23,8 +24,8 @@ var _refund: Dictionary[Stockpile.ItemType, int] = {}
 
 static func scale_for_tile(tile_texture: Texture2D, building_texture: Texture2D) -> float:
 	if tile_texture == null or building_texture == null:
-		return 1.0
-	return float(tile_texture.get_width()) / float(building_texture.get_width())
+		return SCALE_FACTOR
+	return float(tile_texture.get_width()) / float(building_texture.get_width()) * SCALE_FACTOR
 
 
 func _fit_sprite_to_tile() -> void:

@@ -1574,9 +1574,14 @@ label_settings = ExtResource("15_jjr1n")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=1946576123]
 
-[node name="ResourceList" type="VBoxContainer" parent="UI" unique_id=1683944017]
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="ScrollContainer" type="ScrollContainer" parent="UI" unique_id=443935029]
+anchors_preset = -1
+anchor_bottom = 0.7
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="ResourceList" type="VBoxContainer" parent="UI/ScrollContainer" unique_id=1683944017]
+layout_mode = 2
 script = ExtResource("6_dwbse")
 label_settings = ExtResource("16_bh8nc")
 

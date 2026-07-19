@@ -141,8 +141,14 @@ def load_game():
     cap_cost, cap_prereq, base_caps = _parse_workshop_research(wshop)
 
     recipes = {}                                   # key -> (in, out, work, caps)
+    skipped = []
     for r in raw_recipes.values():
-        work = float(eval(r.work, {"__builtins__": {}}, workconsts))
+        try:                                       # WIP recipes may lack work/outputs
+            work = float(eval(r.work, {"__builtins__": {}}, workconsts))
+        except (SyntaxError, NameError, TypeError):
+            work = 0.0
+        if work <= 0 or not r.outputs:
+            skipped.append(r.key); continue
         recipes[r.key] = (dict(r.inputs), dict(r.outputs), work, set(r.capabilities))
 
     recipe_building = {}
@@ -175,7 +181,8 @@ def load_game():
                 factory_speedup=_parse_float_const(factory_src, "BASE_WORK_SPEEDUP", 10.0),
                 extraction_speedup=_parse_float_const(extract_src, "BASE_WORK_SPEEDUP", 10.0),
                 automation_cost=(_parse_automation_cost(factory_src)
-                                 or {"INDUSTRIAL_CONTROLLERS": 10}))
+                                 or {"INDUSTRIAL_CONTROLLERS": 10}),
+                skipped=skipped)
 
 
 G = load_game()
@@ -306,8 +313,8 @@ def max_bundle_rate(target, buildings, caps, auto=frozenset()):
 # 5. THE OPTIMAL PLAYER  (greedy rollout over BUILD and RESEARCH investments;
 #    a producibility pass researches the capabilities a goal actually requires)
 # ===========================================================================
-GOAL_GOOD = "JELLY_STANDEES"
-GOAL_AMOUNT = 50
+GOAL_GOOD = "PC_PC"            # build one Personal Computer (the endgame goal)
+GOAL_AMOUNT = 1
 FORCED_FIRST = ["Warehouse"]
 STORY_GATE = "MechanicalComponentFactory"      # gates Jelly's debut + merch
 COPY_CAP = 8
@@ -324,26 +331,38 @@ def _relevant(good):
       items  - the relevant item set (producibility gradient),
       caps   - MANDATORY research caps = caps of relevant recipes that have NO
                factory (must be workshop-crafted), closed under prerequisites.
-    Recipes that DO have a factory need no research -- you build the factory."""
-    items = {good} | set(BUILD_COST.get("Warehouse", {})) | set(BUILD_COST.get(STORY_GATE, {}))
-    changed = True
-    while changed:
-        changed = False
-        for g in list(items):
-            for (inp, out, _w, _c) in RECIPES.values():
-                if g in out:
-                    for ing in inp:
-                        if ing not in items:
-                            items.add(ing); changed = True
-            if g in RAW_SOURCE:
-                for ci in BUILD_COST.get(RAW_SOURCE[g], {}):
-                    if ci not in items:
-                        items.add(ci); changed = True
-        for key, (_i, out, _w, _c) in RECIPES.items():
-            if key in RECIPE_BUILDING and any(o in items for o in out):
-                for ci in BUILD_COST.get(RECIPE_BUILDING[key], {}):
-                    if ci not in items:
-                        items.add(ci); changed = True
+    Recipes that DO have a factory need no research -- you build the factory.
+
+    `goal_items` (the producibility gradient) covers only the goal's own chain.
+    The candidate/research sets additionally cover the Automation cost chain
+    (Industrial Computer Modules) so the optimiser can weigh automating -- but
+    that chain is kept OUT of the producibility gradient so the bootstrap does
+    not detour through it."""
+    def closure(seed):
+        items = set(seed)
+        changed = True
+        while changed:
+            changed = False
+            for g in list(items):
+                for (inp, out, _w, _c) in RECIPES.values():
+                    if g in out:
+                        for ing in inp:
+                            if ing not in items:
+                                items.add(ing); changed = True
+                if g in RAW_SOURCE:
+                    for ci in BUILD_COST.get(RAW_SOURCE[g], {}):
+                        if ci not in items:
+                            items.add(ci); changed = True
+            for key, (_i, out, _w, _c) in RECIPES.items():
+                if key in RECIPE_BUILDING and any(o in items for o in out):
+                    for ci in BUILD_COST.get(RECIPE_BUILDING[key], {}):
+                        if ci not in items:
+                            items.add(ci); changed = True
+        return items
+
+    goal_items = closure({good} | set(BUILD_COST.get("Warehouse", {}))
+                         | set(BUILD_COST.get(STORY_GATE, {})))
+    items = closure(goal_items | set(AUTOMATION_COST))     # + automation chain
 
     cands = set()
     mand = set()
@@ -364,7 +383,7 @@ def _relevant(good):
         for p in CAP_PREREQ.get(frontier.pop(), ()):
             if p not in caps:
                 caps.add(p); frontier.add(p)
-    return ([c for c in CATALOG_BUILDINGS if c in cands], items, caps - BASE_CAPS)
+    return ([c for c in CATALOG_BUILDINGS if c in cands], goal_items, caps - BASE_CAPS)
 
 
 # The player's STATE is (buildings, caps, auto): building counts, the Workshop's
@@ -616,6 +635,9 @@ def report(good, amount):
     print("=" * 78)
     print(f"  {len(RECIPES)} recipes | {len(BUILDING_TYPES)} producing buildings | "
           f"{len(CAP_COST)} researchable capabilities | {len(FINISHED)} finished goods")
+    if G["skipped"]:
+        print(f"  skipped {len(G['skipped'])} incomplete recipe(s): "
+              f"{', '.join(G['skipped'])}  (no work/outputs yet)")
     print(f"  Goal: {amount} x {name(good)}   (story gate: {bname(STORY_GATE)})")
     print()
 
@@ -665,29 +687,48 @@ def report(good, amount):
 
 def make_plots(good, amount, res, fires):
     steps, total = res["steps"], res["total"]
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, 9),
-                                   gridspec_kw={"height_ratios": [3, 2]})
-    rows = [(_label(k, ty), t, k) for k, ty, t in steps] + \
-           [(f"PRODUCE {amount} {name(good)}", total, "goal")]
-    ys = list(range(len(rows)))[::-1]
     palette = {"build": "#23deff", "research": "#b060e0", "automate": "#40c060",
                "goal": "#e0a030"}
-    for (lab, t, k), y in zip(rows, ys):
-        col = palette[k]
-        if k == "build" and lab in (bname(STORY_GATE), bname("Warehouse")):
-            col = "#e0a030"
-        ax1.hlines(y, 0, t / 60.0, color="#cccccc", lw=1, zorder=1)
-        ax1.scatter(t / 60.0, y, color=col, s=40, zorder=3)
-    ax1.set_yticks(ys); ax1.set_yticklabels([r[0] for r in rows], fontsize=7)
+
+    # One ROW PER type (a deep goal builds a type many times); a dot marks each
+    # event along the row, so ~25 readable labels instead of ~150 overlapping.
+    order, events = [], {}
+    for k, ty, t in steps:
+        lab = (f"research {ty}" if k == "research"
+               else f"automate {bname(ty)}" if k == "automate" else bname(ty))
+        if lab not in events:
+            events[lab] = []; order.append(lab)
+        events[lab].append((t, k))
+    goal_lab = f"▶ {amount} {name(good)}"
+    order.append(goal_lab); events[goal_lab] = [(total, "goal")]
+
+    n = len(order)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, max(5.0, 0.34 * n + 4.0)),
+                                   gridspec_kw={"height_ratios": [3, 2]})
+    yof = {lab: n - 1 - i for i, lab in enumerate(order)}   # first event at top
+    for lab in order:
+        evs = events[lab]
+        y = yof[lab]
+        xs = [t / 60.0 for t, _ in evs]
+        if len(xs) > 1:
+            ax1.hlines(y, min(xs), max(xs), color="#dddddd", lw=1, zorder=1)
+        for t, k in evs:
+            ax1.scatter(t / 60.0, y, color=palette[k], s=34, zorder=3)
+    labels = [f"{lab}  ×{len(events[lab])}" if len(events[lab]) > 1 else lab
+              for lab in order]
+    ax1.set_yticks(list(yof.values())); ax1.set_yticklabels(labels, fontsize=8)
+    ax1.set_ylim(-0.6, n - 0.4)
     d = [(s, e) for l, s, e in fires if "DEBUT" in l]
     if d:
-        ax1.axvspan(d[0][0] / 60.0, d[0][1] / 60.0, color="#e0a030", alpha=0.15)
+        ax1.axvspan(d[0][0] / 60.0, d[0][1] / 60.0, color="#e0a030", alpha=0.15,
+                    label="Jelly debut")
     ax1.set_xlabel("wall-clock minutes")
     ax1.set_title(f"Optimal path to {amount} {name(good)} "
-                  "(blue=build, purple=research, green=automate, orange=story)")
+                  "(blue=build, purple=research, green=automate, orange=goal)")
+    ax1.margins(x=0.02)
     ax1.grid(True, axis="x", alpha=0.3)
 
-    mults = [0.25, 0.5, 1.0, 2.0, 4.0]
+    mults = [0.5, 1.0, 2.0]      # kept short: a plan for a deep goal (PC) is slow
     ys2 = [evaluate(good, amount, m)["total"] / 60.0 for m in mults]
     ax2.plot(mults, ys2, "o-", color="#23deff", lw=2, label="time to goal")
     ax2.axhspan(60, 120, color="#23deff", alpha=0.12, label="target 1-2 h")

@@ -30,7 +30,7 @@
 [ext_resource type="LabelSettings" uid="uid://co6e2h1fdxi6u" path="res://assets/resources/cursor_labels.tres" id="15_jjr1n"]
 [ext_resource type="Texture2D" uid="uid://dh65cftyyvawi" path="res://assets/new_terrain/hexHighlands00.png" id="15_yx0jh"]
 [ext_resource type="LabelSettings" uid="uid://c11gxrlumyj0m" path="res://assets/resources/resource_list_labels.tres" id="16_bh8nc"]
-[ext_resource type="Script" uid="uid://dp6o4v4hxa7lt" path="res://objects/MusicPlayer.gd" id="16_il2jm"]
+[ext_resource type="Script" uid="uid://dp6o4v4hxa7lt" path="res://scripts/MusicPlayer.gd" id="16_il2jm"]
 [ext_resource type="Texture2D" uid="uid://yeayi237hjrl" path="res://assets/new_terrain/hexScrublands00.png" id="16_ryup7"]
 [ext_resource type="Texture2D" uid="uid://c1g40qaxk6e1f" path="res://assets/new_terrain/hexDesertYellowCactiForest00.png" id="17_jas3d"]
 [ext_resource type="Texture2D" uid="uid://cjmg3bqnm6su6" path="res://assets/icons/play.svg" id="17_wjb0r"]

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://drbr2pulfe483"
-path="res://.godot/imported/fluids5.png-4e8e2692d9de8474fbb7744f6de553ec.ctex"
+uid="uid://b8lomtc0epcdh"
+path="res://.godot/imported/factory6.png-6c63e4ee29ec293c75d0acee44fd41c8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/buildings/fluids5.png"
-dest_files=["res://.godot/imported/fluids5.png-4e8e2692d9de8474fbb7744f6de553ec.ctex"]
+source_file="res://assets/buildings/factory6.png"
+dest_files=["res://.godot/imported/factory6.png-6c63e4ee29ec293c75d0acee44fd41c8.ctex"]
 
 [params]
 

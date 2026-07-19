@@ -1,11 +1,11 @@
 [gd_scene format=3 uid="uid://bsjbvynqyf2xn"]
 
 [ext_resource type="Script" uid="uid://bh5adp4cwcapo" path="res://objects/buildings/MechanicalComponentFactory.gd" id="1_a218u"]
-[ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_a218u"]
+[ext_resource type="Texture2D" uid="uid://ddacclgm7stng" path="res://assets/buildings/factory8.png" id="2_xy6xe"]
 
 [node name="MechanicalComponentFactory" type="Node2D" unique_id=1403442536]
 script = ExtResource("1_a218u")
 recipe = 3
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1456539947]
-texture = ExtResource("2_a218u")
+texture = ExtResource("2_xy6xe")

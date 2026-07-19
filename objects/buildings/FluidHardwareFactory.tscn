@@ -1,11 +1,11 @@
 [gd_scene format=3 uid="uid://bfh4dw8q207k1"]
 
-[ext_resource type="Script" uid="uid://dfh9w2k7p1x3m" path="res://objects/buildings/FluidHardwareFactory.gd" id="1_fhfac"]
-[ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_fhfac"]
+[ext_resource type="Script" uid="uid://dfiaw2k7p1x3m" path="res://objects/buildings/FluidHardwareFactory.gd" id="1_fhfac"]
+[ext_resource type="Texture2D" uid="uid://cutqcxa7ufur4" path="res://assets/buildings/factory4.png" id="2_l72io"]
 
 [node name="FluidHardwareFactory" type="Node2D" unique_id=1288045173]
 script = ExtResource("1_fhfac")
 recipe = 5
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1934567201]
-texture = ExtResource("2_fhfac")
+texture = ExtResource("2_l72io")

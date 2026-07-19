@@ -1,11 +1,11 @@
 [gd_scene format=3 uid="uid://bpcf5k8w307xn"]
 
-[ext_resource type="Script" uid="uid://cpcf9k2x7p3mq" path="res://objects/buildings/PowerCellFactory.gd" id="1_pcell"]
-[ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_pcell"]
+[ext_resource type="Script" uid="uid://cpcgak2x7p3mq" path="res://objects/buildings/PowerCellFactory.gd" id="1_pcell"]
+[ext_resource type="Texture2D" uid="uid://dj1vevpaonwyq" path="res://assets/buildings/fluids6.png" id="2_a0xp5"]
 
 [node name="PowerCellFactory" type="Node2D" unique_id=1508372649]
 script = ExtResource("1_pcell")
 recipe = 9
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1729045138]
-texture = ExtResource("2_pcell")
+texture = ExtResource("2_a0xp5")

@@ -3,13 +3,17 @@
 
 The map is designed in the Godot editor - that scene is the source of truth for
 which tiles exist and how they're decorated (terrain, deposits, buildings). This
-script only keeps tile *positions* honest: each HexTile's `position` is derived
-from its axial `q`/`r`, so if a tile gets dragged by accident, or the tile size
-changes, `realign` snaps every tile back onto the grid without touching any of
-its other properties or its child nodes.
+script keeps two things honest without touching any other tile property or child
+node:
 
-Default action is `realign` (safe, non-destructive). The one-time structural
-operations are behind flags:
+  * positions - each HexTile's `position` is derived from its axial `q`/`r`, so
+    a dragged tile or a changed tile size snaps back onto the grid;
+  * render order - tiles are sorted back-to-front (row by row) so tall tiles
+    overlap the row behind them correctly instead of being clipped by it.
+
+Default action is `realign` (safe, non-destructive): it does both. The one-time
+structural operations are behind flags (`--build` also lays tiles down in row
+order):
 
     python hex_map_builder.py                 # realign positions in world.tscn
     python hex_map_builder.py --dry-run       # report what realign would change
@@ -123,12 +127,22 @@ def position_line(q: int, r: int, nl: str):
 
 
 def hex_coords(radius: int):
-    """q outer, r inner - matches the node order the editor produced."""
-    for q in range(-radius, radius + 1):
-        for r in range(-radius, radius + 1):
+    """Row-major order: r outer (ascending), q inner. Tiles end up sorted
+    back-to-front so tall tiles overlap the row behind them correctly (Godot
+    draws later siblings on top, and terrain rises upward into smaller r)."""
+    for r in range(-radius, radius + 1):
+        for q in range(-radius, radius + 1):
             if max(abs(q), abs(r), abs(-q - r)) > radius:
                 continue
             yield q, r
+
+
+def tile_row_key(section: "Section") -> tuple[int, int]:
+    """Sort key placing a tile in back-to-front render order: by r (row) then
+    q, read from the tile's own q/r (default 0), matching realign's source."""
+    qm = re.search(r"(?m)^q = (-?\d+)\s*$", section.raw)
+    rm = re.search(r"(?m)^r = (-?\d+)\s*$", section.raw)
+    return (int(rm.group(1)) if rm else 0, int(qm.group(1)) if qm else 0)
 
 
 # ============================================================================
@@ -158,6 +172,52 @@ def realign(sections: list[Section], nl: str) -> int:
             s.raw = new_raw
             changed += 1
     return changed
+
+
+def find_hexmap(sections: list[Section]):
+    return next((s for s in sections if s.kind == "node"
+                 and s.name == PARENT_NODE and s.parent == "."), None)
+
+
+def reorder(sections: list[Section]) -> tuple[list[str], int]:
+    """Reconstruct the scene with the HexMap tiles sorted into back-to-front
+    (row-major) render order. Each tile keeps its child nodes (e.g. a building)
+    grouped with it. Returns (output_lines, tiles_moved)."""
+    hexmap = find_hexmap(sections)
+    if hexmap is None:
+        return [s.raw for s in sections], 0
+
+    groups: dict[str, list[Section]] = {}
+    original_order: list[str] = []
+    for s in sections:
+        if is_tile(s):
+            groups[s.name] = [s]
+            original_order.append(s.name)
+
+    orphans: list[Section] = []
+    for s in sections:
+        if s is hexmap or is_tile(s):
+            continue
+        if s.kind == "node" and s.parent and s.parent.startswith(PARENT_NODE + "/"):
+            tile_name = s.parent.split("/")[1]        # HexMap/Tile=q,r[/child...]
+            (groups[tile_name] if tile_name in groups else orphans).append(s)
+
+    ordered = sorted(original_order, key=lambda n: tile_row_key(groups[n][0]))
+    moved = sum(1 for a, b in zip(original_order, ordered) if a != b)
+
+    moved_ids = {id(s) for g in groups.values() for s in g}
+    moved_ids.update(id(s) for s in orphans)
+
+    out = []
+    for s in sections:
+        if id(s) in moved_ids:
+            continue                                   # re-emitted below, in order
+        out.append(s.raw)
+        if s is hexmap:
+            for name in ordered:
+                out.extend(sec.raw for sec in groups[name])
+            out.extend(sec.raw for sec in orphans)
+    return out, moved
 
 
 def _tile_ext_resource_id(sections: list[Section], nl: str):
@@ -191,8 +251,7 @@ def _tile_ext_resource_id(sections: list[Section], nl: str):
 def build(sections: list[Section], nl: str) -> tuple[list[str], int]:
     """Lay down a fresh radius-N hex of plain tiles (position/q/r only),
     replacing any existing HexMap contents. Reuses unique_ids by tile name."""
-    hexmap = next((s for s in sections if s.kind == "node"
-                   and s.name == PARENT_NODE and s.parent == "."), None)
+    hexmap = find_hexmap(sections)
     if hexmap is None:
         raise SystemExit(f'error: parent node "{PARENT_NODE}" not found in scene')
 
@@ -252,9 +311,10 @@ def process(text: str, action: str):
         removed = sum(1 for s in sections if is_subtree(s))
         out = "".join(s.raw for s in sections if not is_subtree(s))
         return out, {"action": "clear", "removed": removed}
-    # realign (default)
-    n = realign(sections, nl)
-    return "".join(s.raw for s in sections), {"action": "realign", "moved": n}
+    # realign (default): fix positions, then sort into render order
+    moved = realign(sections, nl)
+    out, reordered = reorder(sections)
+    return "".join(out), {"action": "realign", "moved": moved, "reordered": reordered}
 
 
 def main(argv=None):
@@ -281,7 +341,8 @@ def main(argv=None):
     dest = args.output or args.scene
 
     if stats["action"] == "realign":
-        summary = f"realign: repositioned {stats['moved']} tile(s)"
+        summary = (f"realign: repositioned {stats['moved']} tile(s), "
+                   f"reordered {stats['reordered']} into row order")
     elif stats["action"] == "build":
         summary = f"build: wrote {stats['tiles']} tile(s)"
     else:

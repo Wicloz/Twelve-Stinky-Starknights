@@ -2,6 +2,7 @@ class_name Cutscene
 
 
 var condition: Callable
+var after: Array[Cutscene] = []
 
 var still: Texture2D = null
 var video: VideoStream = null

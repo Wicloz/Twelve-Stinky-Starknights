@@ -1,16 +1,12 @@
 Content:
-- resources
-- map/deposits
-- recipes
-- buildings/upgrades
-- cutscenes/story
+- deposit textures and world map
+- building textures
+- balance and building upgrades
+- finish the story
 
 Needs Rework:
-- UI
 - job management
 
 Polish:
-- BGM
-- AI music playlist
-- animations/sounds for the Starknights
-- options (controls, audio, etc.)
+- sound effects
+- in-game production graph

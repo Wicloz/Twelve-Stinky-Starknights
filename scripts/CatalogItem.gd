@@ -46,6 +46,9 @@ func can_place_on(tile: HexTile) -> bool:
     if tile.building != null:
         return false
 
+    if not tile.walkable:
+        return false
+
     if tile.deposit not in allowed_deposits:
         return false
 

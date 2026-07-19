@@ -1,11 +1,11 @@
 [gd_scene format=3 uid="uid://bwmill7x31ak2"]
 
 [ext_resource type="Script" uid="uid://cwm2r8kx1p4qn" path="res://objects/buildings/WireMill.gd" id="1_wmill"]
-[ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_wmill"]
+[ext_resource type="Texture2D" uid="uid://bg5nk8eop45ux" path="res://assets/buildings/factory9.png" id="2_v5cn3"]
 
 [node name="WireMill" type="Node2D" unique_id=1620488311]
 script = ExtResource("1_wmill")
 recipe = 6
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1793044628]
-texture = ExtResource("2_wmill")
+texture = ExtResource("2_v5cn3")

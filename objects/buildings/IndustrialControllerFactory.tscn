@@ -1,11 +1,11 @@
 [gd_scene format=3 uid="uid://dlk255nktvgch"]
 
-[ext_resource type="Script" uid="uid://cindctl8k3x2p7q" path="res://objects/buildings/IndustrialControllerFactory.gd" id="1_indct"]
-[ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_indct"]
+[ext_resource type="Script" uid="uid://dylusds20egqm" path="res://objects/buildings/IndustrialControllerFactory.gd" id="1_indct"]
+[ext_resource type="Texture2D" uid="uid://cwdfefeqn7xlf" path="res://assets/buildings/factory2.png" id="2_py8np"]
 
 [node name="IndustrialControllerFactory" type="Node2D" unique_id=1846203957]
 script = ExtResource("1_indct")
 recipe = 12
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1204958736]
-texture = ExtResource("2_indct")
+texture = ExtResource("2_py8np")

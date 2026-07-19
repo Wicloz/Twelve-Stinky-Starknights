@@ -48,6 +48,8 @@
 [ext_resource type="Texture2D" uid="uid://bfpoe3u077q62" path="res://assets/icons/close.svg" id="29_gggvi"]
 [ext_resource type="PackedScene" uid="uid://bo1ttpfaa10pe" path="res://objects/HexTile.tscn" id="30_5ocsm"]
 [ext_resource type="Texture2D" uid="uid://dssmal74dhmus" path="res://assets/icons/guidebook.svg" id="48_nx736"]
+[ext_resource type="Script" uid="uid://cprd8chnvwr01" path="res://scripts/ProductionChainViewer.gd" id="49_pcv01"]
+[ext_resource type="Texture2D" uid="uid://dx5j5dki6sqoo" path="res://assets/production_graph.png" id="50_pcv02"]
 
 [node name="World" type="Node2D" unique_id=1592913599]
 
@@ -1877,5 +1879,52 @@ layout_mode = 2
 anchors_preset = -1
 anchor_left = 0.75
 anchor_right = 0.75
+offset_left = -48.0
+offset_bottom = 48.0
 grow_horizontal = 0
 texture_normal = ExtResource("48_nx736")
+
+[node name="ProductionChainViewer" type="Control" parent="UI" unique_id=305177841 node_paths=PackedStringArray("help_button")]
+visible = false
+layout_mode = 3
+anchor_right = 0.75
+anchor_bottom = 1.0
+script = ExtResource("49_pcv01")
+help_button = NodePath("../HelpButton")
+
+[node name="Background" type="ColorRect" parent="UI/ProductionChainViewer" unique_id=821244907]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.05, 0.05, 0.06, 0.94)
+
+[node name="ImageClip" type="Control" parent="UI/ProductionChainViewer" unique_id=1503992664]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Image" type="TextureRect" parent="UI/ProductionChainViewer/ImageClip" unique_id=1994880053]
+layout_mode = 0
+mouse_filter = 2
+texture = ExtResource("50_pcv02")
+
+[node name="CloseButton" type="TextureButton" parent="UI/ProductionChainViewer" unique_id=744019263]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -64.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 64.0
+grow_horizontal = 0
+texture_normal = ExtResource("29_gggvi")

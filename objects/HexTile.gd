@@ -17,6 +17,12 @@ extends Node2D
 			return get_node("Terrain").texture
 		return null
 
+var terrain_texture_width: float:
+	get:
+		if terrain_texture == null:
+			return 0.0
+		return terrain_texture.get_width()
+
 @export var deposit: Stockpile.ItemType = Stockpile.ItemType.NONE
 @export var workable: bool = false
 var harvesting: bool = false

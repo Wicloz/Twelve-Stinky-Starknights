@@ -11,6 +11,7 @@ var _items_produced: Array[Stockpile.ItemType] = []
 var _items_consumed: Array[Stockpile.ItemType] = []
 var _display_name: String
 var _texture: Texture2D
+var scale_for_tile: float
 
 
 func _try_scene_probe() -> void:
@@ -27,8 +28,9 @@ func _try_scene_probe() -> void:
     _texture = building.get_node("Sprite2D").texture
 
     _display_name = building.get_display_name()
-    _scene_probed = true
+    scale_for_tile = building.multiply_by_this()
 
+    _scene_probed = true
     building.queue_free()
 
 

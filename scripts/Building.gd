@@ -3,13 +3,27 @@ extends Node2D
 signal constructed
 
 
-@export var tile: HexTile
+@export var tile: HexTile:
+	set(value):
+		tile = value
+		_fit_sprite_to_tile()
 
 const HOLO_BLUE := preload("res://assets/shaders/holo_blue.tres")
 @onready var _sprite := $Sprite2D
 
 var _under_construction: bool = false
 var _refund: Dictionary[Stockpile.ItemType, int] = {}
+
+
+static func scale_for_tile(hex_tile: HexTile, texture: Texture2D) -> float:
+	if hex_tile == null or hex_tile.terrain_texture == null or texture == null:
+		return 1.0
+
+	return float(hex_tile.terrain_texture.get_width()) / float(texture.get_width())
+
+
+func _fit_sprite_to_tile() -> void:
+	_sprite.scale = Vector2.ONE * scale_for_tile(tile, _sprite.texture)
 
 
 func get_display_name() -> String:

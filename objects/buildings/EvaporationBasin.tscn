@@ -1,11 +1,11 @@
 [gd_scene format=3 uid="uid://bevap5law307x"]
 
 [ext_resource type="Script" uid="uid://cevap8k3x2p7q" path="res://objects/buildings/EvaporationBasin.gd" id="1_evap"]
-[ext_resource type="Texture2D" uid="uid://b7vwn1128rmbu" path="res://assets/buildings/factory1.png" id="2_evap"]
+[ext_resource type="Texture2D" uid="uid://ss4djkk1cv5u" path="res://assets/buildings/water1.png" id="2_7ddkw"]
 
 [node name="EvaporationBasin" type="Node2D" unique_id=1274905863]
 script = ExtResource("1_evap")
 recipe = 14
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1650283947]
-texture = ExtResource("2_evap")
+texture = ExtResource("2_7ddkw")

@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://bmuvm3gn7exp8"]
 
-[ext_resource type="Texture2D" uid="uid://dn0fm0gjhng8i" path="res://assets/buildings/logging_camp.png" id="1_coff"]
-[ext_resource type="Script" uid="uid://ccoffee8k3x2p7q" path="res://objects/buildings/SumatraCoffeeFarm.gd" id="2_coff"]
+[ext_resource type="Script" uid="uid://b0voabl6dvx5e" path="res://objects/buildings/SumatraCoffeeFarm.gd" id="2_coff"]
+[ext_resource type="Texture2D" uid="uid://do8leqsbgrqyv" path="res://assets/buildings/coffee_farm.png" id="2_gh8qj"]
 
 [node name="SumatraCoffeeFarm" type="Node2D" unique_id=1428057396]
 script = ExtResource("2_coff")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1739284015]
-texture = ExtResource("1_coff")
+texture = ExtResource("2_gh8qj")

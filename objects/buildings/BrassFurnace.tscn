@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://co7s1co5oupfo"]
 
 [ext_resource type="Script" uid="uid://c2byl6nahux4s" path="res://objects/buildings/BrassFurnace.gd" id="1_cbiti"]
-[ext_resource type="Texture2D" uid="uid://c5bqbwgaujc32" path="res://assets/buildings/furnace2.png" id="2_20j21"]
+[ext_resource type="Texture2D" uid="uid://di53tcwn6p1ki" path="res://assets/buildings/furnace1.png" id="2_20j21"]
 
 [node name="BrassFurnace" type="Node2D" unique_id=1107348902]
 script = ExtResource("1_cbiti")

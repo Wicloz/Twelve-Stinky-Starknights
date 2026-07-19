@@ -37,7 +37,7 @@ func _define_cutscenes() -> void:
     _locked_cutscenes.append(cutscene)
 
     cutscene.still = preload("res://assets/cutscenes/aiko.jpg")
-    cutscene.text = say(AIKO, "Aiko", "Click on a deposit tile and enable harvesting to have a Starknight work it. Use the [u]workshop[/u] to manually craft small amounts of items, you will need 10 clay bricks and 10 mechanical components to get started. Construct buildings from the picker at the bottom to speed up extraction and production. This menu will be hidden if you have a building or deposit selected. Buildings only show up after you have discovered all of their construction materials, so make sure to explore everything you can.")
+    cutscene.text = say(AIKO, "Aiko", "Click on a deposit tile and enable harvesting to have a Starknight work it. Use the [u]workshop[/u] to manually craft small amounts of items, you will need 10 clay bricks and 10 mechanical components to get started. Construct buildings from the picker at the bottom to speed up extraction and production. This menu will be hidden if you have a building or deposit selected. Buildings can also be upgraded after selecting them. Buildings only show up after you have discovered all of their construction materials, so make sure to explore everything you can.")
 
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)

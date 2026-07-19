@@ -15,7 +15,8 @@ Renders TWO graphs (each as .dot plus .svg/.png when Graphviz is on PATH):
   * production_graph.*           -- item/recipe production chains.
   * production_graph_buildings.* -- the same flow with each recipe folded onto
     the BUILDING that runs it, plus construction-cost edges (dashed) showing what
-    every buildable costs to raise.
+    every buildable costs to raise, and the WORKSHOP CAPABILITIES (hexagons) each
+    recipe needs to be crafted.
 
 Nothing here is hard-coded from the recipe tables -- re-run it after editing any
 Crafting.gd / Catalog.gd / *.tscn and the graphs update themselves.
@@ -188,6 +189,15 @@ def parse_catalog(catalog_text: str) -> dict[str, dict]:
 
 
 # ===========================================================================
+# Workshop.gd  ->  the capabilities available from the start (before research)
+# ===========================================================================
+def parse_workshop_defaults(workshop_text: str) -> set[str]:
+    """Capabilities the Workshop starts with (its `static var capabilities`)."""
+    m = re.search(r"static var capabilities.*?=\s*\[(.*?)\]", workshop_text, re.S)
+    return set(re.findall(r"Capabilities\.(\w+)", m.group(1))) if m else set()
+
+
+# ===========================================================================
 # Assemble the graph model
 # ===========================================================================
 def build_graph(items, recipes, buildings, allowed_deposits, build_costs):
@@ -225,6 +235,15 @@ def esc(s: str) -> str:
     return s.replace("\\", "\\\\").replace('"', '\\"')
 
 
+_CAP_ACRONYMS = {"CNC"}
+
+
+def pretty_cap(name: str) -> str:
+    """FURNACE -> Furnace, CNC_MILL -> CNC Mill, OVERHEAD_CRANE -> Overhead Crane."""
+    return " ".join(w if w in _CAP_ACRONYMS else w.capitalize()
+                    for w in name.split("_"))
+
+
 # shared node/edge palette
 C_DEPOSIT = ('shape=cylinder, style=filled, fillcolor="#c8e6c9", '
              'color="#2e7d32", penwidth=1.5')
@@ -234,8 +253,12 @@ C_ITEM = 'shape=ellipse, style=filled, fillcolor="#e3f2fd", color="#1565c0"'
 C_RECIPE = 'shape=box, style="filled", fillcolor="#f5f5f5", color="#616161"'
 C_BUILDING = ('shape=box3d, style=filled, fillcolor="#ede7f6", '
               'color="#5e35b1", penwidth=1.5')
+C_CAP = 'shape=hexagon, style=filled, fillcolor="#b2dfdb", color="#00695c"'
+C_CAP_DEFAULT = ('shape=hexagon, style="filled,bold", fillcolor="#80cbc4", '
+                 'color="#00695c", penwidth=2')
 E_PRODUCE = 'color="#e65100"'
 E_COST = 'style=dashed, color="#5e35b1", fontcolor="#5e35b1"'
+E_CAP = 'style=dotted, color="#00838f", arrowsize=0.6'
 
 
 def emit_item_nodes(add, items, all_items, roots, finals, deposit_source,
@@ -306,12 +329,17 @@ def to_dot(items, recipes, deposit_source, all_items, roots, finals) -> str:
 
 
 def to_dot_buildings(items, recipes, catalog, buildings, deposit_source,
-                     all_items, roots, finals) -> str:
+                     all_items, roots, finals, workshop_defaults) -> str:
     """Graph 2: buildings as nodes, with construction cost (dashed) plus the
-    production flow (solid) folded onto the building that performs it."""
+    production flow (solid) folded onto the building that performs it, and the
+    workshop capabilities (hexagons) each recipe needs to be crafted."""
     L: list[str] = []
     add = L.append
     _header(add, "buildings")
+
+    # recipe index -> id of the node that performs it (building or recipe box),
+    # so capability edges can point at whatever runs the recipe
+    perform_node: dict[int, str] = {}
 
     # every item that appears in a recipe OR as a construction cost / deposit
     g2_items = set(all_items)
@@ -341,6 +369,7 @@ def to_dot_buildings(items, recipes, catalog, buildings, deposit_source,
         if b.base == "FactoryBuilding" and b.recipe_index in recipes:
             r = recipes[b.recipe_index]
             handled_recipes.add(r.index)
+            perform_node[r.index] = bid
             for item, qty in r.inputs.items():
                 add(f'  "i_{item}" -> "{bid}" [label="{qty}"];')
             for item, qty in r.outputs.items():
@@ -356,12 +385,35 @@ def to_dot_buildings(items, recipes, catalog, buildings, deposit_source,
     if leftover:
         add("  // workshop-only recipes (no dedicated building)")
         for r in sorted(leftover, key=lambda x: x.index):
+            perform_node[r.index] = f"r_{r.key}"
             label = f"{esc(r.display_name or r.key)}\\n[Workshop]"
             add(f'  "r_{r.key}" [label="{label}", {C_RECIPE}];')
             for item, qty in r.inputs.items():
                 add(f'  "i_{item}" -> "r_{r.key}" [label="{qty}"];')
             for item, qty in r.outputs.items():
                 add(f'  "r_{r.key}" -> "i_{item}" [label="{qty}", {E_PRODUCE}];')
+        add("")
+
+    # --- workshop capabilities: one hexagon per capability a recipe needs,
+    #     dotted edge to whatever performs that recipe ---
+    caps_used = sorted({c for r in recipes.values() for c in r.capabilities})
+    if caps_used:
+        add("  // workshop capabilities (dotted = recipe needs this capability)")
+        add('  subgraph cluster_caps {')
+        add('    label="Workshop capabilities"; fontname="Helvetica"; '
+            'fontsize=11; color="#00695c"; style=rounded;')
+        for cap in caps_used:
+            default = cap in workshop_defaults
+            style = C_CAP_DEFAULT if default else C_CAP
+            tag = "\\n(default)" if default else ""
+            add(f'    "cap_{cap}" [label="{esc(pretty_cap(cap))}{tag}", {style}];')
+        add('  }')
+        for r in recipes.values():
+            target = perform_node.get(r.index)
+            if not target:
+                continue
+            for cap in r.capabilities:
+                add(f'  "cap_{cap}" -> "{target}" [{E_CAP}];')
         add("")
 
     add("""
@@ -399,6 +451,12 @@ def to_dot_buildings(items, recipes, catalog, buildings, deposit_source,
     "lg_kb" [label="Building", shape=box3d, style=filled,
              fillcolor="#ede7f6", color="#5e35b1"];
     "lg_ki" -> "lg_kb" [label="consumes (recipe input)"];
+    "lg_cap" [label="Workshop\\ncapability", shape=hexagon, style=filled,
+              fillcolor="#b2dfdb", color="#00695c"];
+    "lg_cr" [label="Building /\\nrecipe", shape=box3d, style=filled,
+             fillcolor="#ede7f6", color="#5e35b1"];
+    "lg_cap" -> "lg_cr" [label="recipe needs capability", style=dotted,
+                         color="#00838f", fontcolor="#00838f"];
   }""")
 
     add("}")
@@ -434,10 +492,13 @@ def main() -> int:
                   file=sys.stderr)
             return 1
 
+    workshop = buildings_dir / "Workshop.gd"
     items = parse_items(read(stockpile))
     recipes = parse_recipes(read(crafting))
     buildings = parse_buildings(buildings_dir)
     catalog_data = parse_catalog(read(catalog))
+    workshop_defaults = (parse_workshop_defaults(read(workshop))
+                         if workshop.exists() else set())
     allowed_deposits = {cls: info["deposits"]
                         for cls, info in catalog_data.items() if info["deposits"]}
     build_costs = {item for info in catalog_data.values() for item in info["cost"]}
@@ -458,7 +519,8 @@ def main() -> int:
     render(dot1, out_base, fmts, not args.no_render)
 
     dot2 = to_dot_buildings(items, recipes, catalog_data, buildings,
-                            deposit_source, all_items, roots, finals)
+                            deposit_source, all_items, roots, finals,
+                            workshop_defaults)
     render(dot2, out_base.with_name(out_base.name + "_buildings"),
            fmts, not args.no_render)
 

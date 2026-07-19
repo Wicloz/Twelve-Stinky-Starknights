@@ -41,7 +41,6 @@ texture_normal = ExtResource("2_sge2c")
 layout_mode = 2
 
 [node name="Recipes" type="ItemList" parent="PanelContainer/VBoxContainer/OrderSelection" unique_id=858313223]
-custom_minimum_size = Vector2(0, 300)
 layout_mode = 2
 auto_width = true
 
@@ -51,7 +50,18 @@ layout_mode = 2
 [node name="RecipeName" type="Label" parent="PanelContainer/VBoxContainer/OrderSelection/Details" unique_id=1576396022]
 layout_mode = 2
 
-[node name="RecipeIO" type="Label" parent="PanelContainer/VBoxContainer/OrderSelection/Details" unique_id=332784122]
+[node name="RecipeIO" type="HBoxContainer" parent="PanelContainer/VBoxContainer/OrderSelection/Details" unique_id=332784122]
+layout_mode = 2
+
+[node name="Inputs" type="Label" parent="PanelContainer/VBoxContainer/OrderSelection/Details/RecipeIO" unique_id=332784123]
+layout_mode = 2
+
+[node name="Arrow" type="Label" parent="PanelContainer/VBoxContainer/OrderSelection/Details/RecipeIO" unique_id=332784124]
+layout_mode = 2
+text = "=>"
+vertical_alignment = 1
+
+[node name="Outputs" type="Label" parent="PanelContainer/VBoxContainer/OrderSelection/Details/RecipeIO" unique_id=332784125]
 layout_mode = 2
 
 [node name="RecipeWork" type="Label" parent="PanelContainer/VBoxContainer/OrderSelection/Details" unique_id=603595288]

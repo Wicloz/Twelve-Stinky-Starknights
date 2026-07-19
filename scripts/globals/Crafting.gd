@@ -287,6 +287,7 @@ func _ready() -> void:
 	recipe.inputs[Stockpile.ItemType.WATER] = 10000
 	recipe.inputs[Stockpile.ItemType.FLUID_HARDWARE] = 100
 	recipe.outputs[Stockpile.ItemType.STEAM_ENGINE] = 1
+	recipe.work = 120.0
 	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
 	recipe.needs_capabilities.append(Capabilities.OVERHEAD_CRANE)
 
@@ -407,5 +408,5 @@ func _ready() -> void:
 	recipe.inputs[Stockpile.ItemType.PC_GPU] = 1
 	recipe.inputs[Stockpile.ItemType.PC_AIO_COOLER] = 1
 	recipe.outputs[Stockpile.ItemType.PC_PC] = 1
-	recipe.work = WORK_PACKAGES
+	recipe.work = 120.0
 	recipe.needs_capabilities.append(Capabilities.ASSEMBLY_STATION)

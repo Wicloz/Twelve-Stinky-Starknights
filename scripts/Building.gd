@@ -21,15 +21,16 @@ var _under_construction: bool = false
 var _refund: Dictionary[Stockpile.ItemType, int] = {}
 
 
-static func scale_for_tile(hex_tile: HexTile, texture: Texture2D) -> float:
-	if hex_tile == null or hex_tile.terrain_texture == null or texture == null:
+static func scale_for_tile(tile_texture: Texture2D, building_texture: Texture2D) -> float:
+	if tile_texture == null or building_texture == null:
 		return 1.0
-
-	return float(hex_tile.terrain_texture.get_width()) / float(texture.get_width())
+	return float(tile_texture.get_width()) / float(building_texture.get_width())
 
 
 func _fit_sprite_to_tile() -> void:
-	_sprite.scale = Vector2.ONE * scale_for_tile(tile, _sprite.texture)
+	if tile == null:
+		return
+	_sprite.scale = Vector2.ONE * scale_for_tile(tile.terrain_texture, _sprite.texture)
 
 
 func get_display_name() -> String:

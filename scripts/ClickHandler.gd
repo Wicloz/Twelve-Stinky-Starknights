@@ -71,7 +71,7 @@ func _process(_delta: float) -> void:
 				_cursor_ghost_place.global_position = get_global_mouse_position()
 				_cursor_place_sprite.material = HOLO_RED
 			if tile != null:
-				_cursor_place_sprite.scale = Vector2.ONE * Building.scale_for_tile(tile, _cursor_place_sprite.texture)
+				_cursor_place_sprite.scale = Vector2.ONE * Building.scale_for_tile(tile.terrain_texture, _cursor_place_sprite.texture)
 
 
 func _set_hover_text(tile: HexTile) -> void:

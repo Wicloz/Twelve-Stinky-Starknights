@@ -42,9 +42,9 @@ TILE_SCENE_PATH = "res://objects/HexTile.tscn"
 TILE_SCENE_UID = "uid://bo1ttpfaa10pe"
 
 PARENT_NODE = "HexMap"      # node whose children are the tiles
-TILE_WIDTH = 120
-TILE_HEIGHT = 140
-PADDING = 8
+TILE_WIDTH = 256
+TILE_HEIGHT = 256
+PADDING = 16
 RADIUS = 8                  # size of the hex --build lays down
 
 _ID_ALPHABET = string.ascii_lowercase + string.digits

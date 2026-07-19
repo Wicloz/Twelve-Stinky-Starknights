@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://btlcybsomkccq"]
 
-[ext_resource type="Texture2D" uid="uid://n630udipiv2y" path="res://assets/starknight.webp" id="1_prfl4"]
 [ext_resource type="Script" uid="uid://bupenbvkslon" path="res://objects/Starknight.gd" id="1_wf1m3"]
+[ext_resource type="Texture2D" uid="uid://df40pj1ujdfeb" path="res://assets/starknight.png" id="2_wf1m3"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
 bg_color = Color(0.1, 0.1, 0.13, 0.75)
@@ -21,14 +21,14 @@ corner_radius_bottom_left = 2
 script = ExtResource("1_wf1m3")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1303271279]
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("1_prfl4")
+scale = Vector2(0.18, 0.18)
+texture = ExtResource("2_wf1m3")
 
 [node name="ProgressBar" type="ProgressBar" parent="." unique_id=1303271280]
-offset_left = -24.0
-offset_top = -44.0
-offset_right = 24.0
-offset_bottom = -36.0
+offset_left = -70.0
+offset_top = -85.0
+offset_right = 70.0
+offset_bottom = -60.0
 theme_override_styles/background = SubResource("StyleBoxFlat_bg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_fill")
 max_value = 1.0

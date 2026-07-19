@@ -1,39 +1,53 @@
 [gd_scene format=3 uid="uid://w2nnm8tc46ps"]
 
 [ext_resource type="Script" uid="uid://cdr2jyps6m0my" path="res://scripts/HexMap.gd" id="1_wse8f"]
-[ext_resource type="PackedScene" uid="uid://bo1ttpfaa10pe" path="res://objects/HexTile.tscn" id="2_fj7yv"]
+[ext_resource type="Texture2D" uid="uid://c54gtae8eqqyx" path="res://assets/new_terrain/hexOcean00.png" id="3_bh8nc"]
+[ext_resource type="Texture2D" uid="uid://63lcbhvl5pjw" path="res://assets/new_terrain/hexSnowField00.png" id="3_bo7i5"]
+[ext_resource type="Texture2D" uid="uid://br4d0ksavntxi" path="res://assets/new_terrain/hexMountainSnow00.png" id="3_o3ebs"]
 [ext_resource type="Script" uid="uid://brynm6ycuap45" path="res://scripts/Viewport.gd" id="4_aqk2v"]
+[ext_resource type="Texture2D" uid="uid://cpx8cx4cghm5h" path="res://assets/new_terrain/hexSandPalms00.png" id="4_bh8nc"]
 [ext_resource type="PackedScene" uid="uid://btlcybsomkccq" path="res://objects/Starknight.tscn" id="4_pkg7o"]
+[ext_resource type="Texture2D" uid="uid://diohu7m2e6do8" path="res://assets/new_terrain/hexWetlands00.png" id="5_1ew0l"]
+[ext_resource type="Texture2D" uid="uid://c3j00tpmbxfmf" path="res://assets/new_terrain/hexDesertDunes00.png" id="5_4h6ng"]
 [ext_resource type="Script" uid="uid://cc3atkeodsjni" path="res://scripts/ClickHandler.gd" id="5_dwbse"]
-[ext_resource type="Texture2D" uid="uid://wc61g7bkwc58" path="res://assets/hex_terrain/Mars/mars_07.png" id="5_hiqwa"]
 [ext_resource type="PackedScene" uid="uid://b1vwf74qjibx1" path="res://objects/buildings/Workshop.tscn" id="5_ic0uy"]
-[ext_resource type="Texture2D" uid="uid://dbrueh6kw534c" path="res://assets/hex_terrain/Grass/grass_12.png" id="5_wse8f"]
-[ext_resource type="Texture2D" uid="uid://c2wygi68802r2" path="res://assets/hex_terrain/Stone/stone_07.png" id="6_2u3nc"]
-[ext_resource type="Texture2D" uid="uid://3hejc4d4i3gw" path="res://assets/hex_terrain/Sand/sand_07.png" id="6_70uel"]
+[ext_resource type="Texture2D" uid="uid://creejmu0uyvu8" path="res://assets/new_terrain/hexPlainsColdSnowTransitionPond00.png" id="5_qktwf"]
 [ext_resource type="Script" uid="uid://d22m0dkwwfmxq" path="res://scripts/ResourceList.gd" id="6_dwbse"]
+[ext_resource type="Texture2D" uid="uid://dbrs4gs6cepav" path="res://assets/new_terrain/hexOceanCalm00.png" id="6_jjr1n"]
+[ext_resource type="Texture2D" uid="uid://onn12mrt3jn3" path="res://assets/new_terrain/hexJungle00.png" id="7_g1i3r"]
+[ext_resource type="Texture2D" uid="uid://cwdp0x5tkl6bx" path="res://assets/new_terrain/hexDesertRedDirt00.png" id="7_gggvi"]
+[ext_resource type="Texture2D" uid="uid://bvjppypcd0e2v" path="res://assets/new_terrain/hexMountain00.png" id="7_k83mh"]
+[ext_resource type="Texture2D" uid="uid://bf48irgjips8u" path="res://assets/new_terrain/hexForestBroadleaf00.png" id="7_w44yn"]
 [ext_resource type="Script" uid="uid://2k071aqjpe3b" path="res://scripts/DepositPanel.gd" id="8_gbfbk"]
-[ext_resource type="Texture2D" uid="uid://de6ct2nich7m1" path="res://assets/hex_terrain/Stone/stone_16.png" id="8_qktwf"]
-[ext_resource type="Texture2D" uid="uid://cdbinp584wtxe" path="res://assets/hex_terrain/Mars/mars_13.png" id="8_w44yn"]
-[ext_resource type="Texture2D" uid="uid://5i3tpnr0x6mj" path="res://assets/hex_terrain/Stone/stone_06.png" id="9_bo7i5"]
-[ext_resource type="Texture2D" uid="uid://5ki8qysexsr0" path="res://assets/hex_terrain/Mars/mars_14.png" id="10_ikiii"]
-[ext_resource type="Texture2D" uid="uid://c5fcwv0b5iau8" path="res://assets/hex_terrain/Mars/mars_06.png" id="11_cbp6q"]
+[ext_resource type="Texture2D" uid="uid://cfdva6blwa2bd" path="res://assets/new_terrain/hexForestPineSnowCovered00.png" id="8_gggvi"]
+[ext_resource type="Texture2D" uid="uid://b1xai7awf74gi" path="res://assets/new_terrain/hexDirt00.png" id="9_7htu6"]
 [ext_resource type="Script" uid="uid://t2dj705eag71" path="res://scripts/BuildingPanel.gd" id="11_ic0uy"]
 [ext_resource type="Script" uid="uid://cxog2xaur4sam" path="res://scripts/ConstructionPanel.gd" id="12_k3n1d"]
+[ext_resource type="Texture2D" uid="uid://dkx0nhhrlou8g" path="res://assets/new_terrain/hexHills00.png" id="12_my276"]
+[ext_resource type="Texture2D" uid="uid://2ux6uy43qhm4" path="res://assets/new_terrain/hexWoodlands00.png" id="13_fnoqa"]
 [ext_resource type="Script" uid="uid://bkxvitvpwekgn" path="res://scripts/StoryUI.gd" id="14_ikiii"]
 [ext_resource type="Script" uid="uid://cbgru8xb55ygv" path="res://scripts/CutsceneViewer.gd" id="14_udxuc"]
 [ext_resource type="LabelSettings" uid="uid://co6e2h1fdxi6u" path="res://assets/resources/cursor_labels.tres" id="15_jjr1n"]
+[ext_resource type="Texture2D" uid="uid://dh65cftyyvawi" path="res://assets/new_terrain/hexHighlands00.png" id="15_yx0jh"]
 [ext_resource type="LabelSettings" uid="uid://c11gxrlumyj0m" path="res://assets/resources/resource_list_labels.tres" id="16_bh8nc"]
 [ext_resource type="Script" uid="uid://dp6o4v4hxa7lt" path="res://objects/MusicPlayer.gd" id="16_il2jm"]
+[ext_resource type="Texture2D" uid="uid://yeayi237hjrl" path="res://assets/new_terrain/hexScrublands00.png" id="16_ryup7"]
+[ext_resource type="Texture2D" uid="uid://c1g40qaxk6e1f" path="res://assets/new_terrain/hexDesertYellowCactiForest00.png" id="17_jas3d"]
 [ext_resource type="Texture2D" uid="uid://cjmg3bqnm6su6" path="res://assets/icons/play.svg" id="17_wjb0r"]
 [ext_resource type="Texture2D" uid="uid://caailu6wvhje" path="res://assets/icons/pause.svg" id="18_mc2jv"]
 [ext_resource type="Texture2D" uid="uid://cn352kml2i6dp" path="res://assets/icons/volume.svg" id="19_bo7i5"]
 [ext_resource type="Texture2D" uid="uid://dfq7v3d5d1uef" path="res://assets/icons/prev.svg" id="19_mc2jv"]
+[ext_resource type="Texture2D" uid="uid://cjtjgmon6e7b7" path="res://assets/new_terrain/hexDesertDunesOasis00.png" id="19_ytpkv"]
 [ext_resource type="Texture2D" uid="uid://bwx1anaixor23" path="res://assets/icons/mute.svg" id="20_4h6ng"]
 [ext_resource type="Texture2D" uid="uid://byc5j4qi1gukf" path="res://assets/icons/next.svg" id="20_bo7i5"]
+[ext_resource type="Texture2D" uid="uid://cora1pfuc4vd1" path="res://assets/new_terrain/hexDesertYellowMesas00.png" id="21_7htu6"]
+[ext_resource type="Texture2D" uid="uid://b73emj3j3fsjc" path="res://assets/new_terrain/hexDesertYellowHillsOasis00.png" id="22_7qk3m"]
+[ext_resource type="Texture2D" uid="uid://cvij62lvx4qx6" path="res://assets/new_terrain/hexDesertRedMesaLarge00.png" id="22_xpnt2"]
 [ext_resource type="Script" uid="uid://c2fq3bfp80uw1" path="res://scripts/Challenges.gd" id="24_4h6ng"]
 [ext_resource type="Texture2D" uid="uid://bmuo20cw6l57t" path="res://assets/icons/building_cancel.svg" id="27_k83mh"]
 [ext_resource type="Texture2D" uid="uid://dwba8qnudiyb4" path="res://assets/icons/building_delete.svg" id="28_qktwf"]
 [ext_resource type="Texture2D" uid="uid://bfpoe3u077q62" path="res://assets/icons/close.svg" id="29_gggvi"]
+[ext_resource type="PackedScene" uid="uid://bo1ttpfaa10pe" path="res://objects/HexTile.tscn" id="30_5ocsm"]
 
 [node name="World" type="Node2D" unique_id=1592913599]
 
@@ -41,1337 +55,1494 @@
 z_index = -1
 script = ExtResource("1_wse8f")
 
-[node name="Tile=-8,0" parent="HexMap" unique_id=1843538518 instance=ExtResource("2_fj7yv")]
-position = Vector2(-1024, 0)
+[node name="Tile=-8,0" parent="HexMap" unique_id=1893077376 instance=ExtResource("30_5ocsm")]
+position = Vector2(-2176, 0)
 q = -8
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
 
-[node name="Tile=-8,1" parent="HexMap" unique_id=147289743 instance=ExtResource("2_fj7yv")]
-position = Vector2(-960, 111)
+[node name="Tile=-8,1" parent="HexMap" unique_id=235464608 instance=ExtResource("30_5ocsm")]
+position = Vector2(-2040, 204)
 q = -8
 r = 1
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
 
-[node name="Tile=-8,2" parent="HexMap" unique_id=1689101455 instance=ExtResource("2_fj7yv")]
-position = Vector2(-896, 222)
+[node name="Tile=-8,2" parent="HexMap" unique_id=1626297216 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1904, 408)
 q = -8
 r = 2
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
 
-[node name="Tile=-8,3" parent="HexMap" unique_id=587891868 instance=ExtResource("2_fj7yv")]
-position = Vector2(-832, 333)
+[node name="Tile=-8,3" parent="HexMap" unique_id=55173678 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1768, 612)
 q = -8
 r = 3
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
 
-[node name="Tile=-8,4" parent="HexMap" unique_id=2013283299 instance=ExtResource("2_fj7yv")]
-position = Vector2(-768, 444)
+[node name="Tile=-8,4" parent="HexMap" unique_id=1402809714 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1632, 816)
 q = -8
 r = 4
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
 
-[node name="Tile=-8,5" parent="HexMap" unique_id=236882302 instance=ExtResource("2_fj7yv")]
-position = Vector2(-704, 555)
+[node name="Tile=-8,5" parent="HexMap" unique_id=311354631 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1496, 1020)
 q = -8
 r = 5
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
 
-[node name="Tile=-8,6" parent="HexMap" unique_id=1225073896 instance=ExtResource("2_fj7yv")]
-position = Vector2(-640, 666)
+[node name="Tile=-8,6" parent="HexMap" unique_id=935899983 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1360, 1224)
 q = -8
 r = 6
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
 
-[node name="Tile=-8,7" parent="HexMap" unique_id=1094522602 instance=ExtResource("2_fj7yv")]
-position = Vector2(-576, 777)
+[node name="Tile=-8,7" parent="HexMap" unique_id=116636853 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1224, 1428)
 q = -8
 r = 7
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
 
-[node name="Tile=-8,8" parent="HexMap" unique_id=1101489934 instance=ExtResource("2_fj7yv")]
-position = Vector2(-512, 888)
+[node name="Tile=-8,8" parent="HexMap" unique_id=1090576256 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1088, 1632)
 q = -8
 r = 8
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
 
-[node name="Tile=-7,-1" parent="HexMap" unique_id=39342820 instance=ExtResource("2_fj7yv")]
-position = Vector2(-960, -111)
+[node name="Tile=-7,-1" parent="HexMap" unique_id=609566630 instance=ExtResource("30_5ocsm")]
+position = Vector2(-2040, -204)
 q = -7
 r = -1
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
 
-[node name="Tile=-7,0" parent="HexMap" unique_id=1950202202 instance=ExtResource("2_fj7yv")]
-position = Vector2(-896, 0)
+[node name="Tile=-7,0" parent="HexMap" unique_id=2120601681 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1904, 0)
 q = -7
-
-[node name="Tile=-7,1" parent="HexMap" unique_id=702611555 instance=ExtResource("2_fj7yv")]
-position = Vector2(-832, 111)
-q = -7
-r = 1
-
-[node name="Tile=-7,2" parent="HexMap" unique_id=1337525417 instance=ExtResource("2_fj7yv")]
-position = Vector2(-768, 222)
-q = -7
-r = 2
-
-[node name="Tile=-7,3" parent="HexMap" unique_id=934891617 instance=ExtResource("2_fj7yv")]
-position = Vector2(-704, 333)
-q = -7
-r = 3
-
-[node name="Tile=-7,4" parent="HexMap" unique_id=1069917217 instance=ExtResource("2_fj7yv")]
-position = Vector2(-640, 444)
-q = -7
-r = 4
-
-[node name="Tile=-7,5" parent="HexMap" unique_id=187044693 instance=ExtResource("2_fj7yv")]
-position = Vector2(-576, 555)
-q = -7
-r = 5
-terrain_texture = ExtResource("5_hiqwa")
-deposit = 5
-workable = true
-
-[node name="Tile=-7,6" parent="HexMap" unique_id=208501934 instance=ExtResource("2_fj7yv")]
-position = Vector2(-512, 666)
-q = -7
-r = 6
-terrain_texture = ExtResource("5_hiqwa")
-deposit = 5
-workable = true
-
-[node name="Tile=-7,7" parent="HexMap" unique_id=558519271 instance=ExtResource("2_fj7yv")]
-position = Vector2(-448, 777)
-q = -7
-r = 7
-
-[node name="Tile=-7,8" parent="HexMap" unique_id=172755681 instance=ExtResource("2_fj7yv")]
-position = Vector2(-384, 888)
-q = -7
-r = 8
-
-[node name="Tile=-6,-2" parent="HexMap" unique_id=1053303898 instance=ExtResource("2_fj7yv")]
-position = Vector2(-896, -222)
-q = -6
-r = -2
-
-[node name="Tile=-6,-1" parent="HexMap" unique_id=83476058 instance=ExtResource("2_fj7yv")]
-position = Vector2(-832, -111)
-q = -6
-r = -1
-
-[node name="Tile=-6,0" parent="HexMap" unique_id=1642165411 instance=ExtResource("2_fj7yv")]
-position = Vector2(-768, 0)
-q = -6
-terrain_texture = ExtResource("6_2u3nc")
-deposit = 1
-workable = true
-
-[node name="Tile=-6,1" parent="HexMap" unique_id=1512600180 instance=ExtResource("2_fj7yv")]
-position = Vector2(-704, 111)
-q = -6
-r = 1
-terrain_texture = ExtResource("6_2u3nc")
-deposit = 1
-workable = true
-
-[node name="Tile=-6,2" parent="HexMap" unique_id=1012887018 instance=ExtResource("2_fj7yv")]
-position = Vector2(-640, 222)
-q = -6
-r = 2
-
-[node name="Tile=-6,3" parent="HexMap" unique_id=1386799959 instance=ExtResource("2_fj7yv")]
-position = Vector2(-576, 333)
-q = -6
-r = 3
-
-[node name="Tile=-6,4" parent="HexMap" unique_id=1851418467 instance=ExtResource("2_fj7yv")]
-position = Vector2(-512, 444)
-q = -6
-r = 4
-terrain_texture = ExtResource("5_hiqwa")
-deposit = 5
-workable = true
-
-[node name="Tile=-6,5" parent="HexMap" unique_id=1365558242 instance=ExtResource("2_fj7yv")]
-position = Vector2(-448, 555)
-q = -6
-r = 5
-terrain_texture = ExtResource("5_hiqwa")
-deposit = 5
-workable = true
-
-[node name="Tile=-6,6" parent="HexMap" unique_id=348048337 instance=ExtResource("2_fj7yv")]
-position = Vector2(-384, 666)
-q = -6
-r = 6
-terrain_texture = ExtResource("5_hiqwa")
-deposit = 5
-workable = true
-
-[node name="Tile=-6,7" parent="HexMap" unique_id=1774377987 instance=ExtResource("2_fj7yv")]
-position = Vector2(-320, 777)
-q = -6
-r = 7
-
-[node name="Tile=-6,8" parent="HexMap" unique_id=1383144614 instance=ExtResource("2_fj7yv")]
-position = Vector2(-256, 888)
-q = -6
-r = 8
-
-[node name="Tile=-5,-3" parent="HexMap" unique_id=812782339 instance=ExtResource("2_fj7yv")]
-position = Vector2(-832, -333)
-q = -5
-r = -3
-
-[node name="Tile=-5,-2" parent="HexMap" unique_id=1298825905 instance=ExtResource("2_fj7yv")]
-position = Vector2(-768, -222)
-q = -5
-r = -2
-
-[node name="Tile=-5,-1" parent="HexMap" unique_id=1601949944 instance=ExtResource("2_fj7yv")]
-position = Vector2(-704, -111)
-q = -5
-r = -1
-terrain_texture = ExtResource("6_2u3nc")
-deposit = 1
-workable = true
-
-[node name="Tile=-5,0" parent="HexMap" unique_id=1445557481 instance=ExtResource("2_fj7yv")]
-position = Vector2(-640, 0)
-q = -5
-terrain_texture = ExtResource("6_2u3nc")
-deposit = 1
-workable = true
-
-[node name="Tile=-5,1" parent="HexMap" unique_id=1674066967 instance=ExtResource("2_fj7yv")]
-position = Vector2(-576, 111)
-q = -5
-r = 1
-
-[node name="Tile=-5,2" parent="HexMap" unique_id=2082382293 instance=ExtResource("2_fj7yv")]
-position = Vector2(-512, 222)
-q = -5
-r = 2
-
-[node name="Tile=-5,3" parent="HexMap" unique_id=717116708 instance=ExtResource("2_fj7yv")]
-position = Vector2(-448, 333)
-q = -5
-r = 3
-
-[node name="Tile=-5,4" parent="HexMap" unique_id=374643447 instance=ExtResource("2_fj7yv")]
-position = Vector2(-384, 444)
-q = -5
-r = 4
-terrain_texture = ExtResource("5_hiqwa")
-deposit = 5
-workable = true
-
-[node name="Tile=-5,5" parent="HexMap" unique_id=1352327235 instance=ExtResource("2_fj7yv")]
-position = Vector2(-320, 555)
-q = -5
-r = 5
-terrain_texture = ExtResource("5_hiqwa")
-deposit = 5
-workable = true
-
-[node name="Tile=-5,6" parent="HexMap" unique_id=913460045 instance=ExtResource("2_fj7yv")]
-position = Vector2(-256, 666)
-q = -5
-r = 6
-
-[node name="Tile=-5,7" parent="HexMap" unique_id=1130896937 instance=ExtResource("2_fj7yv")]
-position = Vector2(-192, 777)
-q = -5
-r = 7
-
-[node name="Tile=-5,8" parent="HexMap" unique_id=141397698 instance=ExtResource("2_fj7yv")]
-position = Vector2(-128, 888)
-q = -5
-r = 8
-
-[node name="Tile=-4,-4" parent="HexMap" unique_id=1150871877 instance=ExtResource("2_fj7yv")]
-position = Vector2(-768, -444)
-q = -4
-r = -4
-
-[node name="Tile=-4,-3" parent="HexMap" unique_id=907765884 instance=ExtResource("2_fj7yv")]
-position = Vector2(-704, -333)
-q = -4
-r = -3
-
-[node name="Tile=-4,-2" parent="HexMap" unique_id=1139885682 instance=ExtResource("2_fj7yv")]
-position = Vector2(-640, -222)
-q = -4
-r = -2
-terrain_texture = ExtResource("6_2u3nc")
-deposit = 1
-workable = true
-
-[node name="Tile=-4,-1" parent="HexMap" unique_id=726032368 instance=ExtResource("2_fj7yv")]
-position = Vector2(-576, -111)
-q = -4
-r = -1
-terrain_texture = ExtResource("6_2u3nc")
-deposit = 1
-workable = true
-
-[node name="Tile=-4,0" parent="HexMap" unique_id=803453907 instance=ExtResource("2_fj7yv")]
-position = Vector2(-512, 0)
-q = -4
-
-[node name="Tile=-4,1" parent="HexMap" unique_id=760536047 instance=ExtResource("2_fj7yv")]
-position = Vector2(-448, 111)
-q = -4
-r = 1
-
-[node name="Tile=-4,2" parent="HexMap" unique_id=334485704 instance=ExtResource("2_fj7yv")]
-position = Vector2(-384, 222)
-q = -4
-r = 2
-
-[node name="Tile=-4,3" parent="HexMap" unique_id=60306742 instance=ExtResource("2_fj7yv")]
-position = Vector2(-320, 333)
-q = -4
-r = 3
-
-[node name="Tile=-4,4" parent="HexMap" unique_id=407502123 instance=ExtResource("2_fj7yv")]
-position = Vector2(-256, 444)
-q = -4
-r = 4
-
-[node name="Tile=-4,5" parent="HexMap" unique_id=373868629 instance=ExtResource("2_fj7yv")]
-position = Vector2(-192, 555)
-q = -4
-r = 5
-
-[node name="Tile=-4,6" parent="HexMap" unique_id=81499143 instance=ExtResource("2_fj7yv")]
-position = Vector2(-128, 666)
-q = -4
-r = 6
-terrain_texture = ExtResource("5_hiqwa")
-deposit = 5
-workable = true
-
-[node name="Tile=-4,7" parent="HexMap" unique_id=1659973287 instance=ExtResource("2_fj7yv")]
-position = Vector2(-64, 777)
-q = -4
-r = 7
-terrain_texture = ExtResource("5_hiqwa")
-deposit = 5
-workable = true
-
-[node name="Tile=-4,8" parent="HexMap" unique_id=1055448384 instance=ExtResource("2_fj7yv")]
-position = Vector2(0, 888)
-q = -4
-r = 8
-
-[node name="Tile=-3,-5" parent="HexMap" unique_id=1817468988 instance=ExtResource("2_fj7yv")]
-position = Vector2(-704, -555)
-q = -3
-r = -5
-
-[node name="Tile=-3,-4" parent="HexMap" unique_id=1653325425 instance=ExtResource("2_fj7yv")]
-position = Vector2(-640, -444)
-q = -3
-r = -4
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=-3,-3" parent="HexMap" unique_id=462404283 instance=ExtResource("2_fj7yv")]
-position = Vector2(-576, -333)
-q = -3
-r = -3
-
-[node name="Tile=-3,-2" parent="HexMap" unique_id=1643517081 instance=ExtResource("2_fj7yv")]
-position = Vector2(-512, -222)
-q = -3
-r = -2
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=-3,-1" parent="HexMap" unique_id=1046713902 instance=ExtResource("2_fj7yv")]
-position = Vector2(-448, -111)
-q = -3
-r = -1
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=-3,0" parent="HexMap" unique_id=1259524063 instance=ExtResource("2_fj7yv")]
-position = Vector2(-384, 0)
-q = -3
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=-3,1" parent="HexMap" unique_id=471950084 instance=ExtResource("2_fj7yv")]
-position = Vector2(-320, 111)
-q = -3
-r = 1
-
-[node name="Tile=-3,2" parent="HexMap" unique_id=2094453740 instance=ExtResource("2_fj7yv")]
-position = Vector2(-256, 222)
-q = -3
-r = 2
-
-[node name="Tile=-3,3" parent="HexMap" unique_id=1251178370 instance=ExtResource("2_fj7yv")]
-position = Vector2(-192, 333)
-q = -3
-r = 3
-
-[node name="Tile=-3,4" parent="HexMap" unique_id=2051522254 instance=ExtResource("2_fj7yv")]
-position = Vector2(-128, 444)
-q = -3
-r = 4
-
-[node name="Tile=-3,5" parent="HexMap" unique_id=717766501 instance=ExtResource("2_fj7yv")]
-position = Vector2(-64, 555)
-q = -3
-r = 5
-terrain_texture = ExtResource("5_hiqwa")
-deposit = 5
-workable = true
-
-[node name="Tile=-3,6" parent="HexMap" unique_id=245878985 instance=ExtResource("2_fj7yv")]
-position = Vector2(0, 666)
-q = -3
-r = 6
-terrain_texture = ExtResource("5_hiqwa")
-deposit = 5
-workable = true
-
-[node name="Tile=-3,7" parent="HexMap" unique_id=769675877 instance=ExtResource("2_fj7yv")]
-position = Vector2(64, 777)
-q = -3
-r = 7
-terrain_texture = ExtResource("5_hiqwa")
-deposit = 5
-workable = true
-
-[node name="Tile=-3,8" parent="HexMap" unique_id=29649799 instance=ExtResource("2_fj7yv")]
-position = Vector2(128, 888)
-q = -3
-r = 8
-
-[node name="Tile=-2,-6" parent="HexMap" unique_id=815658033 instance=ExtResource("2_fj7yv")]
-position = Vector2(-640, -666)
-q = -2
-r = -6
-
-[node name="Tile=-2,-5" parent="HexMap" unique_id=1790483275 instance=ExtResource("2_fj7yv")]
-position = Vector2(-576, -555)
-q = -2
-r = -5
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=-2,-4" parent="HexMap" unique_id=1851374895 instance=ExtResource("2_fj7yv")]
-position = Vector2(-512, -444)
-q = -2
-r = -4
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=-2,-3" parent="HexMap" unique_id=1217378966 instance=ExtResource("2_fj7yv")]
-position = Vector2(-448, -333)
-q = -2
-r = -3
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=-2,-2" parent="HexMap" unique_id=976842375 instance=ExtResource("2_fj7yv")]
-position = Vector2(-384, -222)
-q = -2
-r = -2
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=-2,-1" parent="HexMap" unique_id=823417363 instance=ExtResource("2_fj7yv")]
-position = Vector2(-320, -111)
-q = -2
-r = -1
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=-2,0" parent="HexMap" unique_id=2058882841 instance=ExtResource("2_fj7yv")]
-position = Vector2(-256, 0)
-q = -2
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=-2,1" parent="HexMap" unique_id=1297115821 instance=ExtResource("2_fj7yv")]
-position = Vector2(-192, 111)
-q = -2
-r = 1
-
-[node name="Tile=-2,2" parent="HexMap" unique_id=771321798 instance=ExtResource("2_fj7yv")]
-position = Vector2(-128, 222)
-q = -2
-r = 2
-
-[node name="Tile=-2,3" parent="HexMap" unique_id=1562968044 instance=ExtResource("2_fj7yv")]
-position = Vector2(-64, 333)
-q = -2
-r = 3
-
-[node name="Tile=-2,4" parent="HexMap" unique_id=489874990 instance=ExtResource("2_fj7yv")]
-position = Vector2(0, 444)
-q = -2
-r = 4
-
-[node name="Tile=-2,5" parent="HexMap" unique_id=1148886701 instance=ExtResource("2_fj7yv")]
-position = Vector2(64, 555)
-q = -2
-r = 5
-terrain_texture = ExtResource("5_hiqwa")
-deposit = 5
-workable = true
-
-[node name="Tile=-2,6" parent="HexMap" unique_id=1014947139 instance=ExtResource("2_fj7yv")]
-position = Vector2(128, 666)
-q = -2
-r = 6
-terrain_texture = ExtResource("5_hiqwa")
-deposit = 5
-workable = true
-
-[node name="Tile=-2,7" parent="HexMap" unique_id=168566791 instance=ExtResource("2_fj7yv")]
-position = Vector2(192, 777)
-q = -2
-r = 7
-
-[node name="Tile=-2,8" parent="HexMap" unique_id=433157555 instance=ExtResource("2_fj7yv")]
-position = Vector2(256, 888)
-q = -2
-r = 8
-
-[node name="Tile=-1,-7" parent="HexMap" unique_id=464708052 instance=ExtResource("2_fj7yv")]
-position = Vector2(-576, -777)
-q = -1
-r = -7
-
-[node name="Tile=-1,-6" parent="HexMap" unique_id=1419571954 instance=ExtResource("2_fj7yv")]
-position = Vector2(-512, -666)
-q = -1
-r = -6
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=-1,-5" parent="HexMap" unique_id=861372016 instance=ExtResource("2_fj7yv")]
-position = Vector2(-448, -555)
-q = -1
-r = -5
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=-1,-4" parent="HexMap" unique_id=2029013426 instance=ExtResource("2_fj7yv")]
-position = Vector2(-384, -444)
-q = -1
-r = -4
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=-1,-3" parent="HexMap" unique_id=520021822 instance=ExtResource("2_fj7yv")]
-position = Vector2(-320, -333)
-q = -1
-r = -3
-
-[node name="Tile=-1,-2" parent="HexMap" unique_id=895202695 instance=ExtResource("2_fj7yv")]
-position = Vector2(-256, -222)
-q = -1
-r = -2
-terrain_texture = ExtResource("6_2u3nc")
-deposit = 1
-workable = true
-
-[node name="Tile=-1,-1" parent="HexMap" unique_id=76386861 instance=ExtResource("2_fj7yv")]
-position = Vector2(-192, -111)
-q = -1
-r = -1
-terrain_texture = ExtResource("6_2u3nc")
-deposit = 1
-workable = true
-
-[node name="Tile=-1,0" parent="HexMap" unique_id=1757086599 instance=ExtResource("2_fj7yv")]
-position = Vector2(-128, 0)
-q = -1
-
-[node name="Tile=-1,1" parent="HexMap" unique_id=1766794337 instance=ExtResource("2_fj7yv")]
-position = Vector2(-64, 111)
-q = -1
-r = 1
-
-[node name="Tile=-1,2" parent="HexMap" unique_id=437075591 instance=ExtResource("2_fj7yv")]
-position = Vector2(0, 222)
-q = -1
-r = 2
-
-[node name="Tile=-1,3" parent="HexMap" unique_id=661147302 instance=ExtResource("2_fj7yv")]
-position = Vector2(64, 333)
-q = -1
-r = 3
-
-[node name="Tile=-1,4" parent="HexMap" unique_id=1630112735 instance=ExtResource("2_fj7yv")]
-position = Vector2(128, 444)
-q = -1
-r = 4
-
-[node name="Tile=-1,5" parent="HexMap" unique_id=649736526 instance=ExtResource("2_fj7yv")]
-position = Vector2(192, 555)
-q = -1
-r = 5
-
-[node name="Tile=-1,6" parent="HexMap" unique_id=860810947 instance=ExtResource("2_fj7yv")]
-position = Vector2(256, 666)
-q = -1
-r = 6
-
-[node name="Tile=-1,7" parent="HexMap" unique_id=374180610 instance=ExtResource("2_fj7yv")]
-position = Vector2(320, 777)
-q = -1
-r = 7
-
-[node name="Tile=-1,8" parent="HexMap" unique_id=809395143 instance=ExtResource("2_fj7yv")]
-position = Vector2(384, 888)
-q = -1
-r = 8
-
-[node name="Tile=0,-8" parent="HexMap" unique_id=199991601 instance=ExtResource("2_fj7yv")]
-position = Vector2(-512, -888)
-r = -8
-
-[node name="Tile=0,-7" parent="HexMap" unique_id=382014741 instance=ExtResource("2_fj7yv")]
-position = Vector2(-448, -777)
-r = -7
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=0,-6" parent="HexMap" unique_id=1039733773 instance=ExtResource("2_fj7yv")]
-position = Vector2(-384, -666)
-r = -6
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=0,-5" parent="HexMap" unique_id=1443620005 instance=ExtResource("2_fj7yv")]
-position = Vector2(-320, -555)
-r = -5
-terrain_texture = ExtResource("5_wse8f")
-deposit = 3
-workable = true
-
-[node name="Tile=0,-4" parent="HexMap" unique_id=2035439303 instance=ExtResource("2_fj7yv")]
-position = Vector2(-256, -444)
-r = -4
-
-[node name="Tile=0,-3" parent="HexMap" unique_id=2066955712 instance=ExtResource("2_fj7yv")]
-position = Vector2(-192, -333)
-r = -3
-terrain_texture = ExtResource("6_2u3nc")
-deposit = 1
-workable = true
-
-[node name="Tile=0,-2" parent="HexMap" unique_id=2002640387 instance=ExtResource("2_fj7yv")]
-position = Vector2(-128, -222)
-r = -2
-terrain_texture = ExtResource("6_2u3nc")
-deposit = 1
-workable = true
-
-[node name="Tile=0,-1" parent="HexMap" unique_id=1159946239 instance=ExtResource("2_fj7yv")]
-position = Vector2(-64, -111)
-r = -1
-
-[node name="Tile=0,0" parent="HexMap" unique_id=1222677762 instance=ExtResource("2_fj7yv")]
-
-[node name="Tile=0,1" parent="HexMap" unique_id=79312199 instance=ExtResource("2_fj7yv")]
-position = Vector2(64, 111)
-r = 1
-
-[node name="Tile=0,2" parent="HexMap" unique_id=77008147 instance=ExtResource("2_fj7yv")]
-position = Vector2(128, 222)
-r = 2
-
-[node name="Tile=0,3" parent="HexMap" unique_id=767650225 instance=ExtResource("2_fj7yv")]
-position = Vector2(192, 333)
-r = 3
-
-[node name="Tile=0,4" parent="HexMap" unique_id=729849976 instance=ExtResource("2_fj7yv")]
-position = Vector2(256, 444)
-r = 4
-
-[node name="Tile=0,5" parent="HexMap" unique_id=425022420 instance=ExtResource("2_fj7yv")]
-position = Vector2(320, 555)
-r = 5
-
-[node name="Tile=0,6" parent="HexMap" unique_id=524378324 instance=ExtResource("2_fj7yv")]
-position = Vector2(384, 666)
-r = 6
-terrain_texture = ExtResource("6_70uel")
-deposit = 12
-workable = true
-
-[node name="Tile=0,7" parent="HexMap" unique_id=1792399309 instance=ExtResource("2_fj7yv")]
-position = Vector2(448, 777)
-r = 7
-
-[node name="Tile=0,8" parent="HexMap" unique_id=2060840817 instance=ExtResource("2_fj7yv")]
-position = Vector2(512, 888)
-r = 8
-
-[node name="Tile=1,-8" parent="HexMap" unique_id=1897958267 instance=ExtResource("2_fj7yv")]
-position = Vector2(-384, -888)
-q = 1
-r = -8
-
-[node name="Tile=1,-7" parent="HexMap" unique_id=1763369188 instance=ExtResource("2_fj7yv")]
-position = Vector2(-320, -777)
-q = 1
-r = -7
-
-[node name="Tile=1,-6" parent="HexMap" unique_id=812666500 instance=ExtResource("2_fj7yv")]
-position = Vector2(-256, -666)
-q = 1
-r = -6
-
-[node name="Tile=1,-5" parent="HexMap" unique_id=925654909 instance=ExtResource("2_fj7yv")]
-position = Vector2(-192, -555)
-q = 1
-r = -5
-
-[node name="Tile=1,-4" parent="HexMap" unique_id=1388216581 instance=ExtResource("2_fj7yv")]
-position = Vector2(-128, -444)
-q = 1
-r = -4
-terrain_texture = ExtResource("6_2u3nc")
-deposit = 1
-workable = true
-
-[node name="Tile=1,-3" parent="HexMap" unique_id=1081100200 instance=ExtResource("2_fj7yv")]
-position = Vector2(-64, -333)
-q = 1
-r = -3
-terrain_texture = ExtResource("6_2u3nc")
-deposit = 1
-workable = true
-
-[node name="Tile=1,-2" parent="HexMap" unique_id=1236189174 instance=ExtResource("2_fj7yv")]
-position = Vector2(0, -222)
-q = 1
-r = -2
-
-[node name="Tile=1,-1" parent="HexMap" unique_id=1503402560 instance=ExtResource("2_fj7yv")]
-position = Vector2(64, -111)
-q = 1
-r = -1
-
-[node name="Tile=1,0" parent="HexMap" unique_id=307395501 instance=ExtResource("2_fj7yv")]
-position = Vector2(128, 0)
-q = 1
-
-[node name="Tile=1,1" parent="HexMap" unique_id=1422874997 instance=ExtResource("2_fj7yv")]
-position = Vector2(192, 111)
-q = 1
-r = 1
-
-[node name="Tile=1,2" parent="HexMap" unique_id=1177774871 instance=ExtResource("2_fj7yv")]
-position = Vector2(256, 222)
-q = 1
-r = 2
-
-[node name="Tile=1,3" parent="HexMap" unique_id=1484120866 instance=ExtResource("2_fj7yv")]
-position = Vector2(320, 333)
-q = 1
-r = 3
-
-[node name="Tile=1,4" parent="HexMap" unique_id=977119767 instance=ExtResource("2_fj7yv")]
-position = Vector2(384, 444)
-q = 1
-r = 4
-
-[node name="Tile=1,5" parent="HexMap" unique_id=1071184681 instance=ExtResource("2_fj7yv")]
-position = Vector2(448, 555)
-q = 1
-r = 5
-terrain_texture = ExtResource("6_70uel")
-deposit = 12
-workable = true
-
-[node name="Tile=1,6" parent="HexMap" unique_id=1591309716 instance=ExtResource("2_fj7yv")]
-position = Vector2(512, 666)
-q = 1
-r = 6
-terrain_texture = ExtResource("6_70uel")
-deposit = 12
-workable = true
-
-[node name="Tile=1,7" parent="HexMap" unique_id=605519368 instance=ExtResource("2_fj7yv")]
-position = Vector2(576, 777)
-q = 1
-r = 7
-
-[node name="Tile=2,-8" parent="HexMap" unique_id=1272735135 instance=ExtResource("2_fj7yv")]
-position = Vector2(-256, -888)
-q = 2
-r = -8
-
-[node name="Tile=2,-7" parent="HexMap" unique_id=834436014 instance=ExtResource("2_fj7yv")]
-position = Vector2(-192, -777)
-q = 2
-r = -7
-
-[node name="Tile=2,-6" parent="HexMap" unique_id=248205468 instance=ExtResource("2_fj7yv")]
-position = Vector2(-128, -666)
-q = 2
-r = -6
-
-[node name="Tile=2,-5" parent="HexMap" unique_id=1041148607 instance=ExtResource("2_fj7yv")]
-position = Vector2(-64, -555)
-q = 2
-r = -5
-
-[node name="Tile=2,-4" parent="HexMap" unique_id=103235190 instance=ExtResource("2_fj7yv")]
-position = Vector2(0, -444)
-q = 2
-r = -4
-
-[node name="Tile=2,-3" parent="HexMap" unique_id=1218916528 instance=ExtResource("2_fj7yv")]
-position = Vector2(64, -333)
-q = 2
-r = -3
-
-[node name="Tile=2,-2" parent="HexMap" unique_id=1853539951 instance=ExtResource("2_fj7yv")]
-position = Vector2(128, -222)
-q = 2
-r = -2
-
-[node name="Tile=2,-1" parent="HexMap" unique_id=2044594061 node_paths=PackedStringArray("building") instance=ExtResource("2_fj7yv")]
-position = Vector2(192, -111)
-q = 2
-r = -1
-building = NodePath("Workshop")
-
-[node name="Workshop" parent="HexMap/Tile=2,-1" unique_id=388339356 node_paths=PackedStringArray("tile") instance=ExtResource("5_ic0uy")]
-tile = NodePath("..")
-
-[node name="Tile=2,0" parent="HexMap" unique_id=833189512 instance=ExtResource("2_fj7yv")]
-position = Vector2(256, 0)
-q = 2
-
-[node name="Tile=2,1" parent="HexMap" unique_id=888490978 instance=ExtResource("2_fj7yv")]
-position = Vector2(320, 111)
-q = 2
-r = 1
-
-[node name="Tile=2,2" parent="HexMap" unique_id=742288060 instance=ExtResource("2_fj7yv")]
-position = Vector2(384, 222)
-q = 2
-r = 2
-
-[node name="Tile=2,3" parent="HexMap" unique_id=489377276 instance=ExtResource("2_fj7yv")]
-position = Vector2(448, 333)
-q = 2
-r = 3
-
-[node name="Tile=2,4" parent="HexMap" unique_id=1251153959 instance=ExtResource("2_fj7yv")]
-position = Vector2(512, 444)
-q = 2
-r = 4
-terrain_texture = ExtResource("6_70uel")
-deposit = 12
-workable = true
-
-[node name="Tile=2,5" parent="HexMap" unique_id=786833809 instance=ExtResource("2_fj7yv")]
-position = Vector2(576, 555)
-q = 2
-r = 5
-terrain_texture = ExtResource("6_70uel")
-deposit = 12
-workable = true
-
-[node name="Tile=2,6" parent="HexMap" unique_id=504660698 instance=ExtResource("2_fj7yv")]
-position = Vector2(640, 666)
-q = 2
-r = 6
-
-[node name="Tile=3,-8" parent="HexMap" unique_id=1647300976 instance=ExtResource("2_fj7yv")]
-position = Vector2(-128, -888)
-q = 3
-r = -8
-
-[node name="Tile=3,-7" parent="HexMap" unique_id=515308644 instance=ExtResource("2_fj7yv")]
-position = Vector2(-64, -777)
-q = 3
-r = -7
-
-[node name="Tile=3,-6" parent="HexMap" unique_id=385505817 instance=ExtResource("2_fj7yv")]
-position = Vector2(0, -666)
-q = 3
-r = -6
-
-[node name="Tile=3,-5" parent="HexMap" unique_id=1993025277 instance=ExtResource("2_fj7yv")]
-position = Vector2(64, -555)
-q = 3
-r = -5
-
-[node name="Tile=3,-4" parent="HexMap" unique_id=1143902928 instance=ExtResource("2_fj7yv")]
-position = Vector2(128, -444)
-q = 3
-r = -4
-terrain_texture = ExtResource("8_w44yn")
-deposit = 2
-
-[node name="Tile=3,-3" parent="HexMap" unique_id=1178159263 instance=ExtResource("2_fj7yv")]
-position = Vector2(192, -333)
-q = 3
-r = -3
-
-[node name="Tile=3,-2" parent="HexMap" unique_id=1648516139 instance=ExtResource("2_fj7yv")]
-position = Vector2(256, -222)
-q = 3
-r = -2
-
-[node name="Tile=3,-1" parent="HexMap" unique_id=553872446 instance=ExtResource("2_fj7yv")]
-position = Vector2(320, -111)
-q = 3
-r = -1
-
-[node name="Tile=3,0" parent="HexMap" unique_id=1528217151 instance=ExtResource("2_fj7yv")]
-position = Vector2(384, 0)
-q = 3
-
-[node name="Tile=3,1" parent="HexMap" unique_id=785623503 instance=ExtResource("2_fj7yv")]
-position = Vector2(448, 111)
-q = 3
-r = 1
-
-[node name="Tile=3,2" parent="HexMap" unique_id=789092591 instance=ExtResource("2_fj7yv")]
-position = Vector2(512, 222)
-q = 3
-r = 2
-terrain_texture = ExtResource("8_qktwf")
-deposit = 15
-
-[node name="Tile=3,3" parent="HexMap" unique_id=1170344182 instance=ExtResource("2_fj7yv")]
-position = Vector2(576, 333)
-q = 3
-r = 3
-terrain_texture = ExtResource("6_70uel")
-deposit = 12
-workable = true
-
-[node name="Tile=3,4" parent="HexMap" unique_id=232569921 instance=ExtResource("2_fj7yv")]
-position = Vector2(640, 444)
-q = 3
-r = 4
-terrain_texture = ExtResource("6_70uel")
-deposit = 12
-workable = true
-
-[node name="Tile=3,5" parent="HexMap" unique_id=1284430200 instance=ExtResource("2_fj7yv")]
-position = Vector2(704, 555)
-q = 3
-r = 5
-
-[node name="Tile=4,-8" parent="HexMap" unique_id=1290622693 instance=ExtResource("2_fj7yv")]
-position = Vector2(0, -888)
-q = 4
-r = -8
-
-[node name="Tile=4,-7" parent="HexMap" unique_id=559496994 instance=ExtResource("2_fj7yv")]
-position = Vector2(64, -777)
-q = 4
-r = -7
-
-[node name="Tile=4,-6" parent="HexMap" unique_id=212094084 instance=ExtResource("2_fj7yv")]
-position = Vector2(128, -666)
-q = 4
-r = -6
-
-[node name="Tile=4,-5" parent="HexMap" unique_id=950538609 instance=ExtResource("2_fj7yv")]
-position = Vector2(192, -555)
-q = 4
-r = -5
-
-[node name="Tile=4,-4" parent="HexMap" unique_id=1731945378 instance=ExtResource("2_fj7yv")]
-position = Vector2(256, -444)
-q = 4
-r = -4
-
-[node name="Tile=4,-3" parent="HexMap" unique_id=19250702 instance=ExtResource("2_fj7yv")]
-position = Vector2(320, -333)
-q = 4
-r = -3
-
-[node name="Tile=4,-2" parent="HexMap" unique_id=143939407 instance=ExtResource("2_fj7yv")]
-position = Vector2(384, -222)
-q = 4
-r = -2
-
-[node name="Tile=4,-1" parent="HexMap" unique_id=2077456875 instance=ExtResource("2_fj7yv")]
-position = Vector2(448, -111)
-q = 4
-r = -1
-
-[node name="Tile=4,0" parent="HexMap" unique_id=382208132 instance=ExtResource("2_fj7yv")]
-position = Vector2(512, 0)
-q = 4
-
-[node name="Tile=4,1" parent="HexMap" unique_id=1309623674 instance=ExtResource("2_fj7yv")]
-position = Vector2(576, 111)
-q = 4
-r = 1
-terrain_texture = ExtResource("8_qktwf")
+terrain_texture = ExtResource("6_jjr1n")
 deposit = 14
 
-[node name="Tile=4,2" parent="HexMap" unique_id=874388077 instance=ExtResource("2_fj7yv")]
-position = Vector2(640, 222)
+[node name="Tile=-7,1" parent="HexMap" unique_id=1632591165 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1768, 204)
+q = -7
+r = 1
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-7,2" parent="HexMap" unique_id=942309127 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1632, 408)
+q = -7
+r = 2
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-7,3" parent="HexMap" unique_id=28239513 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1496, 612)
+q = -7
+r = 3
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-7,4" parent="HexMap" unique_id=87018835 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1360, 816)
+q = -7
+r = 4
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-7,5" parent="HexMap" unique_id=601648758 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1224, 1020)
+q = -7
+r = 5
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-7,6" parent="HexMap" unique_id=689095419 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1088, 1224)
+q = -7
+r = 6
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-7,7" parent="HexMap" unique_id=700686376 instance=ExtResource("30_5ocsm")]
+position = Vector2(-952, 1428)
+q = -7
+r = 7
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-7,8" parent="HexMap" unique_id=1227968545 instance=ExtResource("30_5ocsm")]
+position = Vector2(-816, 1632)
+q = -7
+r = 8
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-6,-2" parent="HexMap" unique_id=1134667392 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1904, -408)
+q = -6
+r = -2
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-6,-1" parent="HexMap" unique_id=1601519123 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1768, -204)
+q = -6
+r = -1
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-6,0" parent="HexMap" unique_id=1440471798 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1632, 0)
+q = -6
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=-6,1" parent="HexMap" unique_id=616145884 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1496, 204)
+q = -6
+r = 1
+terrain_texture = ExtResource("5_1ew0l")
+
+[node name="Tile=-6,2" parent="HexMap" unique_id=2087738348 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1360, 408)
+q = -6
+r = 2
+terrain_texture = ExtResource("5_1ew0l")
+
+[node name="Tile=-6,3" parent="HexMap" unique_id=1696704505 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1224, 612)
+q = -6
+r = 3
+terrain_texture = ExtResource("5_1ew0l")
+
+[node name="Tile=-6,4" parent="HexMap" unique_id=1280076808 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1088, 816)
+q = -6
+r = 4
+terrain_texture = ExtResource("4_bh8nc")
+
+[node name="Tile=-6,5" parent="HexMap" unique_id=940165471 instance=ExtResource("30_5ocsm")]
+position = Vector2(-952, 1020)
+q = -6
+r = 5
+terrain_texture = ExtResource("4_bh8nc")
+
+[node name="Tile=-6,6" parent="HexMap" unique_id=234639878 instance=ExtResource("30_5ocsm")]
+position = Vector2(-816, 1224)
+q = -6
+r = 6
+terrain_texture = ExtResource("4_bh8nc")
+
+[node name="Tile=-6,7" parent="HexMap" unique_id=1154290740 instance=ExtResource("30_5ocsm")]
+position = Vector2(-680, 1428)
+q = -6
+r = 7
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=-6,8" parent="HexMap" unique_id=812335910 instance=ExtResource("30_5ocsm")]
+position = Vector2(-544, 1632)
+q = -6
+r = 8
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-5,-3" parent="HexMap" unique_id=187449874 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1768, -612)
+q = -5
+r = -3
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=-5,-2" parent="HexMap" unique_id=1837973421 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1632, -408)
+q = -5
+r = -2
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-5,-1" parent="HexMap" unique_id=696027667 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1496, -204)
+q = -5
+r = -1
+terrain_texture = ExtResource("5_1ew0l")
+deposit = 3
+workable = true
+deposit_texture = ExtResource("7_g1i3r")
+
+[node name="Tile=-5,0" parent="HexMap" unique_id=464626722 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1360, 0)
+q = -5
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=-5,1" parent="HexMap" unique_id=98073843 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1224, 204)
+q = -5
+r = 1
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=-5,2" parent="HexMap" unique_id=1267192960 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1088, 408)
+q = -5
+r = 2
+terrain_texture = ExtResource("9_7htu6")
+deposit = 5
+workable = true
+
+[node name="Tile=-5,3" parent="HexMap" unique_id=1149415590 node_paths=PackedStringArray("building") instance=ExtResource("30_5ocsm")]
+position = Vector2(-952, 612)
+q = -5
+r = 3
+building = NodePath("Workshop")
+
+[node name="Workshop" parent="HexMap/Tile=-5,3" unique_id=388339356 node_paths=PackedStringArray("tile") instance=ExtResource("5_ic0uy")]
+tile = NodePath("..")
+
+[node name="Tile=-5,4" parent="HexMap" unique_id=361613821 instance=ExtResource("30_5ocsm")]
+position = Vector2(-816, 816)
+q = -5
+r = 4
+terrain_texture = ExtResource("4_bh8nc")
+
+[node name="Tile=-5,5" parent="HexMap" unique_id=346809477 instance=ExtResource("30_5ocsm")]
+position = Vector2(-680, 1020)
+q = -5
+r = 5
+terrain_texture = ExtResource("4_bh8nc")
+
+[node name="Tile=-5,6" parent="HexMap" unique_id=627792506 instance=ExtResource("30_5ocsm")]
+position = Vector2(-544, 1224)
+q = -5
+r = 6
+terrain_texture = ExtResource("4_bh8nc")
+
+[node name="Tile=-5,7" parent="HexMap" unique_id=1474410965 instance=ExtResource("30_5ocsm")]
+position = Vector2(-408, 1428)
+q = -5
+r = 7
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-5,8" parent="HexMap" unique_id=1529484733 instance=ExtResource("30_5ocsm")]
+position = Vector2(-272, 1632)
+q = -5
+r = 8
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-4,-4" parent="HexMap" unique_id=2032452677 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1632, -816)
+q = -4
+r = -4
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=-4,-3" parent="HexMap" unique_id=420762241 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1496, -612)
+q = -4
+r = -3
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=-4,-2" parent="HexMap" unique_id=875039713 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1360, -408)
+q = -4
+r = -2
+terrain_texture = ExtResource("3_bo7i5")
+deposit = 3
+workable = true
+deposit_texture = ExtResource("8_gggvi")
+
+[node name="Tile=-4,-1" parent="HexMap" unique_id=2134979739 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1224, -204)
+q = -4
+r = -1
+deposit = 3
+workable = true
+deposit_texture = ExtResource("7_w44yn")
+
+[node name="Tile=-4,0" parent="HexMap" unique_id=916563867 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1088, 0)
+q = -4
+deposit = 3
+workable = true
+deposit_texture = ExtResource("7_w44yn")
+
+[node name="Tile=-4,1" parent="HexMap" unique_id=1570000723 instance=ExtResource("30_5ocsm")]
+position = Vector2(-952, 204)
+q = -4
+r = 1
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=-4,2" parent="HexMap" unique_id=420320414 instance=ExtResource("30_5ocsm")]
+position = Vector2(-816, 408)
+q = -4
+r = 2
+terrain_texture = ExtResource("9_7htu6")
+deposit = 5
+workable = true
+
+[node name="Tile=-4,3" parent="HexMap" unique_id=51031376 instance=ExtResource("30_5ocsm")]
+position = Vector2(-680, 612)
+q = -4
+r = 3
+
+[node name="Tile=-4,4" parent="HexMap" unique_id=316421675 instance=ExtResource("30_5ocsm")]
+position = Vector2(-544, 816)
+q = -4
+r = 4
+terrain_texture = ExtResource("5_1ew0l")
+deposit = 3
+workable = true
+deposit_texture = ExtResource("7_g1i3r")
+
+[node name="Tile=-4,5" parent="HexMap" unique_id=1855743848 instance=ExtResource("30_5ocsm")]
+position = Vector2(-408, 1020)
+q = -4
+r = 5
+terrain_texture = ExtResource("4_bh8nc")
+
+[node name="Tile=-4,6" parent="HexMap" unique_id=1462891660 instance=ExtResource("30_5ocsm")]
+position = Vector2(-272, 1224)
+q = -4
+r = 6
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=-4,7" parent="HexMap" unique_id=493667817 instance=ExtResource("30_5ocsm")]
+position = Vector2(-136, 1428)
+q = -4
+r = 7
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-4,8" parent="HexMap" unique_id=673056846 instance=ExtResource("30_5ocsm")]
+position = Vector2(0, 1632)
+q = -4
+r = 8
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-3,-5" parent="HexMap" unique_id=922998186 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1496, -1020)
+q = -3
+r = -5
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=-3,-4" parent="HexMap" unique_id=1209454132 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1360, -816)
+q = -3
+r = -4
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=-3,-3" parent="HexMap" unique_id=1461723554 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1224, -612)
+q = -3
+r = -3
+terrain_texture = ExtResource("3_bo7i5")
+deposit = 3
+workable = true
+deposit_texture = ExtResource("8_gggvi")
+
+[node name="Tile=-3,-2" parent="HexMap" unique_id=548846114 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1088, -408)
+q = -3
+r = -2
+deposit = 3
+workable = true
+deposit_texture = ExtResource("7_w44yn")
+
+[node name="Tile=-3,-1" parent="HexMap" unique_id=1578672252 instance=ExtResource("30_5ocsm")]
+position = Vector2(-952, -204)
+q = -3
+r = -1
+deposit = 3
+workable = true
+deposit_texture = ExtResource("7_w44yn")
+
+[node name="Tile=-3,0" parent="HexMap" unique_id=362237063 instance=ExtResource("30_5ocsm")]
+position = Vector2(-816, 0)
+q = -3
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=-3,1" parent="HexMap" unique_id=256527845 instance=ExtResource("30_5ocsm")]
+position = Vector2(-680, 204)
+q = -3
+r = 1
+terrain_texture = ExtResource("9_7htu6")
+deposit = 5
+workable = true
+
+[node name="Tile=-3,2" parent="HexMap" unique_id=1318371690 instance=ExtResource("30_5ocsm")]
+position = Vector2(-544, 408)
+q = -3
+r = 2
+
+[node name="Tile=-3,3" parent="HexMap" unique_id=588636815 instance=ExtResource("30_5ocsm")]
+position = Vector2(-408, 612)
+q = -3
+r = 3
+
+[node name="Tile=-3,4" parent="HexMap" unique_id=1579639455 instance=ExtResource("30_5ocsm")]
+position = Vector2(-272, 816)
+q = -3
+r = 4
+terrain_texture = ExtResource("5_1ew0l")
+deposit = 3
+workable = true
+deposit_texture = ExtResource("7_g1i3r")
+
+[node name="Tile=-3,5" parent="HexMap" unique_id=1703903555 instance=ExtResource("30_5ocsm")]
+position = Vector2(-136, 1020)
+q = -3
+r = 5
+terrain_texture = ExtResource("4_bh8nc")
+
+[node name="Tile=-3,6" parent="HexMap" unique_id=75636650 instance=ExtResource("30_5ocsm")]
+position = Vector2(0, 1224)
+q = -3
+r = 6
+terrain_texture = ExtResource("4_bh8nc")
+
+[node name="Tile=-3,7" parent="HexMap" unique_id=910993292 instance=ExtResource("30_5ocsm")]
+position = Vector2(136, 1428)
+q = -3
+r = 7
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-3,8" parent="HexMap" unique_id=1492088182 instance=ExtResource("30_5ocsm")]
+position = Vector2(272, 1632)
+q = -3
+r = 8
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-2,-6" parent="HexMap" unique_id=1510184402 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1360, -1224)
+q = -2
+r = -6
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=-2,-5" parent="HexMap" unique_id=746341254 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1224, -1020)
+q = -2
+r = -5
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=-2,-4" parent="HexMap" unique_id=1475596101 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1088, -816)
+q = -2
+r = -4
+terrain_texture = ExtResource("3_bo7i5")
+deposit = 3
+workable = true
+deposit_texture = ExtResource("8_gggvi")
+
+[node name="Tile=-2,-3" parent="HexMap" unique_id=1339592637 instance=ExtResource("30_5ocsm")]
+position = Vector2(-952, -612)
+q = -2
+r = -3
+terrain_texture = ExtResource("3_bo7i5")
+deposit = 3
+workable = true
+deposit_texture = ExtResource("8_gggvi")
+
+[node name="Tile=-2,-2" parent="HexMap" unique_id=1038231804 instance=ExtResource("30_5ocsm")]
+position = Vector2(-816, -408)
+q = -2
+r = -2
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=-2,-1" parent="HexMap" unique_id=1898180197 instance=ExtResource("30_5ocsm")]
+position = Vector2(-680, -204)
+q = -2
+r = -1
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=-2,0" parent="HexMap" unique_id=1382589156 instance=ExtResource("30_5ocsm")]
+position = Vector2(-544, 0)
+q = -2
+terrain_texture = ExtResource("9_7htu6")
+deposit = 5
+workable = true
+
+[node name="Tile=-2,1" parent="HexMap" unique_id=1368181050 instance=ExtResource("30_5ocsm")]
+position = Vector2(-408, 204)
+q = -2
+r = 1
+
+[node name="Tile=-2,2" parent="HexMap" unique_id=1344857265 instance=ExtResource("30_5ocsm")]
+position = Vector2(-272, 408)
+q = -2
+r = 2
+
+[node name="Tile=-2,3" parent="HexMap" unique_id=1951136256 instance=ExtResource("30_5ocsm")]
+position = Vector2(-136, 612)
+q = -2
+r = 3
+terrain_texture = ExtResource("5_1ew0l")
+deposit = 3
+workable = true
+deposit_texture = ExtResource("7_g1i3r")
+
+[node name="Tile=-2,4" parent="HexMap" unique_id=1649742067 instance=ExtResource("30_5ocsm")]
+position = Vector2(0, 816)
+q = -2
+r = 4
+terrain_texture = ExtResource("12_my276")
+
+[node name="Tile=-2,5" parent="HexMap" unique_id=951690214 instance=ExtResource("30_5ocsm")]
+position = Vector2(136, 1020)
+q = -2
+r = 5
+terrain_texture = ExtResource("15_yx0jh")
+
+[node name="Tile=-2,6" parent="HexMap" unique_id=1048527670 instance=ExtResource("30_5ocsm")]
+position = Vector2(272, 1224)
+q = -2
+r = 6
+terrain_texture = ExtResource("12_my276")
+
+[node name="Tile=-2,7" parent="HexMap" unique_id=2069604516 instance=ExtResource("30_5ocsm")]
+position = Vector2(408, 1428)
+q = -2
+r = 7
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-2,8" parent="HexMap" unique_id=2121658346 instance=ExtResource("30_5ocsm")]
+position = Vector2(544, 1632)
+q = -2
+r = 8
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-1,-7" parent="HexMap" unique_id=2029316449 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1224, -1428)
+q = -1
+r = -7
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=-1,-6" parent="HexMap" unique_id=1572979551 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1088, -1224)
+q = -1
+r = -6
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=-1,-5" parent="HexMap" unique_id=1694540454 instance=ExtResource("30_5ocsm")]
+position = Vector2(-952, -1020)
+q = -1
+r = -5
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=-1,-4" parent="HexMap" unique_id=939546529 instance=ExtResource("30_5ocsm")]
+position = Vector2(-816, -816)
+q = -1
+r = -4
+terrain_texture = ExtResource("3_bo7i5")
+deposit = 3
+workable = true
+deposit_texture = ExtResource("8_gggvi")
+
+[node name="Tile=-1,-3" parent="HexMap" unique_id=334666017 instance=ExtResource("30_5ocsm")]
+position = Vector2(-680, -612)
+q = -1
+r = -3
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=-1,-2" parent="HexMap" unique_id=1114298682 instance=ExtResource("30_5ocsm")]
+position = Vector2(-544, -408)
+q = -1
+r = -2
+terrain_texture = ExtResource("5_qktwf")
+
+[node name="Tile=-1,-1" parent="HexMap" unique_id=659019420 instance=ExtResource("30_5ocsm")]
+position = Vector2(-408, -204)
+q = -1
+r = -1
+terrain_texture = ExtResource("9_7htu6")
+deposit = 5
+workable = true
+
+[node name="Tile=-1,0" parent="HexMap" unique_id=923825937 instance=ExtResource("30_5ocsm")]
+position = Vector2(-272, 0)
+q = -1
+
+[node name="Tile=-1,1" parent="HexMap" unique_id=1639678278 instance=ExtResource("30_5ocsm")]
+position = Vector2(-136, 204)
+q = -1
+r = 1
+
+[node name="Tile=-1,2" parent="HexMap" unique_id=697056337 instance=ExtResource("30_5ocsm")]
+position = Vector2(0, 408)
+q = -1
+r = 2
+terrain_texture = ExtResource("13_fnoqa")
+
+[node name="Tile=-1,3" parent="HexMap" unique_id=1646662364 instance=ExtResource("30_5ocsm")]
+position = Vector2(136, 612)
+q = -1
+r = 3
+terrain_texture = ExtResource("12_my276")
+
+[node name="Tile=-1,4" parent="HexMap" unique_id=888467887 instance=ExtResource("30_5ocsm")]
+position = Vector2(272, 816)
+q = -1
+r = 4
+terrain_texture = ExtResource("12_my276")
+
+[node name="Tile=-1,5" parent="HexMap" unique_id=542040563 instance=ExtResource("30_5ocsm")]
+position = Vector2(408, 1020)
+q = -1
+r = 5
+terrain_texture = ExtResource("15_yx0jh")
+
+[node name="Tile=-1,6" parent="HexMap" unique_id=561384051 instance=ExtResource("30_5ocsm")]
+position = Vector2(544, 1224)
+q = -1
+r = 6
+terrain_texture = ExtResource("12_my276")
+
+[node name="Tile=-1,7" parent="HexMap" unique_id=23948849 instance=ExtResource("30_5ocsm")]
+position = Vector2(680, 1428)
+q = -1
+r = 7
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=-1,8" parent="HexMap" unique_id=954475268 instance=ExtResource("30_5ocsm")]
+position = Vector2(816, 1632)
+q = -1
+r = 8
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=0,-8" parent="HexMap" unique_id=1888360592 instance=ExtResource("30_5ocsm")]
+position = Vector2(-1088, -1632)
+r = -8
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=0,-7" parent="HexMap" unique_id=1143644283 instance=ExtResource("30_5ocsm")]
+position = Vector2(-952, -1428)
+r = -7
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=0,-6" parent="HexMap" unique_id=240743430 instance=ExtResource("30_5ocsm")]
+position = Vector2(-816, -1224)
+r = -6
+walkable = false
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=0,-5" parent="HexMap" unique_id=1002319236 instance=ExtResource("30_5ocsm")]
+position = Vector2(-680, -1020)
+r = -5
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=0,-4" parent="HexMap" unique_id=1067275163 instance=ExtResource("30_5ocsm")]
+position = Vector2(-544, -816)
+r = -4
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=0,-3" parent="HexMap" unique_id=738571525 instance=ExtResource("30_5ocsm")]
+position = Vector2(-408, -612)
+r = -3
+terrain_texture = ExtResource("3_bo7i5")
+
+[node name="Tile=0,-2" parent="HexMap" unique_id=1150219455 instance=ExtResource("30_5ocsm")]
+position = Vector2(-272, -408)
+r = -2
+terrain_texture = ExtResource("5_qktwf")
+
+[node name="Tile=0,-1" parent="HexMap" unique_id=1904745174 instance=ExtResource("30_5ocsm")]
+position = Vector2(-136, -204)
+r = -1
+
+[node name="Tile=0,0" parent="HexMap" unique_id=633863298 instance=ExtResource("30_5ocsm")]
+
+[node name="Tile=0,1" parent="HexMap" unique_id=1243933245 instance=ExtResource("30_5ocsm")]
+position = Vector2(136, 204)
+r = 1
+terrain_texture = ExtResource("13_fnoqa")
+
+[node name="Tile=0,2" parent="HexMap" unique_id=317360942 instance=ExtResource("30_5ocsm")]
+position = Vector2(272, 408)
+r = 2
+terrain_texture = ExtResource("12_my276")
+
+[node name="Tile=0,3" parent="HexMap" unique_id=712226625 instance=ExtResource("30_5ocsm")]
+position = Vector2(408, 612)
+r = 3
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=0,4" parent="HexMap" unique_id=1732270638 instance=ExtResource("30_5ocsm")]
+position = Vector2(544, 816)
+r = 4
+terrain_texture = ExtResource("9_7htu6")
+deposit = 5
+workable = true
+
+[node name="Tile=0,5" parent="HexMap" unique_id=532807480 instance=ExtResource("30_5ocsm")]
+position = Vector2(680, 1020)
+r = 5
+terrain_texture = ExtResource("9_7htu6")
+deposit = 5
+workable = true
+
+[node name="Tile=0,6" parent="HexMap" unique_id=1079013620 instance=ExtResource("30_5ocsm")]
+position = Vector2(816, 1224)
+r = 6
+terrain_texture = ExtResource("12_my276")
+
+[node name="Tile=0,7" parent="HexMap" unique_id=387588444 instance=ExtResource("30_5ocsm")]
+position = Vector2(952, 1428)
+r = 7
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=0,8" parent="HexMap" unique_id=40293802 instance=ExtResource("30_5ocsm")]
+position = Vector2(1088, 1632)
+r = 8
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=1,-8" parent="HexMap" unique_id=489670316 instance=ExtResource("30_5ocsm")]
+position = Vector2(-816, -1632)
+q = 1
+r = -8
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=1,-7" parent="HexMap" unique_id=556045146 instance=ExtResource("30_5ocsm")]
+position = Vector2(-680, -1428)
+q = 1
+r = -7
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=1,-6" parent="HexMap" unique_id=1400907613 instance=ExtResource("30_5ocsm")]
+position = Vector2(-544, -1224)
+q = 1
+r = -6
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=1,-5" parent="HexMap" unique_id=1332623240 instance=ExtResource("30_5ocsm")]
+position = Vector2(-408, -1020)
+q = 1
+r = -5
+terrain_texture = ExtResource("3_bo7i5")
+
+[node name="Tile=1,-4" parent="HexMap" unique_id=1653314503 instance=ExtResource("30_5ocsm")]
+position = Vector2(-272, -816)
+q = 1
+r = -4
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=1,-3" parent="HexMap" unique_id=877288791 instance=ExtResource("30_5ocsm")]
+position = Vector2(-136, -612)
+q = 1
+r = -3
+terrain_texture = ExtResource("3_bo7i5")
+
+[node name="Tile=1,-2" parent="HexMap" unique_id=525335432 instance=ExtResource("30_5ocsm")]
+position = Vector2(0, -408)
+q = 1
+r = -2
+terrain_texture = ExtResource("5_qktwf")
+
+[node name="Tile=1,-1" parent="HexMap" unique_id=526800607 instance=ExtResource("30_5ocsm")]
+position = Vector2(136, -204)
+q = 1
+r = -1
+
+[node name="Tile=1,0" parent="HexMap" unique_id=1400031577 instance=ExtResource("30_5ocsm")]
+position = Vector2(272, 0)
+q = 1
+
+[node name="Tile=1,1" parent="HexMap" unique_id=1242141878 instance=ExtResource("30_5ocsm")]
+position = Vector2(408, 204)
+q = 1
+r = 1
+terrain_texture = ExtResource("13_fnoqa")
+
+[node name="Tile=1,2" parent="HexMap" unique_id=1214756673 instance=ExtResource("30_5ocsm")]
+position = Vector2(544, 408)
+q = 1
+r = 2
+terrain_texture = ExtResource("12_my276")
+
+[node name="Tile=1,3" parent="HexMap" unique_id=1930039500 instance=ExtResource("30_5ocsm")]
+position = Vector2(680, 612)
+q = 1
+r = 3
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=1,4" parent="HexMap" unique_id=1188693344 instance=ExtResource("30_5ocsm")]
+position = Vector2(816, 816)
+q = 1
+r = 4
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=1,5" parent="HexMap" unique_id=2053813913 instance=ExtResource("30_5ocsm")]
+position = Vector2(952, 1020)
+q = 1
+r = 5
+terrain_texture = ExtResource("12_my276")
+
+[node name="Tile=1,6" parent="HexMap" unique_id=1735506890 instance=ExtResource("30_5ocsm")]
+position = Vector2(1088, 1224)
+q = 1
+r = 6
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=1,7" parent="HexMap" unique_id=426154876 instance=ExtResource("30_5ocsm")]
+position = Vector2(1224, 1428)
+q = 1
+r = 7
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=2,-8" parent="HexMap" unique_id=1095466735 instance=ExtResource("30_5ocsm")]
+position = Vector2(-544, -1632)
+q = 2
+r = -8
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=2,-7" parent="HexMap" unique_id=857272296 instance=ExtResource("30_5ocsm")]
+position = Vector2(-408, -1428)
+q = 2
+r = -7
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=2,-6" parent="HexMap" unique_id=153159322 instance=ExtResource("30_5ocsm")]
+position = Vector2(-272, -1224)
+q = 2
+r = -6
+terrain_texture = ExtResource("3_bo7i5")
+
+[node name="Tile=2,-5" parent="HexMap" unique_id=1915484333 instance=ExtResource("30_5ocsm")]
+position = Vector2(-136, -1020)
+q = 2
+r = -5
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=2,-4" parent="HexMap" unique_id=156935561 instance=ExtResource("30_5ocsm")]
+position = Vector2(0, -816)
+q = 2
+r = -4
+terrain_texture = ExtResource("3_bo7i5")
+
+[node name="Tile=2,-3" parent="HexMap" unique_id=59787504 instance=ExtResource("30_5ocsm")]
+position = Vector2(136, -612)
+q = 2
+r = -3
+terrain_texture = ExtResource("5_qktwf")
+
+[node name="Tile=2,-2" parent="HexMap" unique_id=1540148062 instance=ExtResource("30_5ocsm")]
+position = Vector2(272, -408)
+q = 2
+r = -2
+terrain_texture = ExtResource("16_ryup7")
+
+[node name="Tile=2,-1" parent="HexMap" unique_id=1844567599 instance=ExtResource("30_5ocsm")]
+position = Vector2(408, -204)
+q = 2
+r = -1
+terrain_texture = ExtResource("16_ryup7")
+
+[node name="Tile=2,0" parent="HexMap" unique_id=1794404497 instance=ExtResource("30_5ocsm")]
+position = Vector2(544, 0)
+q = 2
+terrain_texture = ExtResource("13_fnoqa")
+
+[node name="Tile=2,1" parent="HexMap" unique_id=739027554 instance=ExtResource("30_5ocsm")]
+position = Vector2(680, 204)
+q = 2
+r = 1
+terrain_texture = ExtResource("12_my276")
+
+[node name="Tile=2,2" parent="HexMap" unique_id=1373521628 instance=ExtResource("30_5ocsm")]
+position = Vector2(816, 408)
+q = 2
+r = 2
+terrain_texture = ExtResource("15_yx0jh")
+
+[node name="Tile=2,3" parent="HexMap" unique_id=2073947360 instance=ExtResource("30_5ocsm")]
+position = Vector2(952, 612)
+q = 2
+r = 3
+terrain_texture = ExtResource("15_yx0jh")
+
+[node name="Tile=2,4" parent="HexMap" unique_id=988601833 instance=ExtResource("30_5ocsm")]
+position = Vector2(1088, 816)
+q = 2
+r = 4
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=2,5" parent="HexMap" unique_id=631150325 instance=ExtResource("30_5ocsm")]
+position = Vector2(1224, 1020)
+q = 2
+r = 5
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=2,6" parent="HexMap" unique_id=1171958099 instance=ExtResource("30_5ocsm")]
+position = Vector2(1360, 1224)
+q = 2
+r = 6
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=3,-8" parent="HexMap" unique_id=96174939 instance=ExtResource("30_5ocsm")]
+position = Vector2(-272, -1632)
+q = 3
+r = -8
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=3,-7" parent="HexMap" unique_id=450647507 instance=ExtResource("30_5ocsm")]
+position = Vector2(-136, -1428)
+q = 3
+r = -7
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=3,-6" parent="HexMap" unique_id=1818308536 instance=ExtResource("30_5ocsm")]
+position = Vector2(0, -1224)
+q = 3
+r = -6
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=3,-5" parent="HexMap" unique_id=1823243821 instance=ExtResource("30_5ocsm")]
+position = Vector2(136, -1020)
+q = 3
+r = -5
+terrain_texture = ExtResource("3_bo7i5")
+
+[node name="Tile=3,-4" parent="HexMap" unique_id=1984153432 instance=ExtResource("30_5ocsm")]
+position = Vector2(272, -816)
+q = 3
+r = -4
+terrain_texture = ExtResource("5_qktwf")
+
+[node name="Tile=3,-3" parent="HexMap" unique_id=335158807 instance=ExtResource("30_5ocsm")]
+position = Vector2(408, -612)
+q = 3
+r = -3
+terrain_texture = ExtResource("5_qktwf")
+
+[node name="Tile=3,-2" parent="HexMap" unique_id=596156525 instance=ExtResource("30_5ocsm")]
+position = Vector2(544, -408)
+q = 3
+r = -2
+terrain_texture = ExtResource("17_jas3d")
+
+[node name="Tile=3,-1" parent="HexMap" unique_id=56203505 instance=ExtResource("30_5ocsm")]
+position = Vector2(680, -204)
+q = 3
+r = -1
+terrain_texture = ExtResource("16_ryup7")
+
+[node name="Tile=3,0" parent="HexMap" unique_id=2134474132 instance=ExtResource("30_5ocsm")]
+position = Vector2(816, 0)
+q = 3
+terrain_texture = ExtResource("16_ryup7")
+
+[node name="Tile=3,1" parent="HexMap" unique_id=720800984 instance=ExtResource("30_5ocsm")]
+position = Vector2(952, 204)
+q = 3
+r = 1
+terrain_texture = ExtResource("12_my276")
+
+[node name="Tile=3,2" parent="HexMap" unique_id=243398107 instance=ExtResource("30_5ocsm")]
+position = Vector2(1088, 408)
+q = 3
+r = 2
+terrain_texture = ExtResource("12_my276")
+
+[node name="Tile=3,3" parent="HexMap" unique_id=1924373013 instance=ExtResource("30_5ocsm")]
+position = Vector2(1224, 612)
+q = 3
+r = 3
+terrain_texture = ExtResource("15_yx0jh")
+
+[node name="Tile=3,4" parent="HexMap" unique_id=1045460883 instance=ExtResource("30_5ocsm")]
+position = Vector2(1360, 816)
+q = 3
+r = 4
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=3,5" parent="HexMap" unique_id=1272428344 instance=ExtResource("30_5ocsm")]
+position = Vector2(1496, 1020)
+q = 3
+r = 5
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
+
+[node name="Tile=4,-8" parent="HexMap" unique_id=1080709457 instance=ExtResource("30_5ocsm")]
+position = Vector2(0, -1632)
+q = 4
+r = -8
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=4,-7" parent="HexMap" unique_id=1607411892 instance=ExtResource("30_5ocsm")]
+position = Vector2(136, -1428)
+q = 4
+r = -7
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
+
+[node name="Tile=4,-6" parent="HexMap" unique_id=1541299615 instance=ExtResource("30_5ocsm")]
+position = Vector2(272, -1224)
+q = 4
+r = -6
+walkable = false
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
+
+[node name="Tile=4,-5" parent="HexMap" unique_id=531358717 instance=ExtResource("30_5ocsm")]
+position = Vector2(408, -1020)
+q = 4
+r = -5
+terrain_texture = ExtResource("5_qktwf")
+
+[node name="Tile=4,-4" parent="HexMap" unique_id=588693626 instance=ExtResource("30_5ocsm")]
+position = Vector2(544, -816)
+q = 4
+r = -4
+terrain_texture = ExtResource("5_qktwf")
+
+[node name="Tile=4,-3" parent="HexMap" unique_id=1661750035 instance=ExtResource("30_5ocsm")]
+position = Vector2(680, -612)
+q = 4
+r = -3
+terrain_texture = ExtResource("17_jas3d")
+
+[node name="Tile=4,-2" parent="HexMap" unique_id=1358133643 instance=ExtResource("30_5ocsm")]
+position = Vector2(816, -408)
+q = 4
+r = -2
+terrain_texture = ExtResource("22_7qk3m")
+
+[node name="Tile=4,-1" parent="HexMap" unique_id=861366509 instance=ExtResource("30_5ocsm")]
+position = Vector2(952, -204)
+q = 4
+r = -1
+terrain_texture = ExtResource("17_jas3d")
+
+[node name="Tile=4,0" parent="HexMap" unique_id=2046202660 instance=ExtResource("30_5ocsm")]
+position = Vector2(1088, 0)
+q = 4
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
+workable = true
+
+[node name="Tile=4,1" parent="HexMap" unique_id=153801485 instance=ExtResource("30_5ocsm")]
+position = Vector2(1224, 204)
+q = 4
+r = 1
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
+workable = true
+
+[node name="Tile=4,2" parent="HexMap" unique_id=1720086760 instance=ExtResource("30_5ocsm")]
+position = Vector2(1360, 408)
 q = 4
 r = 2
-terrain_texture = ExtResource("6_70uel")
-deposit = 12
-workable = true
+terrain_texture = ExtResource("12_my276")
 
-[node name="Tile=4,3" parent="HexMap" unique_id=565313626 instance=ExtResource("2_fj7yv")]
-position = Vector2(704, 333)
+[node name="Tile=4,3" parent="HexMap" unique_id=1171681082 instance=ExtResource("30_5ocsm")]
+position = Vector2(1496, 612)
 q = 4
 r = 3
-terrain_texture = ExtResource("6_70uel")
-deposit = 12
-workable = true
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
 
-[node name="Tile=4,4" parent="HexMap" unique_id=943689672 instance=ExtResource("2_fj7yv")]
-position = Vector2(768, 444)
+[node name="Tile=4,4" parent="HexMap" unique_id=174711253 instance=ExtResource("30_5ocsm")]
+position = Vector2(1632, 816)
 q = 4
 r = 4
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
 
-[node name="Tile=5,-8" parent="HexMap" unique_id=323063209 instance=ExtResource("2_fj7yv")]
-position = Vector2(128, -888)
+[node name="Tile=5,-8" parent="HexMap" unique_id=1459286821 instance=ExtResource("30_5ocsm")]
+position = Vector2(272, -1632)
 q = 5
 r = -8
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
 
-[node name="Tile=5,-7" parent="HexMap" unique_id=137188277 instance=ExtResource("2_fj7yv")]
-position = Vector2(192, -777)
+[node name="Tile=5,-7" parent="HexMap" unique_id=1137265789 instance=ExtResource("30_5ocsm")]
+position = Vector2(408, -1428)
 q = 5
 r = -7
-terrain_texture = ExtResource("10_ikiii")
-deposit = 10
-workable = true
+walkable = false
+terrain_texture = ExtResource("6_jjr1n")
+deposit = 14
 
-[node name="Tile=5,-6" parent="HexMap" unique_id=1459430588 instance=ExtResource("2_fj7yv")]
-position = Vector2(256, -666)
+[node name="Tile=5,-6" parent="HexMap" unique_id=1917979195 instance=ExtResource("30_5ocsm")]
+position = Vector2(544, -1224)
 q = 5
 r = -6
-terrain_texture = ExtResource("10_ikiii")
-deposit = 10
-workable = true
+walkable = false
+terrain_texture = ExtResource("7_k83mh")
 
-[node name="Tile=5,-5" parent="HexMap" unique_id=442983164 instance=ExtResource("2_fj7yv")]
-position = Vector2(320, -555)
+[node name="Tile=5,-5" parent="HexMap" unique_id=830521692 instance=ExtResource("30_5ocsm")]
+position = Vector2(680, -1020)
 q = 5
 r = -5
+terrain_texture = ExtResource("5_qktwf")
 
-[node name="Tile=5,-4" parent="HexMap" unique_id=372326920 instance=ExtResource("2_fj7yv")]
-position = Vector2(384, -444)
+[node name="Tile=5,-4" parent="HexMap" unique_id=182672628 instance=ExtResource("30_5ocsm")]
+position = Vector2(816, -816)
 q = 5
 r = -4
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
+workable = true
 
-[node name="Tile=5,-3" parent="HexMap" unique_id=765790956 instance=ExtResource("2_fj7yv")]
-position = Vector2(448, -333)
+[node name="Tile=5,-3" parent="HexMap" unique_id=1504237717 instance=ExtResource("30_5ocsm")]
+position = Vector2(952, -612)
 q = 5
 r = -3
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
+workable = true
 
-[node name="Tile=5,-2" parent="HexMap" unique_id=501404697 instance=ExtResource("2_fj7yv")]
-position = Vector2(512, -222)
+[node name="Tile=5,-2" parent="HexMap" unique_id=1796464515 instance=ExtResource("30_5ocsm")]
+position = Vector2(1088, -408)
 q = 5
 r = -2
-terrain_texture = ExtResource("9_bo7i5")
-deposit = 18
-workable = true
+terrain_texture = ExtResource("17_jas3d")
 
-[node name="Tile=5,-1" parent="HexMap" unique_id=1044997502 instance=ExtResource("2_fj7yv")]
-position = Vector2(576, -111)
+[node name="Tile=5,-1" parent="HexMap" unique_id=166962122 instance=ExtResource("30_5ocsm")]
+position = Vector2(1224, -204)
 q = 5
 r = -1
-terrain_texture = ExtResource("9_bo7i5")
-deposit = 18
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
 workable = true
 
-[node name="Tile=5,0" parent="HexMap" unique_id=448316127 instance=ExtResource("2_fj7yv")]
-position = Vector2(640, 0)
+[node name="Tile=5,0" parent="HexMap" unique_id=466503609 instance=ExtResource("30_5ocsm")]
+position = Vector2(1360, 0)
 q = 5
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 13
+workable = true
+deposit_texture = ExtResource("19_ytpkv")
 
-[node name="Tile=5,1" parent="HexMap" unique_id=1919288190 instance=ExtResource("2_fj7yv")]
-position = Vector2(704, 111)
+[node name="Tile=5,1" parent="HexMap" unique_id=952110689 instance=ExtResource("30_5ocsm")]
+position = Vector2(1496, 204)
 q = 5
 r = 1
-terrain_texture = ExtResource("6_70uel")
+terrain_texture = ExtResource("5_4h6ng")
 deposit = 12
 workable = true
 
-[node name="Tile=5,2" parent="HexMap" unique_id=1887276231 instance=ExtResource("2_fj7yv")]
-position = Vector2(768, 222)
+[node name="Tile=5,2" parent="HexMap" unique_id=677026436 instance=ExtResource("30_5ocsm")]
+position = Vector2(1632, 408)
 q = 5
 r = 2
-terrain_texture = ExtResource("6_70uel")
-deposit = 12
-workable = true
+terrain_texture = ExtResource("16_ryup7")
 
-[node name="Tile=5,3" parent="HexMap" unique_id=525723666 instance=ExtResource("2_fj7yv")]
-position = Vector2(832, 333)
+[node name="Tile=5,3" parent="HexMap" unique_id=1986422113 instance=ExtResource("30_5ocsm")]
+position = Vector2(1768, 612)
 q = 5
 r = 3
+walkable = false
+terrain_texture = ExtResource("3_bh8nc")
 
-[node name="Tile=6,-8" parent="HexMap" unique_id=1842613312 instance=ExtResource("2_fj7yv")]
-position = Vector2(256, -888)
+[node name="Tile=6,-8" parent="HexMap" unique_id=646015926 instance=ExtResource("30_5ocsm")]
+position = Vector2(544, -1632)
 q = 6
 r = -8
+walkable = false
+terrain_texture = ExtResource("3_o3ebs")
 
-[node name="Tile=6,-7" parent="HexMap" unique_id=40524755 instance=ExtResource("2_fj7yv")]
-position = Vector2(320, -777)
+[node name="Tile=6,-7" parent="HexMap" unique_id=400178200 instance=ExtResource("30_5ocsm")]
+position = Vector2(680, -1428)
 q = 6
 r = -7
-terrain_texture = ExtResource("10_ikiii")
-deposit = 10
-workable = true
+walkable = false
+terrain_texture = ExtResource("7_k83mh")
 
-[node name="Tile=6,-6" parent="HexMap" unique_id=1047748929 instance=ExtResource("2_fj7yv")]
-position = Vector2(384, -666)
+[node name="Tile=6,-6" parent="HexMap" unique_id=454965437 instance=ExtResource("30_5ocsm")]
+position = Vector2(816, -1224)
 q = 6
 r = -6
-terrain_texture = ExtResource("10_ikiii")
-deposit = 10
-workable = true
+terrain_texture = ExtResource("5_qktwf")
 
-[node name="Tile=6,-5" parent="HexMap" unique_id=1164901169 instance=ExtResource("2_fj7yv")]
-position = Vector2(448, -555)
+[node name="Tile=6,-5" parent="HexMap" unique_id=22939098 instance=ExtResource("30_5ocsm")]
+position = Vector2(952, -1020)
 q = 6
 r = -5
-terrain_texture = ExtResource("11_cbp6q")
-deposit = 7
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
 workable = true
 
-[node name="Tile=6,-4" parent="HexMap" unique_id=208536355 instance=ExtResource("2_fj7yv")]
-position = Vector2(512, -444)
+[node name="Tile=6,-4" parent="HexMap" unique_id=591753301 instance=ExtResource("30_5ocsm")]
+position = Vector2(1088, -816)
 q = 6
 r = -4
-terrain_texture = ExtResource("11_cbp6q")
-deposit = 7
+terrain_texture = ExtResource("19_ytpkv")
+deposit = 13
 workable = true
 
-[node name="Tile=6,-3" parent="HexMap" unique_id=527485659 instance=ExtResource("2_fj7yv")]
-position = Vector2(576, -333)
+[node name="Tile=6,-3" parent="HexMap" unique_id=97286860 instance=ExtResource("30_5ocsm")]
+position = Vector2(1224, -612)
 q = 6
 r = -3
-terrain_texture = ExtResource("9_bo7i5")
-deposit = 18
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
 workable = true
 
-[node name="Tile=6,-2" parent="HexMap" unique_id=802360861 instance=ExtResource("2_fj7yv")]
-position = Vector2(640, -222)
+[node name="Tile=6,-2" parent="HexMap" unique_id=1980844797 instance=ExtResource("30_5ocsm")]
+position = Vector2(1360, -408)
 q = 6
 r = -2
-terrain_texture = ExtResource("9_bo7i5")
-deposit = 18
-workable = true
+terrain_texture = ExtResource("17_jas3d")
 
-[node name="Tile=6,-1" parent="HexMap" unique_id=1551881018 instance=ExtResource("2_fj7yv")]
-position = Vector2(704, -111)
+[node name="Tile=6,-1" parent="HexMap" unique_id=238323352 instance=ExtResource("30_5ocsm")]
+position = Vector2(1496, -204)
 q = 6
 r = -1
-
-[node name="Tile=6,0" parent="HexMap" unique_id=1204302417 instance=ExtResource("2_fj7yv")]
-position = Vector2(768, 0)
-q = 6
-terrain_texture = ExtResource("6_70uel")
+terrain_texture = ExtResource("5_4h6ng")
 deposit = 12
 workable = true
 
-[node name="Tile=6,1" parent="HexMap" unique_id=891231525 instance=ExtResource("2_fj7yv")]
-position = Vector2(832, 111)
+[node name="Tile=6,0" parent="HexMap" unique_id=813358410 instance=ExtResource("30_5ocsm")]
+position = Vector2(1632, 0)
+q = 6
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
+workable = true
+
+[node name="Tile=6,1" parent="HexMap" unique_id=1138738351 instance=ExtResource("30_5ocsm")]
+position = Vector2(1768, 204)
 q = 6
 r = 1
-terrain_texture = ExtResource("6_70uel")
-deposit = 12
-workable = true
+walkable = false
+terrain_texture = ExtResource("22_xpnt2")
 
-[node name="Tile=6,2" parent="HexMap" unique_id=1680883135 instance=ExtResource("2_fj7yv")]
-position = Vector2(896, 222)
+[node name="Tile=6,2" parent="HexMap" unique_id=18044281 instance=ExtResource("30_5ocsm")]
+position = Vector2(1904, 408)
 q = 6
 r = 2
+terrain_texture = ExtResource("16_ryup7")
 
-[node name="Tile=7,-8" parent="HexMap" unique_id=1394793487 instance=ExtResource("2_fj7yv")]
-position = Vector2(384, -888)
+[node name="Tile=7,-8" parent="HexMap" unique_id=983041769 instance=ExtResource("30_5ocsm")]
+position = Vector2(816, -1632)
 q = 7
 r = -8
+walkable = false
+terrain_texture = ExtResource("7_k83mh")
 
-[node name="Tile=7,-7" parent="HexMap" unique_id=5204173 instance=ExtResource("2_fj7yv")]
-position = Vector2(448, -777)
+[node name="Tile=7,-7" parent="HexMap" unique_id=1588883616 instance=ExtResource("30_5ocsm")]
+position = Vector2(952, -1428)
 q = 7
 r = -7
-terrain_texture = ExtResource("10_ikiii")
-deposit = 10
-workable = true
+walkable = false
+terrain_texture = ExtResource("7_k83mh")
 
-[node name="Tile=7,-6" parent="HexMap" unique_id=1516388987 instance=ExtResource("2_fj7yv")]
-position = Vector2(512, -666)
+[node name="Tile=7,-6" parent="HexMap" unique_id=1909320113 instance=ExtResource("30_5ocsm")]
+position = Vector2(1088, -1224)
 q = 7
 r = -6
-terrain_texture = ExtResource("11_cbp6q")
-deposit = 7
-workable = true
+terrain_texture = ExtResource("17_jas3d")
 
-[node name="Tile=7,-5" parent="HexMap" unique_id=1532708596 instance=ExtResource("2_fj7yv")]
-position = Vector2(576, -555)
+[node name="Tile=7,-5" parent="HexMap" unique_id=737433770 instance=ExtResource("30_5ocsm")]
+position = Vector2(1224, -1020)
 q = 7
 r = -5
-terrain_texture = ExtResource("11_cbp6q")
-deposit = 7
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
 workable = true
 
-[node name="Tile=7,-4" parent="HexMap" unique_id=874902672 instance=ExtResource("2_fj7yv")]
-position = Vector2(640, -444)
+[node name="Tile=7,-4" parent="HexMap" unique_id=1091481706 instance=ExtResource("30_5ocsm")]
+position = Vector2(1360, -816)
 q = 7
 r = -4
-terrain_texture = ExtResource("11_cbp6q")
-deposit = 7
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
 workable = true
 
-[node name="Tile=7,-3" parent="HexMap" unique_id=1474797698 instance=ExtResource("2_fj7yv")]
-position = Vector2(704, -333)
+[node name="Tile=7,-3" parent="HexMap" unique_id=1965723591 instance=ExtResource("30_5ocsm")]
+position = Vector2(1496, -612)
 q = 7
 r = -3
-terrain_texture = ExtResource("9_bo7i5")
-deposit = 18
-workable = true
+terrain_texture = ExtResource("17_jas3d")
 
-[node name="Tile=7,-2" parent="HexMap" unique_id=1422686343 instance=ExtResource("2_fj7yv")]
-position = Vector2(768, -222)
+[node name="Tile=7,-2" parent="HexMap" unique_id=311002513 instance=ExtResource("30_5ocsm")]
+position = Vector2(1632, -408)
 q = 7
 r = -2
+walkable = false
+terrain_texture = ExtResource("21_7htu6")
 
-[node name="Tile=7,-1" parent="HexMap" unique_id=639039836 instance=ExtResource("2_fj7yv")]
-position = Vector2(832, -111)
+[node name="Tile=7,-1" parent="HexMap" unique_id=1104463737 instance=ExtResource("30_5ocsm")]
+position = Vector2(1768, -204)
 q = 7
 r = -1
+terrain_texture = ExtResource("7_gggvi")
 
-[node name="Tile=7,0" parent="HexMap" unique_id=1474118571 instance=ExtResource("2_fj7yv")]
-position = Vector2(896, 0)
+[node name="Tile=7,0" parent="HexMap" unique_id=2070420024 instance=ExtResource("30_5ocsm")]
+position = Vector2(1904, 0)
 q = 7
+walkable = false
+terrain_texture = ExtResource("7_gggvi")
 
-[node name="Tile=7,1" parent="HexMap" unique_id=27874796 instance=ExtResource("2_fj7yv")]
-position = Vector2(960, 111)
+[node name="Tile=7,1" parent="HexMap" unique_id=828767114 instance=ExtResource("30_5ocsm")]
+position = Vector2(2040, 204)
 q = 7
 r = 1
+terrain_texture = ExtResource("7_gggvi")
 
-[node name="Tile=8,-8" parent="HexMap" unique_id=287572078 instance=ExtResource("2_fj7yv")]
-position = Vector2(512, -888)
+[node name="Tile=8,-8" parent="HexMap" unique_id=338640106 instance=ExtResource("30_5ocsm")]
+position = Vector2(1088, -1632)
 q = 8
 r = -8
+walkable = false
+terrain_texture = ExtResource("7_k83mh")
 
-[node name="Tile=8,-7" parent="HexMap" unique_id=125007839 instance=ExtResource("2_fj7yv")]
-position = Vector2(576, -777)
+[node name="Tile=8,-7" parent="HexMap" unique_id=671514178 instance=ExtResource("30_5ocsm")]
+position = Vector2(1224, -1428)
 q = 8
 r = -7
+terrain_texture = ExtResource("17_jas3d")
 
-[node name="Tile=8,-6" parent="HexMap" unique_id=502002009 instance=ExtResource("2_fj7yv")]
-position = Vector2(640, -666)
+[node name="Tile=8,-6" parent="HexMap" unique_id=1294200614 instance=ExtResource("30_5ocsm")]
+position = Vector2(1360, -1224)
 q = 8
 r = -6
+terrain_texture = ExtResource("17_jas3d")
 
-[node name="Tile=8,-5" parent="HexMap" unique_id=919392086 instance=ExtResource("2_fj7yv")]
-position = Vector2(704, -555)
+[node name="Tile=8,-5" parent="HexMap" unique_id=1390920516 instance=ExtResource("30_5ocsm")]
+position = Vector2(1496, -1020)
 q = 8
 r = -5
+walkable = false
+terrain_texture = ExtResource("21_7htu6")
 
-[node name="Tile=8,-4" parent="HexMap" unique_id=1893618420 instance=ExtResource("2_fj7yv")]
-position = Vector2(768, -444)
+[node name="Tile=8,-4" parent="HexMap" unique_id=61474473 instance=ExtResource("30_5ocsm")]
+position = Vector2(1632, -816)
 q = 8
 r = -4
+terrain_texture = ExtResource("17_jas3d")
 
-[node name="Tile=8,-3" parent="HexMap" unique_id=1440783820 instance=ExtResource("2_fj7yv")]
-position = Vector2(832, -333)
+[node name="Tile=8,-3" parent="HexMap" unique_id=1310493728 instance=ExtResource("30_5ocsm")]
+position = Vector2(1768, -612)
 q = 8
 r = -3
+terrain_texture = ExtResource("7_gggvi")
 
-[node name="Tile=8,-2" parent="HexMap" unique_id=656651832 instance=ExtResource("2_fj7yv")]
-position = Vector2(896, -222)
+[node name="Tile=8,-2" parent="HexMap" unique_id=1447451951 instance=ExtResource("30_5ocsm")]
+position = Vector2(1904, -408)
 q = 8
 r = -2
+terrain_texture = ExtResource("7_gggvi")
 
-[node name="Tile=8,-1" parent="HexMap" unique_id=913533738 instance=ExtResource("2_fj7yv")]
-position = Vector2(960, -111)
+[node name="Tile=8,-1" parent="HexMap" unique_id=518930910 instance=ExtResource("30_5ocsm")]
+position = Vector2(2040, -204)
 q = 8
 r = -1
+walkable = false
+terrain_texture = ExtResource("22_xpnt2")
 
-[node name="Tile=8,0" parent="HexMap" unique_id=268401325 instance=ExtResource("2_fj7yv")]
-position = Vector2(1024, 0)
+[node name="Tile=8,0" parent="HexMap" unique_id=226890065 instance=ExtResource("30_5ocsm")]
+position = Vector2(2176, 0)
 q = 8
+terrain_texture = ExtResource("7_gggvi")
 
 [node name="Workers" type="Node2D" parent="." unique_id=325203579]
 
 [node name="Starknight=01" parent="Workers" unique_id=887805097 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
-position = Vector2(-2885, -1183)
 move_speed = 100.0
-start_tile = NodePath("../../HexMap/Tile=2,-1")
+start_tile = NodePath("../../HexMap/Tile=-5,3")
 
 [node name="Starknight=02" parent="Workers" unique_id=299301697 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
-position = Vector2(-2806, -1183)
-move_speed = 100.0
-start_tile = NodePath("../../HexMap/Tile=2,-1")
+move_speed = 131.22
+start_tile = NodePath("../../HexMap/Tile=-5,3")
 
 [node name="Starknight=03" parent="Workers" unique_id=1867069163 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
-position = Vector2(-2724, -1183)
-move_speed = 100.0
-start_tile = NodePath("../../HexMap/Tile=2,-1")
+move_speed = 145.8
+start_tile = NodePath("../../HexMap/Tile=-5,3")
 
 [node name="Starknight=04" parent="Workers" unique_id=605398808 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
-position = Vector2(-2642, -1183)
-move_speed = 100.0
-start_tile = NodePath("../../HexMap/Tile=2,-1")
+move_speed = 162.0
+start_tile = NodePath("../../HexMap/Tile=-5,3")
 
 [node name="Starknight=05" parent="Workers" unique_id=1674593392 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
-position = Vector2(-2885, -1103)
-move_speed = 100.0
-start_tile = NodePath("../../HexMap/Tile=2,-1")
+move_speed = 180.0
+start_tile = NodePath("../../HexMap/Tile=-5,3")
 
 [node name="Starknight=06" parent="Workers" unique_id=1764657432 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
-position = Vector2(-2806, -1103)
-move_speed = 100.0
-start_tile = NodePath("../../HexMap/Tile=2,-1")
+move_speed = 200.0
+start_tile = NodePath("../../HexMap/Tile=-5,3")
 
 [node name="Starknight=07" parent="Workers" unique_id=1551025656 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
-position = Vector2(-2724, -1103)
-move_speed = 100.0
-start_tile = NodePath("../../HexMap/Tile=2,-1")
+move_speed = 200.0
+start_tile = NodePath("../../HexMap/Tile=-5,3")
 
 [node name="Starknight=08" parent="Workers" unique_id=1590892771 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
-position = Vector2(-2642, -1103)
-move_speed = 100.0
-start_tile = NodePath("../../HexMap/Tile=2,-1")
+move_speed = 220.0
+start_tile = NodePath("../../HexMap/Tile=-5,3")
 
 [node name="Starknight=09" parent="Workers" unique_id=1360817510 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
-position = Vector2(-2885, -1027)
-move_speed = 100.0
-start_tile = NodePath("../../HexMap/Tile=2,-1")
+move_speed = 242.0
+start_tile = NodePath("../../HexMap/Tile=-5,3")
 
 [node name="Starknight=10" parent="Workers" unique_id=73803431 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
-position = Vector2(-2806, -1027)
-move_speed = 100.0
-start_tile = NodePath("../../HexMap/Tile=2,-1")
+move_speed = 266.2
+start_tile = NodePath("../../HexMap/Tile=-5,3")
 
 [node name="Starknight=11" parent="Workers" unique_id=343814708 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
-position = Vector2(-2724, -1027)
-move_speed = 100.0
-start_tile = NodePath("../../HexMap/Tile=2,-1")
+move_speed = 292.82
+start_tile = NodePath("../../HexMap/Tile=-5,3")
 
 [node name="Starknight=12" parent="Workers" unique_id=635410187 node_paths=PackedStringArray("start_tile") instance=ExtResource("4_pkg7o")]
-position = Vector2(-2642, -1027)
-move_speed = 100.0
-start_tile = NodePath("../../HexMap/Tile=2,-1")
+move_speed = 400.0
+start_tile = NodePath("../../HexMap/Tile=-5,3")
 
 [node name="Viewport" type="Camera2D" parent="." unique_id=1775877281]
 limit_enabled = false
@@ -1403,6 +1574,7 @@ offset_bottom = 29.0
 label_settings = ExtResource("15_jjr1n")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=1946576123]
+visible = false
 
 [node name="ResourceList" type="VBoxContainer" parent="UI" unique_id=1683944017]
 offset_right = 40.0

@@ -47,6 +47,7 @@
 [ext_resource type="Texture2D" uid="uid://dwba8qnudiyb4" path="res://assets/icons/building_delete.svg" id="28_qktwf"]
 [ext_resource type="Texture2D" uid="uid://bfpoe3u077q62" path="res://assets/icons/close.svg" id="29_gggvi"]
 [ext_resource type="PackedScene" uid="uid://bo1ttpfaa10pe" path="res://objects/HexTile.tscn" id="30_5ocsm"]
+[ext_resource type="Texture2D" uid="uid://dssmal74dhmus" path="res://assets/icons/guidebook.svg" id="48_nx736"]
 
 [node name="World" type="Node2D" unique_id=1592913599]
 
@@ -1871,3 +1872,10 @@ vertical_scroll_mode = 0
 
 [node name="Columns" type="HBoxContainer" parent="UI/ConstructionPanel/VBox/Margin/Scroll" unique_id=1519381145]
 layout_mode = 2
+
+[node name="HelpButton" type="TextureButton" parent="UI" unique_id=607420148]
+anchors_preset = -1
+anchor_left = 0.75
+anchor_right = 0.75
+grow_horizontal = 0
+texture_normal = ExtResource("48_nx736")

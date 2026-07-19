@@ -27,6 +27,10 @@ func _ready() -> void:
 func _define_cutscenes() -> void:
     var cutscene: Cutscene
 
+    ############################
+    ### opening and tutorial ###
+    ############################
+
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)
 
@@ -38,6 +42,22 @@ func _define_cutscenes() -> void:
 
     cutscene.still = preload("res://assets/cutscenes/aiko.jpg")
     cutscene.text = say(AIKO, "Aiko", "Click on a deposit tile and enable harvesting to have a Starknight work it. Use the [u]workshop[/u] to manually craft small amounts of items, you will need 10 clay bricks and 10 mechanical components to get started. Construct buildings from the picker at the bottom to speed up extraction and production. This menu will be hidden if you have a building or deposit selected. Buildings can also be upgraded after selecting them. Buildings only show up after you have discovered all of their construction materials, so make sure to explore everything you can.")
+
+    ##############################
+    ### warehouse intermission ###
+    ##############################
+
+    cutscene = Cutscene.new()
+    _locked_cutscenes.append(cutscene)
+
+    cutscene.condition = func() -> bool:
+        return Catalog.has_finished_construction(Warehouse)
+    cutscene.still = preload("res://assets/cutscenes/kevin.png")
+    cutscene.text = say(SAKANA, "Sakana", "People think a warehouse is just... a big box full of smaller boxes. Wrong. Amateur mindset. A warehouse is civilization. Every civilization invents roads, agriculture, taxes... and eventually someone has to figure out where to put thirty-seven pallets of Pippa socks without blocking the forklift. That someone is me. See these aisles? Beautiful. Straight. Infinite. Every rack has a purpose. Every pallet has an address. Every crate knows where it belongs. I did that. With this, Phase Connect shipping has expanded to yet another planet. And I have yet another warehouse to organize.")
+
+    ##############################
+    ### debut and standee task ###
+    ##############################
 
     cutscene = Cutscene.new()
     _locked_cutscenes.append(cutscene)
@@ -74,6 +94,43 @@ func _define_cutscenes() -> void:
         return Catalog.has_finished_construction(MechanicalComponentFactory)
     cutscene.still = preload("res://assets/cutscenes/aiko.jpg")
     cutscene.text = say(AIKO, "Aiko", "Merchandise targets are listed below. You will need a [u]warehouse[/u] to store and ship this merchandise. Build one if you have not already.")
+
+    ######################################
+    ### standee into jelly coffee task ###
+    ######################################
+
+    cutscene = Cutscene.new()
+    _locked_cutscenes.append(cutscene)
+
+    cutscene.condition = func() -> bool:
+        return Stockpile.is_seen(Stockpile.ItemType.JELLY_STANDEES)
+    cutscene.still = preload("res://assets/cutscenes/kevin.png")
+    cutscene.text = say(SAKANA, "Sakana", "Great start! Now do it again. Just make as many as you can man.") + say(SAKANA, "Sakana", "What is the most important product of Phase Connect? Trick question, its coffee of course. We're a coffee company. Jelly wants sumatra beans, get back to work.")
+    cutscene.on_complete = func() -> void:
+        Stockpile.start_challenge(Stockpile.ItemType.JELLY_COFFEE)
+
+    ##############################
+    ### steam engine choo choo ###
+    ##############################
+
+    cutscene = Cutscene.new()
+    _locked_cutscenes.append(cutscene)
+
+    cutscene.condition = func() -> bool:
+        return Workshop.has_capability(Crafting.Capabilities.OVERHEAD_CRANE)
+    cutscene.still = preload("res://assets/cutscenes/kevin.png")
+    cutscene.text = say(SAKANA, "Sakana", "Yeah so Jelly needs a steam engine. Don't ask me I don't now either, just get her a steam engine man.")
+    cutscene.on_complete = func() -> void:
+        Stockpile.start_challenge(Stockpile.ItemType.STEAM_ENGINE)
+
+    cutscene = Cutscene.new()
+    _locked_cutscenes.append(cutscene)
+
+    cutscene.condition = func() -> bool:
+        return Stockpile.is_challenge_completed(Stockpile.ItemType.STEAM_ENGINE)
+    cutscene.video = preload("res://assets/cutscenes/jelly_choo_choo.ogv")
+    cutscene.text = say(JELLY, "Jelly", "[wave amp=40 freq=4]Choo! Choo![/wave]") + say(JELLY, "Jelly", "[wave amp=40 freq=4]Choo! Choo![/wave]") + say(JELLY, "Jelly", "[wave amp=40 freq=4]Choo! Choo![/wave]")
+    cutscene.min_duration = 5.816666666666666 + 3.7666666666666666 + 14.75
 
 
 const SAKANA := "#8682c6"

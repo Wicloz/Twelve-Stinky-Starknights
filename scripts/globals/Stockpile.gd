@@ -232,6 +232,12 @@ func is_available_story_item(item: ItemType) -> bool:
 	return item in _challenges and _challenges[item].state == ChallengeState.ACTIVE
 
 
+func is_challenge_completed(item: ItemType) -> bool:
+	if item not in _challenges:
+		return false
+	return _challenges[item].state == ChallengeState.COMPLETED
+
+
 func start_challenge(item: ItemType) -> void:
 	_challenges[item].state = ChallengeState.ACTIVE
 	challenge_updated.emit()

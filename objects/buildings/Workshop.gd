@@ -19,6 +19,10 @@ var _order_remaining: int
 var _order_job: Job = null
 
 
+static func has_capability(capability: Crafting.Capabilities) -> bool:
+	return capability in capabilities
+
+
 func _define_research() -> void:
 	if not Research.can_register(self):
 		return

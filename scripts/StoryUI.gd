@@ -52,7 +52,7 @@ func _fit_media(aspect: AspectRatioContainer, px: Vector2) -> void:
 
 func _reveal_text(bbcode: String, typing_speed: float, min_duration: float) -> void:
 	var from: int = narration.get_total_character_count()
-	narration.append_text(bbcode + "\n\n")
+	narration.append_text(bbcode)
 	var to: int = narration.get_total_character_count() - 2
 
 	var new_chars := to - from

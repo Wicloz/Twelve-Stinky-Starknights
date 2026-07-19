@@ -103,7 +103,7 @@ func _define_cutscenes() -> void:
     _locked_cutscenes.append(cutscene)
 
     cutscene.condition = func() -> bool:
-        return Stockpile.is_seen(Stockpile.ItemType.JELLY_STANDEES)
+        return Stockpile.is_seen(Stockpile.ItemType.JELLY_STANDEES) and Catalog.has_finished_construction(Warehouse)
     cutscene.still = preload("res://assets/cutscenes/kevin.png")
     cutscene.text = say(SAKANA, "Sakana", "Great start! Now do it again. Just make as many as you can man.") + say(SAKANA, "Sakana", "What is the most important product of Phase Connect? Trick question, its coffee of course. We're a coffee company. Jelly wants sumatra beans, get back to work.")
     cutscene.on_complete = func() -> void:
@@ -139,7 +139,7 @@ const AIKO := "#ffffff"
 
 
 static func say(color: String, speaker: String, line: String) -> String:
-    return "[color=%s][b]%s:[/b] %s[/color]" % [color, speaker, line]
+    return "[color=%s][b]%s:[/b] %s[/color]\n\n" % [color, speaker, line]
 
 
 func _queue_cutscenes() -> void:

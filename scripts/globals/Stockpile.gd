@@ -41,12 +41,15 @@ enum ItemType {
 
 	ELECTRONIC_COMPONENTS,
 	INDUSTRIAL_CONTROLLERS,
+	ELECTRONIC_ACTUATORS,
 
 	JELLY_STANDEES,
 	COFFEE_CHERRIES,
 	JELLY_COFFEE,
 
 	STEAM_ENGINE,
+	WHITE_PAINT,
+
 	PC_RAM,
 	PC_CPU,
 	PC_GPU,
@@ -97,12 +100,15 @@ const _ITEM_NAMES: Dictionary[ItemType, String] = {
 
 	ItemType.ELECTRONIC_COMPONENTS: "Electronic Components",
 	ItemType.INDUSTRIAL_CONTROLLERS: "Industrial Computer Modules",
+	ItemType.ELECTRONIC_ACTUATORS: "Assorted Actuators",
 
 	ItemType.JELLY_STANDEES: "Jelly Standees",
 	ItemType.COFFEE_CHERRIES: "Sumatra Cherries",
 	ItemType.JELLY_COFFEE: "Jelly Coffee",
 
 	ItemType.STEAM_ENGINE: "Steam Engine",
+	ItemType.WHITE_PAINT: "White Paint",
+
 	ItemType.PC_RAM: "Phase™ RAM",
 	ItemType.PC_CPU: "Phase™ CPU",
 	ItemType.PC_GPU: "Phase™ GPU",
@@ -132,9 +138,9 @@ func _ready() -> void:
 	for item in ItemType.values():
 		if item != ItemType.NONE:
 			ItemTypes.append(item)
-			_current[item] = 0
-			_produced[item] = 0
-			_seen[item] = false
+			_current[item] = 9999
+			_produced[item] = 9999
+			_seen[item] = true
 
 	_register_challenges()
 
@@ -144,6 +150,7 @@ func _register_challenges() -> void:
 	_challenges[ItemType.JELLY_COFFEE] = Challenge.new()
 
 	_challenges[ItemType.STEAM_ENGINE] = Challenge.new(1)
+	_challenges[ItemType.WHITE_PAINT] = Challenge.new(216)
 
 	_challenges[ItemType.PC_RAM] = Challenge.new(4, false)
 	_challenges[ItemType.PC_CPU] = Challenge.new(1, false)

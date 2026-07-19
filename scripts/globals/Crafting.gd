@@ -4,6 +4,7 @@ extends Node
 enum Capabilities {
 	FURNACE,
 	WORKBENCH,
+	POWER_TOOLS,
 	REFINERY,
 	CLEANROOM,
 	WIRE_MILL,
@@ -33,7 +34,6 @@ enum RecipeType {
 	MAKE_EVAPORITES,
 	MAKE_JELLY_COFFEE,
 	MAKE_STEAM_ENGINE,
-
 	MAKE_PC_GLASS,
 	MAKE_PC_CASE,
 	MAKE_PC_FANS,
@@ -44,6 +44,8 @@ enum RecipeType {
 	MAKE_PC_GPU,
 	MAKE_PC_AIO_COOLER,
 	MAKE_PC,
+	MAKE_WHITE_PAINT,
+	MAKE_ELECTRONIC_ACTUATORS,
 }
 
 var _recipe_map: Dictionary[RecipeType, Recipe] = {}
@@ -151,6 +153,17 @@ func _ready() -> void:
 	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
 
 	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_ELECTRONIC_ACTUATORS] = recipe
+
+	recipe.display_name = "Assemble Assorted Actuators"
+	recipe.inputs[Stockpile.ItemType.ELECTRUM_WIRE] = 8
+	recipe.inputs[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 2
+	recipe.inputs[Stockpile.ItemType.RAW_TITANIUM] = 2
+	recipe.outputs[Stockpile.ItemType.ELECTRONIC_ACTUATORS] = 1
+	recipe.work = WORK_PACKAGES
+	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
+
+	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_FLUID_HARDWARE] = recipe
 
 	recipe.display_name = "Manufacture Fluid Hardware"
@@ -161,6 +174,15 @@ func _ready() -> void:
 	recipe.needs_capabilities.append(Capabilities.LATHE)
 	recipe.needs_capabilities.append(Capabilities.CNC_MILL)
 	recipe.needs_capabilities.append(Capabilities.OVERHEAD_CRANE)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_EVAPORITES] = recipe
+
+	recipe.display_name = "Evaporate Brine"
+	recipe.inputs[Stockpile.ItemType.WATER] = 3
+	recipe.outputs[Stockpile.ItemType.EVAPORITES] = 1
+	recipe.work = WORK_OPERATING
+	recipe.needs_capabilities.append(Capabilities.REFINERY)
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_POWER_CELLS] = recipe
@@ -204,15 +226,6 @@ func _ready() -> void:
 	recipe.needs_capabilities.append(Capabilities.REFINERY)
 
 	recipe = Recipe.new()
-	_recipe_map[RecipeType.MAKE_EVAPORITES] = recipe
-
-	recipe.display_name = "Evaporate Brine"
-	recipe.inputs[Stockpile.ItemType.WATER] = 3
-	recipe.outputs[Stockpile.ItemType.EVAPORITES] = 1
-	recipe.work = WORK_OPERATING
-	recipe.needs_capabilities.append(Capabilities.REFINERY)
-
-	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_INTEGRATED_CIRCUITS] = recipe
 
 	recipe.display_name = "Assemble Integrated Circuits"
@@ -228,16 +241,12 @@ func _ready() -> void:
 	_recipe_map[RecipeType.MAKE_ELECTRONIC_COMPONENTS] = recipe
 
 	recipe.display_name = "Craft Electronic Components"
-	recipe.inputs[Stockpile.ItemType.INTEGRATED_CIRCUITS] = 1
-	recipe.inputs[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 1
 	recipe.inputs[Stockpile.ItemType.ELECTRUM_WIRE] = 1
 	recipe.inputs[Stockpile.ItemType.EVAPORITES] = 1
 	recipe.inputs[Stockpile.ItemType.CUPRONICKEL_INGOTS] = 1
 	recipe.inputs[Stockpile.ItemType.PLASTIC] = 1
-	recipe.outputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 3
-	recipe.work = WORK_CRAFTING * 3.0
-	recipe.needs_capabilities.append(Capabilities.LATHE)
-	recipe.needs_capabilities.append(Capabilities.CNC_MILL)
+	recipe.outputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 2
+	recipe.work = WORK_CRAFTING * 2.0
 	recipe.needs_capabilities.append(Capabilities.SOLDERING_STATION)
 
 	recipe = Recipe.new()
@@ -290,6 +299,17 @@ func _ready() -> void:
 	recipe.work = 120.0
 	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
 	recipe.needs_capabilities.append(Capabilities.OVERHEAD_CRANE)
+
+	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_WHITE_PAINT] = recipe
+
+	recipe.display_name = "Blend White Paint"
+	recipe.inputs[Stockpile.ItemType.RAW_TITANIUM] = 1
+	recipe.inputs[Stockpile.ItemType.PETROCHEMICALS] = 1
+	recipe.inputs[Stockpile.ItemType.WATER] = 1
+	recipe.outputs[Stockpile.ItemType.WHITE_PAINT] = 3
+	recipe.work = 3.0
+	recipe.needs_capabilities.append(Capabilities.POWER_TOOLS)
 
 	##########################
 	### PC related recipes ###

@@ -36,6 +36,18 @@ func _define_research() -> void:
 	workbench.slot = 1
 	workbench.state = ResearchItem.State.COMPLETED
 
+	var power_tools := ResearchItem.new()
+	research.append(power_tools)
+
+	power_tools.display_name = "Power Tools"
+	power_tools.description = "A set of electric tools for more precise work and tougher materials."
+	power_tools.slot = 1
+	power_tools.prerequisites.append(workbench)
+	power_tools.cost[Stockpile.ItemType.BRASS_INGOTS] = 80
+	power_tools.cost[Stockpile.ItemType.ELECTRONIC_ACTUATORS] = 4
+	power_tools.on_complete = func() -> void:
+		Workshop.capabilities.append(Crafting.Capabilities.POWER_TOOLS)
+
 	var lathe := ResearchItem.new()
 	research.append(lathe)
 
@@ -44,7 +56,8 @@ func _define_research() -> void:
 	lathe.slot = 2
 	lathe.prerequisites.append(workbench)
 	lathe.cost[Stockpile.ItemType.BRASS_INGOTS] = 80
-	lathe.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 40
+	lathe.cost[Stockpile.ItemType.ELECTRONIC_ACTUATORS] = 4
+	lathe.cost[Stockpile.ItemType.RAW_TITANIUM] = 40
 	lathe.on_complete = func() -> void:
 		Workshop.capabilities.append(Crafting.Capabilities.LATHE)
 
@@ -55,9 +68,9 @@ func _define_research() -> void:
 	cnc_mill.description = "Computer controlled milling machine for precision metalwork."
 	cnc_mill.slot = 3
 	cnc_mill.prerequisites.append(workbench)
-	cnc_mill.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 60
-	cnc_mill.cost[Stockpile.ItemType.ELECTRUM_WIRE] = 40
-	cnc_mill.cost[Stockpile.ItemType.INTEGRATED_CIRCUITS] = 20
+	cnc_mill.cost[Stockpile.ItemType.BRASS_INGOTS] = 80
+	cnc_mill.cost[Stockpile.ItemType.ELECTRONIC_ACTUATORS] = 4
+	cnc_mill.cost[Stockpile.ItemType.RAW_TITANIUM] = 40
 	cnc_mill.on_complete = func() -> void:
 		Workshop.capabilities.append(Crafting.Capabilities.CNC_MILL)
 
@@ -69,6 +82,7 @@ func _define_research() -> void:
 	assembly_station.slot = 1
 	assembly_station.prerequisites.append(lathe)
 	assembly_station.prerequisites.append(cnc_mill)
+	assembly_station.prerequisites.append(power_tools)
 	assembly_station.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 100
 	assembly_station.cost[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 20
 	assembly_station.cost[Stockpile.ItemType.INTEGRATED_CIRCUITS] = 20
@@ -79,13 +93,13 @@ func _define_research() -> void:
 	research.append(overhead_crane)
 
 	overhead_crane.display_name = "Overhead Crane"
-	overhead_crane.description = "A large crane part of the roof structure, required to move heavy objects around the Workshop."
+	overhead_crane.description = "A large crane integrated into the roof structure, required to move heavy objects around."
 	overhead_crane.slot = 1
 	overhead_crane.prerequisites.append(assembly_station)
 	overhead_crane.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 100
-	overhead_crane.cost[Stockpile.ItemType.ELECTRUM_WIRE] = 60
+	overhead_crane.cost[Stockpile.ItemType.RAW_TITANIUM] = 100
 	overhead_crane.cost[Stockpile.ItemType.FLUID_HARDWARE] = 20
-	overhead_crane.cost[Stockpile.ItemType.POWER_CELLS] = 20
+	overhead_crane.cost[Stockpile.ItemType.ELECTRONIC_ACTUATORS] = 20
 	overhead_crane.on_complete = func() -> void:
 		Workshop.capabilities.append(Crafting.Capabilities.OVERHEAD_CRANE)
 
@@ -104,8 +118,9 @@ func _define_research() -> void:
 	refinery.description = "Distills petrochemicals and distills mineral water."
 	refinery.slot = 4
 	refinery.prerequisites.append(furnace)
+	refinery.cost[Stockpile.ItemType.BRICKS] = 400
+	refinery.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
 	refinery.cost[Stockpile.ItemType.FLUID_HARDWARE] = 10
-	refinery.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 40
 	refinery.on_complete = func() -> void:
 		Workshop.capabilities.append(Crafting.Capabilities.REFINERY)
 
@@ -116,9 +131,8 @@ func _define_research() -> void:
 	injection_molding.description = "For molding plastics into any shape your heart desires."
 	injection_molding.slot = 5
 	injection_molding.prerequisites.append(workbench)
-	injection_molding.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 60
-	injection_molding.cost[Stockpile.ItemType.ACRYLIC] = 40
-	injection_molding.cost[Stockpile.ItemType.FLUID_HARDWARE] = 10
+	injection_molding.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 40
+	injection_molding.cost[Stockpile.ItemType.FLUID_HARDWARE] = 2
 	injection_molding.on_complete = func() -> void:
 		Workshop.capabilities.append(Crafting.Capabilities.INJECTION_MOLDING)
 
@@ -129,7 +143,7 @@ func _define_research() -> void:
 	wire_mill.description = "Turns metals into spools of wire."
 	wire_mill.slot = 7
 	wire_mill.prerequisites.append(workbench)
-	wire_mill.cost[Stockpile.ItemType.RAW_ELECTRUM] = 80
+	wire_mill.cost[Stockpile.ItemType.RAW_TITANIUM] = 80
 	wire_mill.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 40
 	wire_mill.on_complete = func() -> void:
 		Workshop.capabilities.append(Crafting.Capabilities.WIRE_MILL)
@@ -141,8 +155,8 @@ func _define_research() -> void:
 	soldering_station.description = "Soldering iron and fume extractor. For bonding wires, components, and PCBs."
 	soldering_station.slot = 8
 	soldering_station.prerequisites.append(workbench)
-	soldering_station.cost[Stockpile.ItemType.ELECTRUM_WIRE] = 40
-	soldering_station.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 40
+	soldering_station.cost[Stockpile.ItemType.ELECTRUM_WIRE] = 400
+	soldering_station.cost[Stockpile.ItemType.POWER_CELLS] = 20
 	soldering_station.on_complete = func() -> void:
 		Workshop.capabilities.append(Crafting.Capabilities.SOLDERING_STATION)
 
@@ -154,9 +168,9 @@ func _define_research() -> void:
 	cleanroom.slot = 9
 	cleanroom.prerequisites.append(soldering_station)
 	cleanroom.prerequisites.append(wire_mill)
-	cleanroom.cost[Stockpile.ItemType.PLASTIC] = 60
+	cleanroom.cost[Stockpile.ItemType.BRICKS] = 400
+	cleanroom.cost[Stockpile.ItemType.PLASTIC] = 400
 	cleanroom.cost[Stockpile.ItemType.FLUID_HARDWARE] = 20
-	cleanroom.cost[Stockpile.ItemType.POWER_CELLS] = 10
 	cleanroom.on_complete = func() -> void:
 		Workshop.capabilities.append(Crafting.Capabilities.CLEANROOM)
 
@@ -167,9 +181,9 @@ func _define_research() -> void:
 	lithography.description = "Creates intricate patterns on semiconductor wafers using UV light."
 	lithography.slot = 9
 	lithography.prerequisites.append(cleanroom)
-	lithography.cost[Stockpile.ItemType.PLASTIC] = 60
-	lithography.cost[Stockpile.ItemType.FLUID_HARDWARE] = 20
-	lithography.cost[Stockpile.ItemType.POWER_CELLS] = 10
+	lithography.cost[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 200
+	lithography.cost[Stockpile.ItemType.SAND] = 200
+	lithography.cost[Stockpile.ItemType.RAW_TITANIUM] = 200
 	lithography.on_complete = func() -> void:
 		Workshop.capabilities.append(Crafting.Capabilities.LITHOGRAPHY)
 

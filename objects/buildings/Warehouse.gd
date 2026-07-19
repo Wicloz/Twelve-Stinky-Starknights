@@ -25,11 +25,21 @@ func _define_research() -> void:
 	powered_exoskeletons.description = "Starknights move a further 25% faster."
 	powered_exoskeletons.slot = 5
 	powered_exoskeletons.prerequisites.append(ergonomic_tools)
-	powered_exoskeletons.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 120
-	powered_exoskeletons.cost[Stockpile.ItemType.ELECTRUM_WIRE] = 120
+	powered_exoskeletons.cost[Stockpile.ItemType.ELECTRONIC_ACTUATORS] = 12
 	powered_exoskeletons.cost[Stockpile.ItemType.POWER_CELLS] = 12
 	powered_exoskeletons.on_complete = func() -> void:
 		Starknight.speed_scale = 1.50
+
+	var coffee_injection := ResearchItem.new()
+	research.append(coffee_injection)
+
+	coffee_injection.display_name = "Coffee Injection"
+	coffee_injection.description = "Starknights move 3x their base speed."
+	coffee_injection.slot = 5
+	coffee_injection.prerequisites.append(powered_exoskeletons)
+	coffee_injection.cost[Stockpile.ItemType.JELLY_COFFEE] = 12000
+	coffee_injection.on_complete = func() -> void:
+		Starknight.speed_scale = 3.00
 
 	Research.register_research(self, research)
 

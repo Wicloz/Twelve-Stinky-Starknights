@@ -204,6 +204,15 @@ func _ready() -> void:
 	recipe.needs_capabilities.append(Capabilities.REFINERY)
 
 	recipe = Recipe.new()
+	_recipe_map[RecipeType.MAKE_EVAPORITES] = recipe
+
+	recipe.display_name = "Evaporate Brine"
+	recipe.inputs[Stockpile.ItemType.WATER] = 3
+	recipe.outputs[Stockpile.ItemType.EVAPORITES] = 1
+	recipe.work = WORK_OPERATING
+	recipe.needs_capabilities.append(Capabilities.REFINERY)
+
+	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_INTEGRATED_CIRCUITS] = recipe
 
 	recipe.display_name = "Assemble Integrated Circuits"
@@ -242,6 +251,10 @@ func _ready() -> void:
 	recipe.work = WORK_PACKAGES
 	recipe.needs_capabilities.append(Capabilities.ASSEMBLY_STATION)
 
+	####################################
+	### indefinite challenge recipes ###
+	####################################
+
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_JELLY_STANDEES] = recipe
 
@@ -253,15 +266,6 @@ func _ready() -> void:
 	recipe.needs_capabilities.append(Capabilities.INJECTION_MOLDING)
 
 	recipe = Recipe.new()
-	_recipe_map[RecipeType.MAKE_EVAPORITES] = recipe
-
-	recipe.display_name = "Evaporate Brine"
-	recipe.inputs[Stockpile.ItemType.WATER] = 3
-	recipe.outputs[Stockpile.ItemType.EVAPORITES] = 1
-	recipe.work = WORK_OPERATING
-	recipe.needs_capabilities.append(Capabilities.REFINERY)
-
-	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_JELLY_COFFEE] = recipe
 
 	recipe.display_name = "Brew Jelly Coffee"
@@ -270,6 +274,10 @@ func _ready() -> void:
 	recipe.outputs[Stockpile.ItemType.JELLY_COFFEE] = 1
 	recipe.work = WORK_CRAFTING
 	recipe.needs_capabilities.append(Capabilities.WORKBENCH)
+
+	#################################
+	### limited challenge recipes ###
+	#################################
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_STEAM_ENGINE] = recipe

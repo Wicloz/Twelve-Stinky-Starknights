@@ -416,8 +416,6 @@ position = Vector2(1088, -816)
 q = 6
 r = -4
 terrain_texture = ExtResource("19_ytpkv")
-deposit = 13
-workable = true
 
 [node name="Tile=7,-4" parent="HexMap" unique_id=1091481706 instance=ExtResource("30_5ocsm")]
 position = Vector2(1360, -816)
@@ -811,10 +809,7 @@ workable = true
 [node name="Tile=5,0" parent="HexMap" unique_id=466503609 instance=ExtResource("30_5ocsm")]
 position = Vector2(1360, 0)
 q = 5
-terrain_texture = ExtResource("5_4h6ng")
-deposit = 13
-workable = true
-deposit_texture = ExtResource("19_ytpkv")
+terrain_texture = ExtResource("19_ytpkv")
 
 [node name="Tile=6,0" parent="HexMap" unique_id=813358410 instance=ExtResource("30_5ocsm")]
 position = Vector2(1632, 0)

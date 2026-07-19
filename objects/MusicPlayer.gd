@@ -103,7 +103,7 @@ func unlock_jelly_song(stream: AudioStream) -> void:
 	_add(JELLY_PLAYLIST, stream)
 	_select_playlist(JELLY_PLAYLIST)
 
-	_play_pause.button_pressed = true
+	_play_pause.set_pressed_no_signal(true)
 
 	var index := _playlists[JELLY_PLAYLIST].size() - 1
 	_play_index(index)
@@ -147,10 +147,9 @@ func _play_index(index: int) -> void:
 
 	_index = wrapi(index, 0, list.size())
 	_player.stream = list[_index]
-	_player.play()
 
-	if not _play_pause.button_pressed:
-		_player.stream_paused = true
+	if _play_pause.button_pressed:
+		_player.play()
 
 	_seek.max_value = _player.stream.get_length()
 	_seek.set_value_no_signal(0.0)
@@ -193,7 +192,7 @@ func _apply_volume() -> void:
 func _refresh_title() -> void:
 	var list := _current_list()
 	if list.is_empty():
-		_title.text = _current
+		_title.text = "-- empty --"
 		return
 	_title.text = _track_name(list[_index])
 

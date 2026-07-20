@@ -94,8 +94,7 @@ func _define_research() -> void:
 
 	overhead_crane.display_name = "Overhead Crane"
 	overhead_crane.description = "A large crane integrated into the roof structure, required to move heavy objects around."
-	overhead_crane.slot = 1
-	overhead_crane.prerequisites.append(assembly_station)
+	overhead_crane.slot = 6
 	overhead_crane.cost[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 100
 	overhead_crane.cost[Stockpile.ItemType.RAW_TITANIUM] = 100
 	overhead_crane.cost[Stockpile.ItemType.FLUID_HARDWARE] = 20

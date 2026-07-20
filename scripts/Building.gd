@@ -48,7 +48,7 @@ func can_demolish() -> bool:
 	return true
 
 
-func start_construction(cost: Dictionary[Stockpile.ItemType, int]) -> void:
+func start_construction(cost: Dictionary[Stockpile.ItemType, int], work: float) -> void:
 	_under_construction = true
 
 	_sprite.material = HOLO_BLUE
@@ -58,7 +58,7 @@ func start_construction(cost: Dictionary[Stockpile.ItemType, int]) -> void:
 
 	var job = Job.new()
 	job.priority = 12
-	job.duration = 10.0
+	job.duration = work
 	job.target = tile
 	job.on_complete = _construction_complete
 	job.on_cancel = _construction_aborted

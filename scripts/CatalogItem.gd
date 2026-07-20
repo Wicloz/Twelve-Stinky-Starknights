@@ -5,6 +5,7 @@ var scene: PackedScene
 var cost: Dictionary[Stockpile.ItemType, int] = {}
 var allowed_deposits: Array[Stockpile.ItemType] = []
 var always_unlocked: bool = false
+var work: float = 10.0
 
 var _scene_probed := false
 var _items_produced: Array[Stockpile.ItemType] = []
@@ -76,7 +77,7 @@ func try_place_on(tile: HexTile):
     building.tile = tile
 
     tile.add_child(building)
-    building.start_construction(cost)
+    building.start_construction(cost, work)
 
     return false
 

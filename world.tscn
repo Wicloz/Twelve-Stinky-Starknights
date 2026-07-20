@@ -45,6 +45,7 @@
 [ext_resource type="Texture2D" uid="uid://d0emibp67ho7x" path="res://assets/deposits/electrum.png" id="22_fnoqa"]
 [ext_resource type="Texture2D" uid="uid://cvij62lvx4qx6" path="res://assets/new_terrain/hexDesertRedMesaLarge00.png" id="22_xpnt2"]
 [ext_resource type="Script" uid="uid://c2fq3bfp80uw1" path="res://scripts/Challenges.gd" id="24_4h6ng"]
+[ext_resource type="Texture2D" uid="uid://c23ttlahd464e" path="res://assets/deposits/hoshiumium.png" id="24_olr1q"]
 [ext_resource type="Texture2D" uid="uid://bmuo20cw6l57t" path="res://assets/icons/building_cancel.svg" id="27_k83mh"]
 [ext_resource type="Texture2D" uid="uid://dwba8qnudiyb4" path="res://assets/icons/building_delete.svg" id="28_qktwf"]
 [ext_resource type="Texture2D" uid="uid://bfpoe3u077q62" path="res://assets/icons/close.svg" id="29_gggvi"]
@@ -803,6 +804,8 @@ position = Vector2(-272, 0)
 q = -1
 
 [node name="Tile=0,0" parent="HexMap" unique_id=633863298 instance=ExtResource("30_5ocsm")]
+deposit = 2
+deposit_texture = ExtResource("24_olr1q")
 
 [node name="Tile=1,0" parent="HexMap" unique_id=1400031577 instance=ExtResource("30_5ocsm")]
 position = Vector2(272, 0)

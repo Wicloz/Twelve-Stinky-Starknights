@@ -158,6 +158,7 @@ func _ready() -> void:
     _catalog.append(item)
 
     item.scene = preload("res://objects/buildings/StarfallSite.tscn")
+    item.work = 60.0
     item.allowed_deposits = [Stockpile.ItemType.HOSHIUMIUM]
 
     item = CatalogItem.new()

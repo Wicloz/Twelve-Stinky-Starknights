@@ -60,9 +60,11 @@ func show_for(building: Building) -> void:
 
 
 func hide_panel() -> void:
-	hide()
-	_building.constructed.disconnect(_on_building_constructed)
 	_close_popup()
+	hide()
+
+	if is_instance_valid(_building) and _building.constructed.is_connected(_on_building_constructed):
+		_building.constructed.disconnect(_on_building_constructed)
 
 
 func _on_building_constructed() -> void:

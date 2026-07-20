@@ -198,7 +198,14 @@ func _set_progress(ratio: float) -> void:
 ## JobManager handed it to a Starknight better placed to do it.
 func release() -> void:
 	_job = null
+
+	# if we are cut loose mid-step we are stranded between two tiles; finish walking
+	# into the one ahead so we come to rest on a real tile centre, rather than counting
+	# as standing on the tile behind us and being handed in-place work we cannot reach
+	if not _path.is_empty():
+		_wander_tile = _path[0]
 	_path.clear()
+
 	_state = State.IDLE
 	_progress_bar.hide()
 	_rest()

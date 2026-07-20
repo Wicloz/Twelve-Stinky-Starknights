@@ -68,7 +68,7 @@ func _define_research() -> void:
 	var meka_suit := ResearchItem.new()
 	research.append(meka_suit)
 
-	meka_suit.display_name = "Meka Suit Integration"
+	meka_suit.display_name = "MekaSuit Integration"
 	meka_suit.description = "Starknights move 4x their base speed."
 	meka_suit.slot = 5
 	meka_suit.prerequisites.append(coffee_injection)

@@ -3,4 +3,4 @@ extends FactoryBuilding
 
 
 func get_display_name() -> String:
-	return "Electronic Actuator Factory"
+	return "Actuator Factory"

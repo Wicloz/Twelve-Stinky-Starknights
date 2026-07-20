@@ -36,8 +36,12 @@ func _define_research() -> void:
     automation.description = "Fully automate this factory to run without a Starknight operator."
     automation.slot = 9
     automation.cost[Stockpile.ItemType.INDUSTRIAL_CONTROLLERS] = 10
+    # Capture the script in a local so the lambda does not reference `self`. A
+    # lambda that touches self is bound to this building instance and goes invalid
+    # if it is ever demolished, silently dropping the effect on completion.
+    var script: Script = get_script()
     automation.on_complete = func() -> void:
-        automated[get_script()] = true
+        automated[script] = true
 
     items.append(automation)
 

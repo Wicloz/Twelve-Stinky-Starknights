@@ -104,6 +104,7 @@ func unlock_jelly_song(stream: AudioStream) -> void:
 	_select_playlist(JELLY_PLAYLIST)
 
 	_play_pause.set_pressed_no_signal(true)
+	_play_pause.texture_normal = pause_icon
 
 	var index := _playlists[JELLY_PLAYLIST].size() - 1
 	_play_index(index)

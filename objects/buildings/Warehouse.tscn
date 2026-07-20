@@ -5,6 +5,7 @@
 
 [node name="Warehouse" type="Node2D" unique_id=388339356]
 script = ExtResource("1_yvv1s")
+SCALE_FACTOR = 0.8
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=937227620]
 texture = ExtResource("2_yvv1s")

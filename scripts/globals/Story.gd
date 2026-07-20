@@ -181,7 +181,7 @@ func _define_cutscenes() -> void:
         return Stockpile.get_cumulative(Stockpile.ItemType.PLASTIC) >= 10000
     pc_pc_image_1.still = preload("res://assets/cutscenes/jelly_pc_1.jpg")
     pc_pc_image_1.text = say(JELLY, "Jelly", "[i]sobs[/i]")
-    pc_pc_image_1.min_duration = 10.0
+    pc_pc_image_1.min_duration = 5.0
 
     var pc_pc_image_2 := Cutscene.new()
     _locked_cutscenes.append(pc_pc_image_2)
@@ -189,7 +189,7 @@ func _define_cutscenes() -> void:
     pc_pc_image_2.after = [pc_pc_image_1]
     pc_pc_image_2.still = preload("res://assets/cutscenes/jelly_pc_2.jpg")
     pc_pc_image_2.text = say(JELLY, "Jelly", "[i]sobs[/i]")
-    pc_pc_image_2.min_duration = 10.0
+    pc_pc_image_2.min_duration = 5.0
 
     var pc_pc_intro := Cutscene.new()
     _locked_cutscenes.append(pc_pc_intro)

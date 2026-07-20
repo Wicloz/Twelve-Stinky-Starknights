@@ -178,7 +178,7 @@ func _define_cutscenes() -> void:
 
     pc_pc_image_1.after = [jelly_debut]
     pc_pc_image_1.condition = func() -> bool:
-        return Stockpile.get_cumulative(Stockpile.ItemType.PLASTIC) >= 10000
+        return Stockpile.is_seen(Stockpile.ItemType.INDUSTRIAL_CONTROLLERS)
     pc_pc_image_1.still = preload("res://assets/cutscenes/jelly_pc_1.jpg")
     pc_pc_image_1.text = say(JELLY, "Jelly", "[i]sobs[/i]")
     pc_pc_image_1.min_duration = 5.0

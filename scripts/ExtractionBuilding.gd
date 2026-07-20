@@ -36,7 +36,8 @@ func _define_research() -> void:
     automation.display_name = "Automation"
     automation.description = "Fully automate this operation to run without a Starknight."
     automation.slot = 9
-    automation.cost[Stockpile.ItemType.INDUSTRIAL_CONTROLLERS] = 10
+    automation.cost[Stockpile.ItemType.ELECTRONIC_ACTUATORS] = 10
+    automation.cost[Stockpile.ItemType.POWER_CELLS] = 10
     automation.on_complete = func() -> void:
         automated[get_script()] = true
 

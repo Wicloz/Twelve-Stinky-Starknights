@@ -71,8 +71,7 @@ func _ready() -> void:
     _catalog.append(item)
 
     item.scene = preload("res://objects/buildings/LoggingCamp.tscn")
-    item.cost[Stockpile.ItemType.ELECTRONIC_ACTUATORS] = 8
-    item.cost[Stockpile.ItemType.POWER_CELLS] = 8
+    item.cost[Stockpile.ItemType.PETROCHEMICALS] = 800
     item.cost[Stockpile.ItemType.RAW_TITANIUM] = 100
     item.cost[Stockpile.ItemType.BRASS_INGOTS] = 100
     item.allowed_deposits = [Stockpile.ItemType.LUMBER]

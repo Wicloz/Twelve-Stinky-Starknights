@@ -379,6 +379,7 @@ func _ready() -> void:
 	recipe.outputs[Stockpile.ItemType.PC_RAM] = 1
 	recipe.work = WORK_CRAFTING
 	recipe.needs_capabilities.append(Capabilities.CLEANROOM)
+	recipe.needs_capabilities.append(Capabilities.LITHOGRAPHY)
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_PC_CPU] = recipe
@@ -388,6 +389,7 @@ func _ready() -> void:
 	recipe.outputs[Stockpile.ItemType.PC_CPU] = 1
 	recipe.work = WORK_CRAFTING
 	recipe.needs_capabilities.append(Capabilities.CLEANROOM)
+	recipe.needs_capabilities.append(Capabilities.LITHOGRAPHY)
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_PC_GPU] = recipe

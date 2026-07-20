@@ -167,6 +167,53 @@ func _define_cutscenes() -> void:
     white_paint_done.text = say(JELLY, "Jelly", "...")
     white_paint_done.min_duration = 1800.0 / 10.0
 
+    #############
+    ### PC PC ###
+    #############
+
+    var pc_pc_image_1 := Cutscene.new()
+    _locked_cutscenes.append(pc_pc_image_1)
+
+    pc_pc_image_1.after = [jelly_debut]
+    pc_pc_image_1.condition = func() -> bool:
+        return Stockpile.get_cumulative(Stockpile.ItemType.PLASTIC) >= 10000
+    pc_pc_image_1.still = preload("res://assets/cutscenes/jelly_pc_1.jpg")
+    pc_pc_image_1.text = say(JELLY, "Jelly", "[i]sobs[/i]")
+    pc_pc_image_1.min_duration = 10.0
+
+    var pc_pc_image_2 := Cutscene.new()
+    _locked_cutscenes.append(pc_pc_image_2)
+
+    pc_pc_image_2.after = [pc_pc_image_1]
+    pc_pc_image_2.still = preload("res://assets/cutscenes/jelly_pc_2.jpg")
+    pc_pc_image_2.text = say(JELLY, "Jelly", "[i]sobs[/i]")
+    pc_pc_image_2.min_duration = 10.0
+
+    var pc_pc_intro := Cutscene.new()
+    _locked_cutscenes.append(pc_pc_intro)
+
+    pc_pc_intro.after = [pc_pc_image_2]
+    pc_pc_intro.video = preload("res://assets/cutscenes/jelly_big_brother.ogv")
+    pc_pc_intro.text = say(JELLY, "Jelly", "Waaaaah waaaaah I tried cleaning my PC and it freaking exploded! I'm going to ask Sakana to buy me a new PC man.")
+
+    var pc_pc_sakana := Cutscene.new()
+    _locked_cutscenes.append(pc_pc_sakana)
+
+    pc_pc_sakana.after = [pc_pc_intro]
+    pc_pc_sakana.still = preload("res://assets/cutscenes/kevin.png")
+    pc_pc_sakana.text = say(SAKANA, "Sakana", "Yeah I'm not buying her a new PC man, thats what you guys are for. It can't be that hard man its just Lego for adults.")
+    pc_pc_sakana.on_complete = func() -> void:
+        Stockpile.start_challenge(Stockpile.ItemType.PC_RAM)
+        Stockpile.start_challenge(Stockpile.ItemType.PC_CPU)
+        Stockpile.start_challenge(Stockpile.ItemType.PC_GPU)
+        Stockpile.start_challenge(Stockpile.ItemType.PC_MOTHERBOARD)
+        Stockpile.start_challenge(Stockpile.ItemType.PC_POWER_SUPPLY)
+        Stockpile.start_challenge(Stockpile.ItemType.PC_GLASS)
+        Stockpile.start_challenge(Stockpile.ItemType.PC_CASE)
+        Stockpile.start_challenge(Stockpile.ItemType.PC_FANS)
+        Stockpile.start_challenge(Stockpile.ItemType.PC_AIO_COOLER)
+        Stockpile.start_challenge(Stockpile.ItemType.PC_PC)
+
 
 const SAKANA := "#8682c6"
 const JELLY := "#23deff"

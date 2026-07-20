@@ -184,14 +184,17 @@ def _split_call_args(text, start):
 
 
 def _parse_building_upgrades(building_dir):
-    """Per-building throughput upgrades declared in each building's
-    _upgrade_research() via FactoryBuilding's _output_upgrade()/_speed_upgrade()
+    """Per-building upgrades declared in each building's _upgrade_research() via
+    FactoryBuilding's _output_upgrade()/_speed_upgrade()/_efficiency_upgrade()
     helpers. Returns {building_cls: [dict(var, kind, display, scale, cost,
-    prereqs=[var,...])]}.  kind 'output' -> production_scale (bigger batch);
-    'speed' -> work_scale (faster runs). Both multiply a building's net
-    throughput per instance in this continuous model (see _tmul).
+    prereqs=[var,...])]}.  kind 'output' -> production_scale (bigger batch, x rate);
+    'speed' -> work_scale (faster runs, x rate); 'efficiency' -> efficiency_scale
+    (less input per batch). Effects multiply across tiers/chains (see _umul).
 
-    Helper signature: _<k>_upgrade(slot, name, description, scale, cost, prereq?)."""
+    Helper signature: _<k>_upgrade(slot, name, description, factor, cost, prereq?).
+    Effects MULTIPLY (successive tiers and parallel chains stack)."""
+    kinds = {"_output_upgrade": "output", "_speed_upgrade": "speed",
+             "_efficiency_upgrade": "efficiency"}
     upgrades = {}
     for path in sorted(Path(building_dir).glob("*.gd")):
         text = pg.read(path)
@@ -199,11 +202,12 @@ def _parse_building_upgrades(building_dir):
         cls = m.group(1) if m else path.stem
         items = []
         for c in re.finditer(
-                r"var\s+(\w+)\s*:=\s*(_output_upgrade|_speed_upgrade)\s*\(", text):
+                r"var\s+(\w+)\s*:=\s*(_output_upgrade|_speed_upgrade|_efficiency_upgrade)\s*\(",
+                text):
             args = _split_call_args(text, c.end())
             if len(args) < 5:
                 continue
-            kind = "output" if c.group(2) == "_output_upgrade" else "speed"
+            kind = kinds[c.group(2)]
             scale = float(eval(args[3].split("#")[0].strip(), {"__builtins__": {}}, {}))
             cost = {cm.group(1): int(cm.group(2)) for cm in re.finditer(
                 r"Stockpile\.ItemType\.(\w+)\s*:\s*(\d+)", args[4])}
@@ -307,20 +311,21 @@ for _bt, _lst in BUILDING_UPGRADES.items():
             prereq_ids=[(_bt, _p) for _p in _u["prereqs"]])
 
 
-def _tmul(ups):
-    """Per-building-type throughput multiplier from a set of researched upgrade
-    ids. An 'output' upgrade (production_scale) and a 'speed' upgrade (work_scale)
-    each multiply a building's net output rate per instance, at no extra worker or
-    building cost, so a building's total multiplier is production_scale x work_scale.
-    Tiers set an ABSOLUTE scale and chain by prerequisite, so the effective value
-    of each kind is the max scale among that building's completed upgrades."""
+def _umul(ups):
+    """Per-building-type upgrade multipliers from a set of researched upgrade ids,
+    as {bt: (production, work, efficiency)}. Each upgrade MULTIPLIES its lever, so
+    a lever's value is the product of that building's completed upgrades of that
+    kind. production (bigger batch) and work (faster) both scale the building's net
+    output rate per instance at no extra worker/building cost; efficiency divides
+    only the INPUT a batch consumes (relieving upstream), so it is applied to the
+    input side of the net vector, not to output (see _activities)."""
     by_bt = {}
     for uid in ups:
         u = UPGRADES[uid]
-        pair = by_bt.setdefault(u["bt"], [1.0, 1.0])   # [output, speed]
-        idx = 0 if u["kind"] == "output" else 1
-        pair[idx] = max(pair[idx], u["scale"])
-    return {bt: pair[0] * pair[1] for bt, pair in by_bt.items()}
+        m = by_bt.setdefault(u["bt"], [1.0, 1.0, 1.0])   # [production, work, efficiency]
+        idx = {"output": 0, "speed": 1, "efficiency": 2}[u["kind"]]
+        m[idx] *= u["scale"]
+    return {bt: (m[0], m[1], m[2]) for bt, m in by_bt.items()}
 
 
 def research_chain(display):
@@ -364,7 +369,7 @@ RESEARCH_COST_MULT = 1.0
 #    A recipe can run in the Workshop iff its capabilities are researched, or in
 #    its factory building (which embodies the capability) once built.
 # ===========================================================================
-def _activities(caps, warehouse, tmul):
+def _activities(caps, warehouse, umul):
     acts = []
     for r in RAWS:
         acts.append((f"manual:{r}", HARVEST_DURATION / HARVEST_AMOUNT, {r: 1.0}, "worker_only"))
@@ -381,9 +386,14 @@ def _activities(caps, warehouse, tmul):
             acts.append((f"workshop:{key}", work, net, "workshop"))
         bt = RECIPE_BUILDING.get(key)
         if bt is not None:
-            m = tmul.get(bt, 1.0)               # per-building throughput upgrades
-            fnet = net if m == 1.0 else {g: v * m for g, v in net.items()}
-            acts.append((f"factory:{key}", work / FACTORY_SPEEDUP, fnet, ("building", bt)))
+            prod, wmul, eff = umul.get(bt, (1.0, 1.0, 1.0))   # per-building upgrades
+            if prod == 1.0 and wmul == 1.0 and eff == 1.0:
+                fnet = net
+            else:                               # output x prod; input x prod / eff
+                fnet = {g: out.get(g, 0) * prod - inp.get(g, 0) * prod / eff
+                        for g in set(inp) | set(out)}
+            acts.append((f"factory:{key}", work / FACTORY_SPEEDUP / wmul, fnet,
+                         ("building", bt)))
     return acts
 
 
@@ -427,10 +437,10 @@ def _build_template(acts, auto):
 
 
 _template_cache = {}
-def _template(caps, auto, warehouse, tmul):
-    key = (frozenset(caps), frozenset(auto), warehouse, tuple(sorted(tmul.items())))
+def _template(caps, auto, warehouse, umul):
+    key = (frozenset(caps), frozenset(auto), warehouse, tuple(sorted(umul.items())))
     if key not in _template_cache:
-        _template_cache[key] = _build_template(_activities(caps, warehouse, tmul), auto)
+        _template_cache[key] = _build_template(_activities(caps, warehouse, umul), auto)
     return _template_cache[key]
 
 
@@ -438,7 +448,7 @@ def _solve(target, buildings, caps, auto, ups):
     """Solve the LP; return (linprog result, acts, labels, is_cap, cap_b, b)."""
     warehouse = buildings.get("Warehouse", 0) > 0
     acts, c, A0, labels, is_cap, cap_b, brow, supply0 = _template(
-        caps, auto, warehouse, _tmul(ups))
+        caps, auto, warehouse, _umul(ups))
     A = A0.copy()
     b = np.zeros(A.shape[0])
     b[0] = WORKERS; b[1] = WORKSHOPS

@@ -18,7 +18,7 @@ var _tile_centers: PackedVector2Array = []
 func _ready() -> void:
 	_cache_map()
 
-	_set_zoom(min_zoom)
+	_set_zoom(0.2)
 	position.x = get_viewport_rect().size.x * ui_width_ratio * 0.5 / zoom.x
 
 

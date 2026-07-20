@@ -340,10 +340,11 @@ func _ready() -> void:
 	recipe.display_name = "Mold PC Fans"
 	recipe.inputs[Stockpile.ItemType.PLASTIC] = 5
 	recipe.inputs[Stockpile.ItemType.ELECTRUM_WIRE] = 5
-	recipe.inputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 1
+	recipe.inputs[Stockpile.ItemType.ELECTRONIC_ACTUATORS] = 1
 	recipe.outputs[Stockpile.ItemType.PC_FANS] = 1
 	recipe.work = WORK_CRAFTING
 	recipe.needs_capabilities.append(Capabilities.INJECTION_MOLDING)
+	recipe.needs_capabilities.append(Capabilities.SOLDERING_STATION)
 
 	recipe = Recipe.new()
 	_recipe_map[RecipeType.MAKE_PC_POWER_SUPPLY] = recipe
@@ -362,7 +363,7 @@ func _ready() -> void:
 
 	recipe.display_name = "Assemble PC Motherboard"
 	recipe.inputs[Stockpile.ItemType.INTEGRATED_CIRCUITS] = 20
-	recipe.inputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 5
+	recipe.inputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 20
 	recipe.inputs[Stockpile.ItemType.ELECTRUM_WIRE] = 20
 	recipe.inputs[Stockpile.ItemType.PLASTIC] = 5
 	recipe.outputs[Stockpile.ItemType.PC_MOTHERBOARD] = 1
@@ -394,7 +395,7 @@ func _ready() -> void:
 	recipe.display_name = "Fabricate Phase™ GPU"
 	recipe.inputs[Stockpile.ItemType.SEMICONDUCTORS] = 20
 	recipe.inputs[Stockpile.ItemType.INTEGRATED_CIRCUITS] = 20
-	recipe.inputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 2
+	recipe.inputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 10
 	recipe.inputs[Stockpile.ItemType.PC_FANS] = 3
 	recipe.outputs[Stockpile.ItemType.PC_GPU] = 1
 	recipe.work = WORK_CRAFTING
@@ -406,8 +407,7 @@ func _ready() -> void:
 
 	recipe.display_name = "Assemble AIO Cooler"
 	recipe.inputs[Stockpile.ItemType.FLUID_HARDWARE] = 1
-	recipe.inputs[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 3
-	recipe.inputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 3
+	recipe.inputs[Stockpile.ItemType.ELECTRONIC_ACTUATORS] = 1
 	recipe.inputs[Stockpile.ItemType.WATER] = 100
 	recipe.inputs[Stockpile.ItemType.PC_FANS] = 3
 	recipe.outputs[Stockpile.ItemType.PC_AIO_COOLER] = 1

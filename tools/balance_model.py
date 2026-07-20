@@ -194,7 +194,7 @@ def _parse_building_upgrades(building_dir):
     Helper signature: _<k>_upgrade(slot, name, description, factor, cost, prereq?).
     Effects MULTIPLY (successive tiers and parallel chains stack)."""
     kinds = {"_output_upgrade": "output", "_speed_upgrade": "speed",
-             "_efficiency_upgrade": "efficiency"}
+             "_efficiency_upgrade": "efficiency", "_yield_upgrade": "yield"}
     upgrades = {}
     for path in sorted(Path(building_dir).glob("*.gd")):
         text = pg.read(path)
@@ -202,8 +202,7 @@ def _parse_building_upgrades(building_dir):
         cls = m.group(1) if m else path.stem
         items = []
         for c in re.finditer(
-                r"var\s+(\w+)\s*:=\s*(_output_upgrade|_speed_upgrade|_efficiency_upgrade)\s*\(",
-                text):
+                r"var\s+(\w+)\s*:=\s*(" + "|".join(kinds) + r")\s*\(", text):
             args = _split_call_args(text, c.end())
             if len(args) < 5:
                 continue
@@ -211,9 +210,8 @@ def _parse_building_upgrades(building_dir):
             scale = float(eval(args[3].split("#")[0].strip(), {"__builtins__": {}}, {}))
             cost = {cm.group(1): int(cm.group(2)) for cm in re.finditer(
                 r"Stockpile\.ItemType\.(\w+)\s*:\s*(\d+)", args[4])}
-            prereqs = []
-            if len(args) >= 6 and re.fullmatch(r"\w+", args[5].strip()):
-                prereqs.append(args[5].strip())
+            # prereq arg (if any) is a var name or an array literal of var names
+            prereqs = re.findall(r"\w+", args[5]) if len(args) >= 6 else []
             display = args[1].strip().strip('"')
             items.append(dict(var=c.group(1), kind=kind, display=display,
                               scale=scale, cost=cost, prereqs=prereqs))
@@ -322,8 +320,9 @@ def _umul(ups):
     by_bt = {}
     for uid in ups:
         u = UPGRADES[uid]
-        m = by_bt.setdefault(u["bt"], [1.0, 1.0, 1.0])   # [production, work, efficiency]
-        idx = {"output": 0, "speed": 1, "efficiency": 2}[u["kind"]]
+        m = by_bt.setdefault(u["bt"], [1.0, 1.0, 1.0])   # [production/yield, work, efficiency]
+        # extractor 'yield' scales harvest amount, i.e. output -> same slot as 'output'
+        idx = {"output": 0, "yield": 0, "speed": 1, "efficiency": 2}[u["kind"]]
         m[idx] *= u["scale"]
     return {bt: (m[0], m[1], m[2]) for bt, m in by_bt.items()}
 
@@ -375,8 +374,9 @@ def _activities(caps, warehouse, umul):
         acts.append((f"manual:{r}", HARVEST_DURATION / HARVEST_AMOUNT, {r: 1.0}, "worker_only"))
         bt = RAW_SOURCE.get(r)
         if bt is not None:
-            acts.append((f"extract:{r}", (HARVEST_DURATION / EXTRACTION_SPEEDUP),
-                         {r: float(HARVEST_AMOUNT)}, ("building", bt)))
+            yld, wmul, _e = umul.get(bt, (1.0, 1.0, 1.0))   # yield x amount; speed / dur
+            acts.append((f"extract:{r}", (HARVEST_DURATION / EXTRACTION_SPEEDUP) / wmul,
+                         {r: float(HARVEST_AMOUNT) * yld}, ("building", bt)))
     for key, (inp, out, work, rcaps) in RECIPES.items():
         # challenge goods (merch / PC parts) can't be made until the Warehouse exists
         if not warehouse and any(o in CHALLENGE_ITEMS for o in out):

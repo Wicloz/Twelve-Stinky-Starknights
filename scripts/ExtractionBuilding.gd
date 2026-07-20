@@ -32,6 +32,8 @@ func _define_research() -> void:
     if not Research.can_register(self):
         return
 
+    var items: Array[ResearchItem] = _upgrade_research()
+
     var automation := ResearchItem.new()
     automation.display_name = "Automation"
     automation.description = "Fully automate this operation to run without a Starknight."
@@ -41,7 +43,51 @@ func _define_research() -> void:
     automation.on_complete = func() -> void:
         automated[get_script()] = true
 
-    Research.register_research(self, [automation])
+    items.append(automation)
+
+    Research.register_research(self, items)
+
+
+# Overridden by extraction sites that offer upgrades (slots 1-8). Only two levers
+# here: yield_scale (amount per harvest) and work_scale (speed). Both MULTIPLY, so
+# tiers and chains stack. yield_scale is an int, so yield factors must be whole.
+func _upgrade_research() -> Array[ResearchItem]:
+    return []
+
+
+# yield_scale (int): x`factor` resource per harvest.
+func _yield_upgrade(slot: int, name: String, description: String, factor: int, cost: Dictionary, prereq = null) -> ResearchItem:
+    var item := _new_upgrade(slot, name, description, cost, prereq)
+    var script: Script = get_script()
+    item.on_complete = func() -> void:
+        yield_scale[script] = int(yield_scale.get(script, 1) * factor)
+    return item
+
+
+# work_scale (float): divides the harvest duration by `factor`.
+func _speed_upgrade(slot: int, name: String, description: String, factor: float, cost: Dictionary, prereq = null) -> ResearchItem:
+    var item := _new_upgrade(slot, name, description, cost, prereq)
+    var script: Script = get_script()
+    item.on_complete = func() -> void:
+        work_scale[script] = work_scale.get(script, 1.0) * factor
+    return item
+
+
+# `prereq` may be null, a single ResearchItem, or an Array of them (for chains
+# that converge -- an upgrade that needs the tops of two other chains).
+func _new_upgrade(slot: int, name: String, description: String, cost: Dictionary, prereq) -> ResearchItem:
+    var item := ResearchItem.new()
+    item.slot = slot
+    item.display_name = name
+    item.description = description
+    for resource in cost:
+        item.cost[resource] = cost[resource]
+    if prereq is Array:
+        for p in prereq:
+            item.prerequisites.append(p)
+    elif prereq != null:
+        item.prerequisites.append(prereq)
+    return item
 
 
 func _process(_delta: float) -> void:

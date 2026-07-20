@@ -1,0 +1,26 @@
+[gd_scene load_steps=2 format=3 uid="uid://cwr8q3mxn5k2d"]
+
+[ext_resource type="Script" path="res://objects/ui/RecipeDescription.gd" id="1_rdesc"]
+
+[node name="RecipeDescription" type="VBoxContainer"]
+script = ExtResource("1_rdesc")
+
+[node name="RecipeName" type="Label" parent="."]
+layout_mode = 2
+
+[node name="RecipeIO" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Inputs" type="Label" parent="RecipeIO"]
+layout_mode = 2
+
+[node name="Arrow" type="Label" parent="RecipeIO"]
+layout_mode = 2
+text = "=>"
+vertical_alignment = 1
+
+[node name="Outputs" type="Label" parent="RecipeIO"]
+layout_mode = 2
+
+[node name="RecipeWork" type="Label" parent="."]
+layout_mode = 2

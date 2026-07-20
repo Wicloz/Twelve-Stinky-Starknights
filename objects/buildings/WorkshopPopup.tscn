@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cowikp7nojeed" path="res://objects/buildings/WorkshopPopup.gd" id="1_7p4gc"]
 [ext_resource type="Texture2D" uid="uid://bfpoe3u077q62" path="res://assets/icons/close.svg" id="2_sge2c"]
+[ext_resource type="PackedScene" uid="uid://cwr8q3mxn5k2d" path="res://objects/ui/RecipeDescription.tscn" id="3_rdesc"]
 
 [node name="WorkshopPopup" type="Control" unique_id=1695030635 node_paths=PackedStringArray("close_button")]
 layout_mode = 3
@@ -44,27 +45,7 @@ layout_mode = 2
 layout_mode = 2
 auto_width = true
 
-[node name="Details" type="VBoxContainer" parent="PanelContainer/VBoxContainer/OrderSelection" unique_id=987804275]
-layout_mode = 2
-
-[node name="RecipeName" type="Label" parent="PanelContainer/VBoxContainer/OrderSelection/Details" unique_id=1576396022]
-layout_mode = 2
-
-[node name="RecipeIO" type="HBoxContainer" parent="PanelContainer/VBoxContainer/OrderSelection/Details" unique_id=332784122]
-layout_mode = 2
-
-[node name="Inputs" type="Label" parent="PanelContainer/VBoxContainer/OrderSelection/Details/RecipeIO" unique_id=332784123]
-layout_mode = 2
-
-[node name="Arrow" type="Label" parent="PanelContainer/VBoxContainer/OrderSelection/Details/RecipeIO" unique_id=332784124]
-layout_mode = 2
-text = "=>"
-vertical_alignment = 1
-
-[node name="Outputs" type="Label" parent="PanelContainer/VBoxContainer/OrderSelection/Details/RecipeIO" unique_id=332784125]
-layout_mode = 2
-
-[node name="RecipeWork" type="Label" parent="PanelContainer/VBoxContainer/OrderSelection/Details" unique_id=603595288]
+[node name="Details" parent="PanelContainer/VBoxContainer/OrderSelection" unique_id=987804275 instance=ExtResource("3_rdesc")]
 layout_mode = 2
 
 [node name="OrderConfig" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=439511777]

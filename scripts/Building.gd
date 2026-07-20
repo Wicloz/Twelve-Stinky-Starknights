@@ -36,6 +36,10 @@ func get_display_name() -> String:
 	return "???"
 
 
+func get_recipe() -> Recipe:
+	return null
+
+
 func has_popup() -> bool:
 	return false
 

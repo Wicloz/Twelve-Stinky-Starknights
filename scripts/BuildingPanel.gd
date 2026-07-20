@@ -15,6 +15,8 @@ signal self_destruct
 @onready var _research: GridContainer = $VBox/HBox/Research
 var _research_buttons: Array[Button] = []
 
+@onready var _recipe_description: RecipeDescription = $VBox/HBox/RecipeDescription
+
 var _building: Building
 var _popup: BuildingPopup
 var _research_items: Array[ResearchItem] = []
@@ -43,6 +45,10 @@ func show_for(building: Building) -> void:
 
 	_title.text = building.get_display_name()
 	_popup_button.visible = building.has_popup()
+
+	var recipe := building.get_recipe()
+	_recipe_description.visible = recipe != null
+	_recipe_description.show_recipe(recipe)
 
 	building.constructed.connect(_on_building_constructed)
 	_set_destruct_icon()

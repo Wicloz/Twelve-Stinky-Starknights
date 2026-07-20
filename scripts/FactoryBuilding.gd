@@ -21,6 +21,10 @@ func _ready() -> void:
     _define_research()
 
 
+func get_recipe() -> Recipe:
+    return _recipe
+
+
 func _define_research() -> void:
     if not Research.can_register(self):
         return

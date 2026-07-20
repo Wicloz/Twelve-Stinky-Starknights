@@ -15,10 +15,7 @@ var _selected_count: int
 @onready var _order_repeat := $PanelContainer/VBoxContainer/OrderConfig/RepeatMode
 @onready var _order_count := $PanelContainer/VBoxContainer/OrderConfig/Count
 
-@onready var _recipe_name := $PanelContainer/VBoxContainer/OrderSelection/Details/RecipeName
-@onready var _recipe_inputs := $PanelContainer/VBoxContainer/OrderSelection/Details/RecipeIO/Inputs
-@onready var _recipe_outputs := $PanelContainer/VBoxContainer/OrderSelection/Details/RecipeIO/Outputs
-@onready var _recipe_work := $PanelContainer/VBoxContainer/OrderSelection/Details/RecipeWork
+@onready var _details: RecipeDescription = $PanelContainer/VBoxContainer/OrderSelection/Details
 
 @onready var _order_confirm := $PanelContainer/VBoxContainer/OrderConfig/Confirm
 @onready var _clear_button := $PanelContainer/VBoxContainer/ClearButton
@@ -52,7 +49,7 @@ func _ready() -> void:
 	Research.changed.connect(_populate_recipes)
 	Stockpile.challenge_updated.connect(_populate_recipes)
 
-	_update_details_min_size()
+	_details.pin_min_size(Crafting.all_recipes())
 	await get_tree().process_frame
 
 	var usable_screen_space := get_viewport_rect().size
@@ -103,24 +100,7 @@ func _on_confirm_pressed() -> void:
 
 
 func _refresh_details() -> void:
-	if _selected_recipe == null:
-		_recipe_name.text = ""
-		_recipe_inputs.text = ""
-		_recipe_outputs.text = ""
-		_recipe_work.text = ""
-		return
-
-	_recipe_name.text = _selected_recipe.display_name
-	_recipe_inputs.text = _fmt_io(_selected_recipe.inputs)
-	_recipe_outputs.text = _fmt_io(_selected_recipe.outputs)
-	_recipe_work.text = "%ss" % _selected_recipe.work
-
-
-func _fmt_io(items: Dictionary) -> String:
-	var lines: Array[String] = []
-	for item in items:
-		lines.append("%d %s" % [items[item], Stockpile.get_display_name(item)])
-	return "\n".join(lines)
+	_details.show_recipe(_selected_recipe)
 
 
 func _populate_recipes() -> void:
@@ -139,37 +119,3 @@ func _populate_recipes() -> void:
 		_selected_recipe = null
 		_recipe_list.deselect_all()
 		_refresh_details()
-
-
-func _update_details_min_size() -> void:
-	var name_font: Font = _recipe_name.get_theme_font("font")
-	var name_size: int = _recipe_name.get_theme_font_size("font_size")
-	var io_font: Font = _recipe_inputs.get_theme_font("font")
-	var io_size: int = _recipe_inputs.get_theme_font_size("font_size")
-	var work_font: Font = _recipe_work.get_theme_font("font")
-	var work_size: int = _recipe_work.get_theme_font_size("font_size")
-
-	# Pin each variable label to the largest content any recipe could show, so
-	# selecting a different recipe never resizes the popup. Sizing the two IO
-	# columns independently lets the HBox lay them out without extra math.
-	var name_width: float = 0
-	var work_width: float = 0
-	var inputs_width: float = 0
-	var outputs_width: float = 0
-	var max_io_lines: int = 0
-	for recipe in Crafting.all_recipes():
-		name_width = max(name_width, name_font.get_string_size(recipe.display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, name_size).x)
-		work_width = max(work_width, work_font.get_string_size("%ss" % recipe.work, HORIZONTAL_ALIGNMENT_LEFT, -1, work_size).x)
-		for item in recipe.inputs:
-			var line := "%d %s" % [recipe.inputs[item], Stockpile.get_display_name(item)]
-			inputs_width = max(inputs_width, io_font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, io_size).x)
-		for item in recipe.outputs:
-			var line := "%d %s" % [recipe.outputs[item], Stockpile.get_display_name(item)]
-			outputs_width = max(outputs_width, io_font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, io_size).x)
-		max_io_lines = max(max_io_lines, recipe.inputs.size(), recipe.outputs.size())
-
-	var io_height: float = io_font.get_height(io_size) * max_io_lines
-	_recipe_name.custom_minimum_size.x = name_width
-	_recipe_work.custom_minimum_size.x = work_width
-	_recipe_inputs.custom_minimum_size = Vector2(inputs_width, io_height)
-	_recipe_outputs.custom_minimum_size = Vector2(outputs_width, io_height)

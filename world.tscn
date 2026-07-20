@@ -24,6 +24,7 @@
 [ext_resource type="Texture2D" uid="uid://b1xai7awf74gi" path="res://assets/new_terrain/hexDirt00.png" id="9_7htu6"]
 [ext_resource type="Texture2D" uid="uid://cmiojytna10xl" path="res://assets/deposits/titanium.png" id="9_nx736"]
 [ext_resource type="Script" uid="uid://t2dj705eag71" path="res://scripts/BuildingPanel.gd" id="11_ic0uy"]
+[ext_resource type="PackedScene" uid="uid://cwr8q3mxn5k2d" path="res://objects/ui/RecipeDescription.tscn" id="11_rdesc"]
 [ext_resource type="Script" uid="uid://cxog2xaur4sam" path="res://scripts/ConstructionPanel.gd" id="12_k3n1d"]
 [ext_resource type="Texture2D" uid="uid://dkx0nhhrlou8g" path="res://assets/new_terrain/hexHills00.png" id="12_my276"]
 [ext_resource type="Texture2D" uid="uid://du3pjcyj3l844" path="res://assets/deposits/cuzn.png" id="12_olr1q"]
@@ -1867,6 +1868,9 @@ text = "Open Building UI"
 [node name="Spacer2" type="Control" parent="UI/BuildingPanel/VBox/HBox" unique_id=1146856730]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="RecipeDescription" parent="UI/BuildingPanel/VBox/HBox" unique_id=2013579246 instance=ExtResource("11_rdesc")]
+layout_mode = 2
 
 [node name="DestructButton" type="TextureButton" parent="UI/BuildingPanel/VBox/HBox" unique_id=1045028468]
 layout_mode = 2

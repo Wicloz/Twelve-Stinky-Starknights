@@ -5,21 +5,24 @@ extends VBoxContainer
 ## Bottom panels whose left edge should stay flush against the (variable-width)
 ## resource list, so they fill only the space to its right.
 @export var bottom_panels: Array[Control] = []
+## The left-anchored container holding this list; its right edge drives the
+## panel offsets (it owns the padding + scroll area, so it spans their width).
+@export var list_container: Control
 var _labels: Dictionary[Stockpile.ItemType, Label] = {}
 
 
 func _ready() -> void:
 	Stockpile.changed.connect(_refresh)
 	resized.connect(_sync_panel_offsets)
-	get_parent().resized.connect(_sync_panel_offsets)
+	list_container.resized.connect(_sync_panel_offsets)
 	_refresh()
 	_sync_panel_offsets()
 
 
-# Anchors can't reference a sibling's size, so push the scroll area's right edge
+# Anchors can't reference a sibling's size, so push the list block's right edge
 # onto the bottom panels whenever the list or the viewport changes width.
 func _sync_panel_offsets() -> void:
-	var edge := (get_parent() as Control).size.x
+	var edge := list_container.position.x + list_container.size.x
 	for panel in bottom_panels:
 		panel.offset_left = edge
 

@@ -138,9 +138,9 @@ func _ready() -> void:
 	for item in ItemType.values():
 		if item != ItemType.NONE:
 			ItemTypes.append(item)
-			_current[item] = 9999
-			_produced[item] = 9999
-			_seen[item] = true
+			_current[item] = 0
+			_produced[item] = 0
+			_seen[item] = false
 
 	_register_challenges()
 

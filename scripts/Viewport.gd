@@ -3,7 +3,7 @@ extends Camera2D
 
 @export var pan_speed: float = 600
 @export var zoom_factor: float = 0.1
-@export var min_zoom: float = 0.2
+@export var min_zoom: float = 0.1
 @export var max_zoom: float = 2
 
 ## Fraction of the viewport width covered by the StoryUI sidebar on the right.

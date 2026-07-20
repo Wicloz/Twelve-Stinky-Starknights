@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://cpx8cx4cghm5h" path="res://assets/new_terrain/hexSandPalms00.png" id="4_bh8nc"]
 [ext_resource type="PackedScene" uid="uid://btlcybsomkccq" path="res://objects/Starknight.tscn" id="4_pkg7o"]
 [ext_resource type="Texture2D" uid="uid://diohu7m2e6do8" path="res://assets/new_terrain/hexWetlands00.png" id="5_1ew0l"]
+[ext_resource type="Texture2D" uid="uid://c3j00tpmbxfmf" path="res://assets/new_terrain/hexDesertDunes00.png" id="5_4h6ng"]
 [ext_resource type="Script" uid="uid://cc3atkeodsjni" path="res://scripts/ClickHandler.gd" id="5_dwbse"]
 [ext_resource type="PackedScene" uid="uid://b1vwf74qjibx1" path="res://objects/buildings/Workshop.tscn" id="5_ic0uy"]
 [ext_resource type="Texture2D" uid="uid://creejmu0uyvu8" path="res://assets/new_terrain/hexPlainsColdSnowTransitionPond00.png" id="5_qktwf"]
@@ -19,11 +20,13 @@
 [ext_resource type="Texture2D" uid="uid://bf48irgjips8u" path="res://assets/new_terrain/hexForestBroadleaf00.png" id="7_w44yn"]
 [ext_resource type="Script" uid="uid://2k071aqjpe3b" path="res://scripts/DepositPanel.gd" id="8_gbfbk"]
 [ext_resource type="Texture2D" uid="uid://cfdva6blwa2bd" path="res://assets/new_terrain/hexForestPineSnowCovered00.png" id="8_gggvi"]
+[ext_resource type="Texture2D" uid="uid://bsdc8bdvt50ms" path="res://assets/deposits/cuni.png" id="8_k3lar"]
 [ext_resource type="Texture2D" uid="uid://b1xai7awf74gi" path="res://assets/new_terrain/hexDirt00.png" id="9_7htu6"]
 [ext_resource type="Texture2D" uid="uid://cmiojytna10xl" path="res://assets/deposits/titanium.png" id="9_nx736"]
 [ext_resource type="Script" uid="uid://t2dj705eag71" path="res://scripts/BuildingPanel.gd" id="11_ic0uy"]
 [ext_resource type="Script" uid="uid://cxog2xaur4sam" path="res://scripts/ConstructionPanel.gd" id="12_k3n1d"]
 [ext_resource type="Texture2D" uid="uid://dkx0nhhrlou8g" path="res://assets/new_terrain/hexHills00.png" id="12_my276"]
+[ext_resource type="Texture2D" uid="uid://du3pjcyj3l844" path="res://assets/deposits/cuzn.png" id="12_olr1q"]
 [ext_resource type="Script" uid="uid://bkxvitvpwekgn" path="res://scripts/StoryUI.gd" id="14_ikiii"]
 [ext_resource type="Script" uid="uid://cbgru8xb55ygv" path="res://scripts/CutsceneViewer.gd" id="14_udxuc"]
 [ext_resource type="LabelSettings" uid="uid://co6e2h1fdxi6u" path="res://assets/resources/cursor_labels.tres" id="15_jjr1n"]
@@ -37,6 +40,8 @@
 [ext_resource type="Texture2D" uid="uid://dfq7v3d5d1uef" path="res://assets/icons/prev.svg" id="19_mc2jv"]
 [ext_resource type="Texture2D" uid="uid://bwx1anaixor23" path="res://assets/icons/mute.svg" id="20_4h6ng"]
 [ext_resource type="Texture2D" uid="uid://byc5j4qi1gukf" path="res://assets/icons/next.svg" id="20_bo7i5"]
+[ext_resource type="Texture2D" uid="uid://cygngoqiqf2br" path="res://assets/deposits/petrochemicals.png" id="20_f3o6s"]
+[ext_resource type="Texture2D" uid="uid://cora1pfuc4vd1" path="res://assets/new_terrain/hexDesertYellowMesas00.png" id="21_7htu6"]
 [ext_resource type="Texture2D" uid="uid://d0emibp67ho7x" path="res://assets/deposits/electrum.png" id="22_fnoqa"]
 [ext_resource type="Texture2D" uid="uid://cvij62lvx4qx6" path="res://assets/new_terrain/hexDesertRedMesaLarge00.png" id="22_xpnt2"]
 [ext_resource type="Script" uid="uid://c2fq3bfp80uw1" path="res://scripts/Challenges.gd" id="24_4h6ng"]
@@ -183,7 +188,8 @@ terrain_texture = ExtResource("7_k83mh")
 position = Vector2(1224, -1428)
 q = 8
 r = -7
-terrain_texture = ExtResource("17_jas3d")
+terrain_texture = ExtResource("20_f3o6s")
+deposit = 15
 
 [node name="Tile=-2,-6" parent="HexMap" unique_id=1510184402 instance=ExtResource("30_5ocsm")]
 position = Vector2(-1360, -1224)
@@ -218,6 +224,9 @@ position = Vector2(-272, -1224)
 q = 2
 r = -6
 terrain_texture = ExtResource("3_bo7i5")
+deposit = 18
+workable = true
+deposit_texture = ExtResource("8_k3lar")
 
 [node name="Tile=3,-6" parent="HexMap" unique_id=1818308536 instance=ExtResource("30_5ocsm")]
 position = Vector2(0, -1224)
@@ -251,7 +260,8 @@ terrain_texture = ExtResource("5_qktwf")
 position = Vector2(1088, -1224)
 q = 7
 r = -6
-terrain_texture = ExtResource("17_jas3d")
+walkable = false
+terrain_texture = ExtResource("21_7htu6")
 
 [node name="Tile=8,-6" parent="HexMap" unique_id=1294200614 instance=ExtResource("30_5ocsm")]
 position = Vector2(1360, -1224)
@@ -291,6 +301,9 @@ position = Vector2(-408, -1020)
 q = 1
 r = -5
 terrain_texture = ExtResource("3_bo7i5")
+deposit = 7
+workable = true
+deposit_texture = ExtResource("12_olr1q")
 
 [node name="Tile=2,-5" parent="HexMap" unique_id=1915484333 instance=ExtResource("30_5ocsm")]
 position = Vector2(-136, -1020)
@@ -333,7 +346,8 @@ terrain_texture = ExtResource("17_jas3d")
 position = Vector2(1496, -1020)
 q = 8
 r = -5
-terrain_texture = ExtResource("17_jas3d")
+walkable = false
+terrain_texture = ExtResource("21_7htu6")
 
 [node name="Tile=-4,-4" parent="HexMap" unique_id=2032452677 instance=ExtResource("30_5ocsm")]
 position = Vector2(-1632, -816)
@@ -408,7 +422,8 @@ terrain_texture = ExtResource("17_jas3d")
 position = Vector2(1088, -816)
 q = 6
 r = -4
-terrain_texture = ExtResource("17_jas3d")
+walkable = false
+terrain_texture = ExtResource("21_7htu6")
 
 [node name="Tile=7,-4" parent="HexMap" unique_id=1091481706 instance=ExtResource("30_5ocsm")]
 position = Vector2(1360, -816)
@@ -482,7 +497,10 @@ terrain_texture = ExtResource("5_qktwf")
 position = Vector2(408, -612)
 q = 3
 r = -3
-terrain_texture = ExtResource("5_qktwf")
+terrain_texture = ExtResource("16_ryup7")
+deposit = 1
+workable = true
+deposit_texture = ExtResource("9_nx736")
 
 [node name="Tile=4,-3" parent="HexMap" unique_id=1661750035 instance=ExtResource("30_5ocsm")]
 position = Vector2(680, -612)
@@ -494,25 +512,33 @@ terrain_texture = ExtResource("17_jas3d")
 position = Vector2(952, -612)
 q = 5
 r = -3
-terrain_texture = ExtResource("17_jas3d")
+terrain_texture = ExtResource("20_f3o6s")
+deposit = 15
 
 [node name="Tile=6,-3" parent="HexMap" unique_id=97286860 instance=ExtResource("30_5ocsm")]
 position = Vector2(1224, -612)
 q = 6
 r = -3
-terrain_texture = ExtResource("17_jas3d")
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
+workable = true
 
 [node name="Tile=7,-3" parent="HexMap" unique_id=1965723591 instance=ExtResource("30_5ocsm")]
 position = Vector2(1496, -612)
 q = 7
 r = -3
-terrain_texture = ExtResource("17_jas3d")
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
+workable = true
 
 [node name="Tile=8,-3" parent="HexMap" unique_id=1310493728 instance=ExtResource("30_5ocsm")]
 position = Vector2(1768, -612)
 q = 8
 r = -3
 terrain_texture = ExtResource("7_gggvi")
+deposit = 7
+workable = true
+deposit_texture = ExtResource("12_olr1q")
 
 [node name="Tile=-6,-2" parent="HexMap" unique_id=1134667392 instance=ExtResource("30_5ocsm")]
 position = Vector2(-1904, -408)
@@ -585,25 +611,32 @@ terrain_texture = ExtResource("17_jas3d")
 position = Vector2(816, -408)
 q = 4
 r = -2
-terrain_texture = ExtResource("17_jas3d")
+walkable = false
+terrain_texture = ExtResource("21_7htu6")
 
 [node name="Tile=5,-2" parent="HexMap" unique_id=1796464515 instance=ExtResource("30_5ocsm")]
 position = Vector2(1088, -408)
 q = 5
 r = -2
-terrain_texture = ExtResource("17_jas3d")
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
+workable = true
 
 [node name="Tile=6,-2" parent="HexMap" unique_id=1980844797 instance=ExtResource("30_5ocsm")]
 position = Vector2(1360, -408)
 q = 6
 r = -2
-terrain_texture = ExtResource("17_jas3d")
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
+workable = true
 
 [node name="Tile=7,-2" parent="HexMap" unique_id=311002513 instance=ExtResource("30_5ocsm")]
 position = Vector2(1632, -408)
 q = 7
 r = -2
-terrain_texture = ExtResource("17_jas3d")
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
+workable = true
 
 [node name="Tile=8,-2" parent="HexMap" unique_id=1447451951 instance=ExtResource("30_5ocsm")]
 position = Vector2(1904, -408)
@@ -696,13 +729,17 @@ terrain_texture = ExtResource("17_jas3d")
 position = Vector2(1224, -204)
 q = 5
 r = -1
-terrain_texture = ExtResource("17_jas3d")
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
+workable = true
 
 [node name="Tile=6,-1" parent="HexMap" unique_id=238323352 instance=ExtResource("30_5ocsm")]
 position = Vector2(1496, -204)
 q = 6
 r = -1
-terrain_texture = ExtResource("17_jas3d")
+terrain_texture = ExtResource("5_4h6ng")
+deposit = 12
+workable = true
 
 [node name="Tile=7,-1" parent="HexMap" unique_id=1104463737 instance=ExtResource("30_5ocsm")]
 position = Vector2(1768, -204)
@@ -788,7 +825,8 @@ terrain_texture = ExtResource("17_jas3d")
 [node name="Tile=5,0" parent="HexMap" unique_id=466503609 instance=ExtResource("30_5ocsm")]
 position = Vector2(1360, 0)
 q = 5
-terrain_texture = ExtResource("17_jas3d")
+walkable = false
+terrain_texture = ExtResource("21_7htu6")
 
 [node name="Tile=6,0" parent="HexMap" unique_id=813358410 instance=ExtResource("30_5ocsm")]
 position = Vector2(1632, 0)
@@ -805,6 +843,9 @@ terrain_texture = ExtResource("7_gggvi")
 position = Vector2(2176, 0)
 q = 8
 terrain_texture = ExtResource("7_gggvi")
+deposit = 18
+workable = true
+deposit_texture = ExtResource("8_k3lar")
 
 [node name="Tile=-8,1" parent="HexMap" unique_id=235464608 instance=ExtResource("30_5ocsm")]
 position = Vector2(-2040, 204)
@@ -993,6 +1034,9 @@ position = Vector2(1360, 408)
 q = 4
 r = 2
 terrain_texture = ExtResource("12_my276")
+deposit = 1
+workable = true
+deposit_texture = ExtResource("9_nx736")
 
 [node name="Tile=5,2" parent="HexMap" unique_id=677026436 instance=ExtResource("30_5ocsm")]
 position = Vector2(1632, 408)
@@ -1044,15 +1088,14 @@ r = 3
 position = Vector2(-408, 612)
 q = -3
 r = 3
+deposit = 7
+workable = true
+deposit_texture = ExtResource("12_olr1q")
 
 [node name="Tile=-2,3" parent="HexMap" unique_id=1951136256 instance=ExtResource("30_5ocsm")]
 position = Vector2(-136, 612)
 q = -2
 r = 3
-terrain_texture = ExtResource("5_1ew0l")
-deposit = 3
-workable = true
-deposit_texture = ExtResource("7_g1i3r")
 
 [node name="Tile=-1,3" parent="HexMap" unique_id=1646662364 instance=ExtResource("30_5ocsm")]
 position = Vector2(136, 612)
@@ -1129,19 +1172,14 @@ terrain_texture = ExtResource("4_bh8nc")
 position = Vector2(-544, 816)
 q = -4
 r = 4
-terrain_texture = ExtResource("5_1ew0l")
-deposit = 3
+deposit = 18
 workable = true
-deposit_texture = ExtResource("7_g1i3r")
+deposit_texture = ExtResource("8_k3lar")
 
 [node name="Tile=-3,4" parent="HexMap" unique_id=1579639455 instance=ExtResource("30_5ocsm")]
 position = Vector2(-272, 816)
 q = -3
 r = 4
-terrain_texture = ExtResource("5_1ew0l")
-deposit = 3
-workable = true
-deposit_texture = ExtResource("7_g1i3r")
 
 [node name="Tile=-2,4" parent="HexMap" unique_id=1649742067 instance=ExtResource("30_5ocsm")]
 position = Vector2(0, 816)

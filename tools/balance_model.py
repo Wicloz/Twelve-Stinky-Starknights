@@ -117,6 +117,33 @@ def _parse_workshop_research(text):
     return cap_cost, cap_prereq, base_caps
 
 
+def _parse_research_items(text):
+    """Generic ResearchItem parser (display_name / cost / prerequisites), used
+    for per-building research chains like the Warehouse Starknight-speed tree."""
+    blocks, order, cur = {}, [], None
+    for raw in text.splitlines():
+        line = raw.split("#", 1)[0]
+        m = re.search(r"var\s+(\w+)\s*:=\s*ResearchItem\.new\(\)", line)
+        if m:
+            cur = m.group(1)
+            blocks[cur] = dict(var=cur, display="", cost={}, prereqs=[])
+            order.append(cur); continue
+        if cur is None:
+            continue
+        m = re.search(r'\.display_name\s*=\s*"([^"]*)"', line)
+        if m:
+            blocks[cur]["display"] = m.group(1)
+        m = re.search(r"\.cost\[Stockpile\.ItemType\.(\w+)\]\s*=\s*(\d+)", line)
+        if m:
+            blocks[cur]["cost"][m.group(1)] = int(m.group(2))
+        m = re.search(r"\.prerequisites\.append\((\w+)\)", line)
+        if m:
+            blocks[cur]["prereqs"].append(m.group(1))
+    var2disp = {v: blocks[v]["display"] for v in order}
+    return {blocks[v]["display"]: dict(cost=blocks[v]["cost"],
+            prereqs=[var2disp.get(p, p) for p in blocks[v]["prereqs"]]) for v in order}
+
+
 def _parse_float_const(text, cname, default):
     m = re.search(r"const\s+" + cname + r"\s*:\s*\w+\s*=\s*([\d.]+)", text)
     return float(m.group(1)) if m else default
@@ -125,6 +152,70 @@ def _parse_float_const(text, cname, default):
 def _parse_automation_cost(text):
     return {m.group(1): int(m.group(2)) for m in re.finditer(
         r"automation\.cost\[Stockpile\.ItemType\.(\w+)\]\s*=\s*(\d+)", text)}
+
+
+def _split_call_args(text, start):
+    """Given `text` and the index just AFTER a call's opening '(', return the
+    list of top-level argument substrings (comma-split, but respecting nested
+    (), [], {} and skipping string literals)."""
+    depth, args, cur, i = 0, [], [], start
+    while i < len(text):
+        ch = text[i]
+        if ch in "([{":
+            depth += 1; cur.append(ch)
+        elif ch in ")]}":
+            if depth == 0:
+                break                              # the call's closing ')'
+            depth -= 1; cur.append(ch)
+        elif ch == "," and depth == 0:
+            args.append("".join(cur).strip()); cur = []
+        elif ch == '"':
+            cur.append(ch); i += 1
+            while i < len(text) and text[i] != '"':
+                cur.append(text[i]); i += 1
+            if i < len(text):
+                cur.append(text[i])
+        else:
+            cur.append(ch)
+        i += 1
+    if "".join(cur).strip():
+        args.append("".join(cur).strip())
+    return args
+
+
+def _parse_building_upgrades(building_dir):
+    """Per-building throughput upgrades declared in each building's
+    _upgrade_research() via FactoryBuilding's _output_upgrade()/_speed_upgrade()
+    helpers. Returns {building_cls: [dict(var, kind, display, scale, cost,
+    prereqs=[var,...])]}.  kind 'output' -> production_scale (bigger batch);
+    'speed' -> work_scale (faster runs). Both multiply a building's net
+    throughput per instance in this continuous model (see _tmul).
+
+    Helper signature: _<k>_upgrade(slot, name, description, scale, cost, prereq?)."""
+    upgrades = {}
+    for path in sorted(Path(building_dir).glob("*.gd")):
+        text = pg.read(path)
+        m = re.search(r"class_name\s+(\w+)", text)
+        cls = m.group(1) if m else path.stem
+        items = []
+        for c in re.finditer(
+                r"var\s+(\w+)\s*:=\s*(_output_upgrade|_speed_upgrade)\s*\(", text):
+            args = _split_call_args(text, c.end())
+            if len(args) < 5:
+                continue
+            kind = "output" if c.group(2) == "_output_upgrade" else "speed"
+            scale = float(eval(args[3].split("#")[0].strip(), {"__builtins__": {}}, {}))
+            cost = {cm.group(1): int(cm.group(2)) for cm in re.finditer(
+                r"Stockpile\.ItemType\.(\w+)\s*:\s*(\d+)", args[4])}
+            prereqs = []
+            if len(args) >= 6 and re.fullmatch(r"\w+", args[5].strip()):
+                prereqs.append(args[5].strip())
+            display = args[1].strip().strip('"')
+            items.append(dict(var=c.group(1), kind=kind, display=display,
+                              scale=scale, cost=cost, prereqs=prereqs))
+        if items:
+            upgrades[cls] = items
+    return upgrades
 
 
 def load_game():
@@ -141,6 +232,9 @@ def load_game():
     catalog = pg.parse_catalog(cat)
     workconsts = _parse_work_constants(craft)
     cap_cost, cap_prereq, base_caps = _parse_workshop_research(wshop)
+    warehouse_research = _parse_research_items(
+        pg.read(GAME_ROOT / "objects/buildings/Warehouse.gd"))
+    building_upgrades = _parse_building_upgrades(GAME_ROOT / "objects/buildings")
 
     recipes = {}                                   # key -> (in, out, work, caps)
     skipped = []
@@ -185,6 +279,8 @@ def load_game():
                 extraction_speedup=_parse_float_const(extract_src, "BASE_WORK_SPEEDUP", 10.0),
                 automation_cost=(_parse_automation_cost(factory_src)
                                  or {"INDUSTRIAL_CONTROLLERS": 10}),
+                warehouse_research=warehouse_research,
+                building_upgrades=building_upgrades,
                 challenge_items=challenge_items, skipped=skipped)
 
 
@@ -198,6 +294,47 @@ FACTORY_SPEEDUP = G["factory_speedup"]        # FactoryBuilding.BASE_WORK_SPEEDU
 EXTRACTION_SPEEDUP = G["extraction_speedup"]  # ExtractionBuilding.BASE_WORK_SPEEDUP
 AUTOMATION_COST = G["automation_cost"]        # per-building Automation research cost
 CHALLENGE_ITEMS = G["challenge_items"]        # merch/PC goods; need the Warehouse
+WAREHOUSE_RESEARCH = G["warehouse_research"]  # display -> {cost, prereqs} (speed tree)
+BUILDING_UPGRADES = G["building_upgrades"]    # bt -> [upgrade dicts] (throughput tree)
+
+# Flat id map: uid=(building_type, var) -> upgrade info (incl. prereq uids).
+UPGRADES = {}
+for _bt, _lst in BUILDING_UPGRADES.items():
+    for _u in _lst:
+        UPGRADES[(_bt, _u["var"])] = dict(
+            bt=_bt, var=_u["var"], kind=_u["kind"], display=_u["display"],
+            scale=_u["scale"], cost=_u["cost"],
+            prereq_ids=[(_bt, _p) for _p in _u["prereqs"]])
+
+
+def _tmul(ups):
+    """Per-building-type throughput multiplier from a set of researched upgrade
+    ids. An 'output' upgrade (production_scale) and a 'speed' upgrade (work_scale)
+    each multiply a building's net output rate per instance, at no extra worker or
+    building cost, so a building's total multiplier is production_scale x work_scale.
+    Tiers set an ABSOLUTE scale and chain by prerequisite, so the effective value
+    of each kind is the max scale among that building's completed upgrades."""
+    by_bt = {}
+    for uid in ups:
+        u = UPGRADES[uid]
+        pair = by_bt.setdefault(u["bt"], [1.0, 1.0])   # [output, speed]
+        idx = 0 if u["kind"] == "output" else 1
+        pair[idx] = max(pair[idx], u["scale"])
+    return {bt: pair[0] * pair[1] for bt, pair in by_bt.items()}
+
+
+def research_chain(display):
+    """Ordered prerequisite chain of a Warehouse research, target last."""
+    chain, seen = [], set()
+    def visit(d):
+        if d in seen or d not in WAREHOUSE_RESEARCH:
+            return
+        seen.add(d)
+        for p in WAREHOUSE_RESEARCH[d]["prereqs"]:
+            visit(p)
+        chain.append(d)
+    visit(display)
+    return chain
 
 BUILDING_TYPES = sorted(set(RAW_SOURCE.values()) | set(RECIPE_BUILDING.values()))
 FACTORY_BUILDINGS = set(RECIPE_BUILDING.values())
@@ -227,7 +364,7 @@ RESEARCH_COST_MULT = 1.0
 #    A recipe can run in the Workshop iff its capabilities are researched, or in
 #    its factory building (which embodies the capability) once built.
 # ===========================================================================
-def _activities(caps, warehouse):
+def _activities(caps, warehouse, tmul):
     acts = []
     for r in RAWS:
         acts.append((f"manual:{r}", HARVEST_DURATION / HARVEST_AMOUNT, {r: 1.0}, "worker_only"))
@@ -244,7 +381,9 @@ def _activities(caps, warehouse):
             acts.append((f"workshop:{key}", work, net, "workshop"))
         bt = RECIPE_BUILDING.get(key)
         if bt is not None:
-            acts.append((f"factory:{key}", work / FACTORY_SPEEDUP, net, ("building", bt)))
+            m = tmul.get(bt, 1.0)               # per-building throughput upgrades
+            fnet = net if m == 1.0 else {g: v * m for g, v in net.items()}
+            acts.append((f"factory:{key}", work / FACTORY_SPEEDUP, fnet, ("building", bt)))
     return acts
 
 
@@ -288,17 +427,18 @@ def _build_template(acts, auto):
 
 
 _template_cache = {}
-def _template(caps, auto, warehouse):
-    key = (frozenset(caps), frozenset(auto), warehouse)
+def _template(caps, auto, warehouse, tmul):
+    key = (frozenset(caps), frozenset(auto), warehouse, tuple(sorted(tmul.items())))
     if key not in _template_cache:
-        _template_cache[key] = _build_template(_activities(caps, warehouse), auto)
+        _template_cache[key] = _build_template(_activities(caps, warehouse, tmul), auto)
     return _template_cache[key]
 
 
-def _solve(target, buildings, caps, auto):
+def _solve(target, buildings, caps, auto, ups):
     """Solve the LP; return (linprog result, acts, labels, is_cap, cap_b, b)."""
     warehouse = buildings.get("Warehouse", 0) > 0
-    acts, c, A0, labels, is_cap, cap_b, brow, supply0 = _template(caps, auto, warehouse)
+    acts, c, A0, labels, is_cap, cap_b, brow, supply0 = _template(
+        caps, auto, warehouse, _tmul(ups))
     A = A0.copy()
     b = np.zeros(A.shape[0])
     b[0] = WORKERS; b[1] = WORKSHOPS
@@ -310,8 +450,8 @@ def _solve(target, buildings, caps, auto):
     return res, acts, labels, is_cap, cap_b, b
 
 
-def max_bundle_rate(target, buildings, caps, auto=frozenset()):
-    res, acts, labels, is_cap, cap_b, b = _solve(target, buildings, caps, auto)
+def max_bundle_rate(target, buildings, caps, auto=frozenset(), ups=frozenset()):
+    res, acts, labels, is_cap, cap_b, b = _solve(target, buildings, caps, auto, ups)
     if not res.success:
         return 0.0, "infeasible"
     lam = res.x[-1]
@@ -354,8 +494,12 @@ RELEVANT_ITEMS = set()
 
 
 def _relevant(good):
-    """Closure of items on the way to `good` (including the build-cost chains of
-    the buildings involved, the story gate, and the Warehouse). Returns:
+    return _relevant_seed({good})
+
+
+def _relevant_seed(seed_items):
+    """Closure of items on the way to the `seed_items` (a good, or a set of
+    research-cost items), including build-cost chains and the Warehouse. Returns:
       cands  - the catalog buildings worth considering,
       items  - the relevant item set (producibility gradient),
       caps   - MANDATORY research caps = caps of relevant recipes that have NO
@@ -389,7 +533,7 @@ def _relevant(good):
                             items.add(ci); changed = True
         return items
 
-    goal_items = closure({good} | set(BUILD_COST.get("Warehouse", {})))
+    goal_items = closure(set(seed_items) | set(BUILD_COST.get("Warehouse", {})))
 
     def derive(items):
         cands, mand = set(), set()
@@ -430,9 +574,9 @@ def _relevant(good):
 
 # The player's STATE is (buildings, caps, auto): building counts, the Workshop's
 # researched capabilities, and the set of building TYPES that are automated.
-def _skey(bs, caps, auto):
+def _skey(bs, caps, auto, ups):
     return (tuple(sorted((k, v) for k, v in bs.items() if v > 0)),
-            frozenset(caps), frozenset(auto))
+            frozenset(caps), frozenset(auto), frozenset(ups))
 
 
 def _addb(bs, k):
@@ -440,18 +584,18 @@ def _addb(bs, k):
 
 
 _rate_cache = {}
-def rate(bs, caps, auto, good):
-    key = (_skey(bs, caps, auto), good)
+def rate(bs, caps, auto, ups, good):
+    key = (_skey(bs, caps, auto, ups), good)
     if key not in _rate_cache:
-        _rate_cache[key] = max_bundle_rate({good: 1.0}, bs, caps, auto)[0]
+        _rate_cache[key] = max_bundle_rate({good: 1.0}, bs, caps, auto, ups)[0]
     return _rate_cache[key]
 
 
 _afford_cache = {}
-def afford_time(cost, bs, caps, auto):
-    key = (_skey(bs, caps, auto), tuple(sorted(cost.items())))
+def afford_time(cost, bs, caps, auto, ups):
+    key = (_skey(bs, caps, auto, ups), tuple(sorted(cost.items())))
     if key not in _afford_cache:
-        lam, _b = max_bundle_rate(cost, bs, caps, auto)
+        lam, _b = max_bundle_rate(cost, bs, caps, auto, ups)
         _afford_cache[key] = np.inf if lam <= 0 else 1.0 / lam
     return _afford_cache[key]
 
@@ -464,84 +608,100 @@ def _auto_cost():
     return {g: v * RESEARCH_COST_MULT for g, v in AUTOMATION_COST.items()}
 
 
+def _upgrade_cost(uid):
+    return {g: v * RESEARCH_COST_MULT for g, v in UPGRADES[uid]["cost"].items()}
+
+
 def _bcost(b):
     return dict(BUILD_COST[b])
 
 
-def _actions(bs, caps, auto):
-    """Yield (kind, typ, nbs, ncaps, nauto, cost, action_time)."""
+def _actions(bs, caps, auto, ups):
+    """Yield (kind, typ, nbs, ncaps, nauto, nups, cost, action_time)."""
     for b in ACTIVE_CANDIDATES:
         if bs.get(b, 0) < COPY_CAP:
-            yield ("build", b, _addb(bs, b), caps, auto, _bcost(b), CONSTRUCTION_TIME)
+            yield ("build", b, _addb(bs, b), caps, auto, ups, _bcost(b), CONSTRUCTION_TIME)
     for c in RELEVANT_CAPS:
         if c not in caps and CAP_PREREQ.get(c, set()) <= caps:
-            yield ("research", c, bs, caps | {c}, auto, _cap_cost(c), RESEARCH_WORK)
+            yield ("research", c, bs, caps | {c}, auto, ups, _cap_cost(c), RESEARCH_WORK)
     for bt in ACTIVE_CANDIDATES:                    # automate a built factory/extractor
         if bt in BUILDING_TYPES and bs.get(bt, 0) > 0 and bt not in auto:
-            yield ("automate", bt, bs, caps, auto | {bt}, _auto_cost(), RESEARCH_WORK)
+            yield ("automate", bt, bs, caps, auto | {bt}, ups, _auto_cost(), RESEARCH_WORK)
+    for bt in ACTIVE_CANDIDATES:                    # per-building throughput upgrade
+        if bs.get(bt, 0) <= 0:
+            continue
+        for u in BUILDING_UPGRADES.get(bt, ()):
+            uid = (bt, u["var"])
+            if uid in ups:
+                continue
+            if all((bt, p) in ups for p in u["prereqs"]):
+                yield ("upgrade", uid, bs, caps, auto, ups | {uid},
+                       _upgrade_cost(uid), RESEARCH_WORK)
 
 
 def make_produce_goal(good, amount):
-    def finish(bs, caps, auto):
-        r = rate(bs, caps, auto, good)
+    def finish(bs, caps, auto, ups):
+        r = rate(bs, caps, auto, ups, good)
         return np.inf if r <= 0 else amount / r
     return finish
 
 
-def remaining(bs, caps, auto, finish, memo):
-    key = _skey(bs, caps, auto)
+def remaining(bs, caps, auto, ups, finish, memo):
+    key = _skey(bs, caps, auto, ups)
     if key in memo:
         return memo[key]
-    best, best_step = finish(bs, caps, auto), None
-    for kind, typ, nbs, ncaps, nauto, cost, atime in _actions(bs, caps, auto):
-        aff = afford_time(cost, bs, caps, auto)
+    best, best_step = finish(bs, caps, auto, ups), None
+    for kind, typ, nbs, ncaps, nauto, nups, cost, atime in _actions(bs, caps, auto, ups):
+        aff = afford_time(cost, bs, caps, auto, ups)
         if not np.isfinite(aff):
             continue
-        val = aff + atime + finish(nbs, ncaps, nauto)
+        val = aff + atime + finish(nbs, ncaps, nauto, nups)
         if val < best - 1e-9:
-            best, best_step = val, (nbs, ncaps, nauto, aff + atime)
+            best, best_step = val, (nbs, ncaps, nauto, nups, aff + atime)
     if best_step is None:
-        memo[key] = finish(bs, caps, auto)
+        memo[key] = finish(bs, caps, auto, ups)
         return memo[key]
-    nbs, ncaps, nauto, dt = best_step
-    res = min(finish(bs, caps, auto), dt + remaining(nbs, ncaps, nauto, finish, memo))
+    nbs, ncaps, nauto, nups, dt = best_step
+    res = min(finish(bs, caps, auto, ups),
+              dt + remaining(nbs, ncaps, nauto, nups, finish, memo))
     memo[key] = res
     return res
 
 
-def greedy(finish, bs, caps, auto, t, steps):
+def greedy(finish, bs, caps, auto, ups, t, steps):
     memo = {}
     while True:
-        best_total, best = t + finish(bs, caps, auto), None
-        for kind, typ, nbs, ncaps, nauto, cost, atime in _actions(bs, caps, auto):
-            aff = afford_time(cost, bs, caps, auto)
+        best_total, best = t + finish(bs, caps, auto, ups), None
+        for kind, typ, nbs, ncaps, nauto, nups, cost, atime in _actions(bs, caps, auto, ups):
+            aff = afford_time(cost, bs, caps, auto, ups)
             if not np.isfinite(aff):
                 continue
-            total = t + aff + atime + remaining(nbs, ncaps, nauto, finish, memo)
+            total = t + aff + atime + remaining(nbs, ncaps, nauto, nups, finish, memo)
             if total < best_total - 1e-6:
-                best_total, best = total, (kind, typ, nbs, ncaps, nauto, aff + atime)
+                best_total, best = total, (kind, typ, nbs, ncaps, nauto, nups, aff + atime)
         if best is None:
-            return bs, caps, auto, t
-        kind, typ, nbs, ncaps, nauto, dt = best
-        bs, caps, auto, t = nbs, ncaps, nauto, t + dt
+            return bs, caps, auto, ups, t
+        kind, typ, nbs, ncaps, nauto, nups, dt = best
+        bs, caps, auto, ups, t = nbs, ncaps, nauto, nups, t + dt
         steps.append((kind, typ, t))
 
 
-def ensure_producible(good, bs, caps, auto, t, steps):
+def ensure_producible(good, bs, caps, auto, ups, t, steps):
     """Make `good` producible at all by acquiring, cheapest-first, the unlocks
     that increase how many relevant items can be produced -- building a factory
     for recipes that have one, researching a capability for the workshop-only
-    ones. (Automation never changes producibility, so it is skipped here.)"""
+    ones. (Automation and throughput upgrades never change producibility, so they
+    are skipped here.)"""
     def pcount(bs, caps):
-        return sum(1 for it in RELEVANT_ITEMS if rate(bs, caps, auto, it) > 1e-9)
+        return sum(1 for it in RELEVANT_ITEMS if rate(bs, caps, auto, ups, it) > 1e-9)
 
-    while rate(bs, caps, auto, good) <= 1e-9:
+    while rate(bs, caps, auto, ups, good) <= 1e-9:
         cur = pcount(bs, caps)
         best = fallback = None
-        for kind, typ, nbs, ncaps, nauto, cost, atime in _actions(bs, caps, auto):
-            if kind == "automate":
+        for kind, typ, nbs, ncaps, nauto, nups, cost, atime in _actions(bs, caps, auto, ups):
+            if kind in ("automate", "upgrade"):
                 continue
-            aff = afford_time(cost, bs, caps, auto)
+            aff = afford_time(cost, bs, caps, auto, ups)
             if not np.isfinite(aff):
                 continue
             key = aff + atime
@@ -555,7 +715,7 @@ def ensure_producible(good, bs, caps, auto, t, steps):
         dt, kind, typ, nbs, ncaps = pick
         bs, caps, t = nbs, ncaps, t + dt
         steps.append((kind, typ, t))
-    return bs, caps, auto, t
+    return bs, caps, auto, ups, t
 
 
 def _toposort(nodes, deps_fn):
@@ -573,7 +733,7 @@ def _toposort(nodes, deps_fn):
     return order
 
 
-def build_factory_tree(bs, caps, auto, t, steps):
+def build_factory_tree(bs, caps, auto, ups, t, steps):
     """Build one of every relevant factory in DEPENDENCY ORDER, so each factory's
     construction inputs are already factory-supplied. This minimises hand-crafting
     to the true bootstrap (the first Brickworks' bricks, the first Mech-Comp
@@ -586,33 +746,84 @@ def build_factory_tree(bs, caps, auto, t, steps):
                 if g in good_factory and good_factory[g] != f}
 
     for f in _toposort(factories, deps):
-        aff = afford_time(_bcost(f), bs, caps, auto)
+        aff = afford_time(_bcost(f), bs, caps, auto, ups)
         if not np.isfinite(aff):
             continue
         t += aff + CONSTRUCTION_TIME
         bs = _addb(bs, f); steps.append(("build", f, t))
-    return bs, caps, auto, t
+    return bs, caps, auto, ups, t
 
 
 def plan(good, amount):
     global ACTIVE_CANDIDATES, RELEVANT_CAPS, RELEVANT_ITEMS
     ACTIVE_CANDIDATES, RELEVANT_ITEMS, RELEVANT_CAPS = _relevant(good)
 
-    bs, caps, auto, t, steps = {}, set(BASE_CAPS), set(), 0.0, []
+    bs, caps, auto, ups, t, steps = {}, set(BASE_CAPS), set(), frozenset(), 0.0, []
 
     # The Warehouse gates every challenge recipe, so build it first whenever a
     # challenge good is anywhere on the goal's chain (e.g. any PC part).
     if any(g in CHALLENGE_ITEMS for g in RELEVANT_ITEMS):
-        t += afford_time(_bcost("Warehouse"), bs, caps, auto) + CONSTRUCTION_TIME
+        t += afford_time(_bcost("Warehouse"), bs, caps, auto, ups) + CONSTRUCTION_TIME
         bs = _addb(bs, "Warehouse"); steps.append(("build", "Warehouse", t))
 
     # Stand up the factory tree first (craft-minimal), research any workshop-only
-    # capabilities the goal needs, then optimise throughput (copies + automation).
-    bs, caps, auto, t = build_factory_tree(bs, caps, auto, t, steps)
-    bs, caps, auto, t = ensure_producible(good, bs, caps, auto, t, steps)
-    bs, caps, auto, t = greedy(make_produce_goal(good, amount), bs, caps, auto, t, steps)
-    t += amount / rate(bs, caps, auto, good)
-    return steps, bs, caps, auto, t
+    # capabilities the goal needs, then optimise throughput (copies + upgrades +
+    # automation).
+    bs, caps, auto, ups, t = build_factory_tree(bs, caps, auto, ups, t, steps)
+    bs, caps, auto, ups, t = ensure_producible(good, bs, caps, auto, ups, t, steps)
+    bs, caps, auto, ups, t = greedy(
+        make_produce_goal(good, amount), bs, caps, auto, ups, t, steps)
+    t += amount / rate(bs, caps, auto, ups, good)
+    return steps, bs, caps, auto, ups, t
+
+
+def _research_all_caps(needed, bs, caps, auto, ups, t, steps):
+    """Research every capability in `needed` (closed under prereqs), each in
+    prerequisite order, cheapest affordable first."""
+    remaining = {c for c in needed if c not in caps}
+    while remaining:
+        avail = [c for c in remaining if CAP_PREREQ.get(c, set()) <= caps]
+        avail = [c for c in avail if np.isfinite(afford_time(_cap_cost(c), bs, caps, auto, ups))]
+        if not avail:
+            break
+        c = min(avail, key=lambda x: afford_time(_cap_cost(x), bs, caps, auto, ups))
+        t += afford_time(_cap_cost(c), bs, caps, auto, ups) + RESEARCH_WORK
+        caps = caps | {c}; remaining.discard(c)
+        steps.append(("research", c, t))
+    return caps, t
+
+
+def plan_research(target):
+    """Benchmark reaching a WAREHOUSE research (e.g. 'Meka Suit Integration'):
+    build the economy, then research its prerequisite chain in order, producing
+    each research's cost bundle. Returns the same shape as plan()."""
+    global ACTIVE_CANDIDATES, RELEVANT_CAPS, RELEVANT_ITEMS
+    chain = research_chain(target)
+    cost_items = {g for d in chain for g in WAREHOUSE_RESEARCH[d]["cost"]}
+    ACTIVE_CANDIDATES, RELEVANT_ITEMS, RELEVANT_CAPS = _relevant_seed(cost_items)
+
+    bs, caps, auto, ups, t, steps = {}, set(BASE_CAPS), set(), frozenset(), 0.0, []
+    # The research is at the Warehouse (and Jelly Coffee etc. are challenge goods).
+    t += afford_time(_bcost("Warehouse"), bs, caps, auto, ups) + CONSTRUCTION_TIME
+    bs = _addb(bs, "Warehouse"); steps.append(("build", "Warehouse", t))
+
+    bs, caps, auto, ups, t = build_factory_tree(bs, caps, auto, ups, t, steps)
+    caps, t = _research_all_caps(RELEVANT_CAPS, bs, caps, auto, ups, t, steps)
+
+    # Optimise the building set for the whole chain's cost, then research in order.
+    def finish(bs, caps, auto, ups):
+        return sum(afford_time({g: v * WAREHOUSE_COST_MULT for g, v in
+                                WAREHOUSE_RESEARCH[d]["cost"].items()}, bs, caps, auto, ups)
+                   + RESEARCH_WORK for d in chain)
+    bs, caps, auto, ups, t = greedy(finish, bs, caps, auto, ups, t, steps)
+    for d in chain:
+        cost = {g: v * WAREHOUSE_COST_MULT for g, v in WAREHOUSE_RESEARCH[d]["cost"].items()}
+        t += afford_time(cost, bs, caps, auto, ups) + RESEARCH_WORK
+        steps.append(("wresearch", d, t))
+    return steps, bs, caps, auto, ups, t
+
+
+WAREHOUSE_COST_MULT = 1.0
 
 
 # ===========================================================================
@@ -646,11 +857,20 @@ def cutscene_timeline(build_times):
 #    (busy = fun) tapering to a calm late game (manual PC-part crafting only).
 # ===========================================================================
 def evaluate(good, amount):
-    steps, bs, caps, auto, total = plan(good, amount)
+    steps, bs, caps, auto, ups, total = plan(good, amount)
     gate = next((s[2] for s in steps if s[1] == STORY_GATE), np.nan)
     sched = crafting_schedule(steps, good, amount, total)
-    return dict(steps=steps, buildings=bs, caps=caps, auto=auto, total=total,
-                gate=gate, crafts=sched)
+    return dict(steps=steps, buildings=bs, caps=caps, auto=auto, ups=ups, total=total,
+                gate=gate, crafts=sched, good=good, amount=amount,
+                goal_row=f"▶ {amount} {name(good)}", label=f"{amount} x {name(good)}")
+
+
+def evaluate_research(target):
+    steps, bs, caps, auto, ups, total = plan_research(target)
+    sched = crafting_schedule(steps, None, 0, total)
+    return dict(steps=steps, buildings=bs, caps=caps, auto=auto, ups=ups, total=total,
+                gate=np.nan, crafts=sched, good=None, amount=0,
+                goal_row=f"▶ {target}", label=f"{target} (research)")
 
 
 def crafting_schedule(steps, good, amount, total):
@@ -688,10 +908,17 @@ def crafting_schedule(steps, good, amount, total):
             for g, q in CAP_COST.get(typ, {}).items():
                 craft_for(g, q, t, f"research {typ}")
             caps.add(typ)
+        elif kind == "wresearch":
+            for g, q in WAREHOUSE_RESEARCH.get(typ, {}).get("cost", {}).items():
+                craft_for(g, q, t, f"research {typ}")
         elif kind == "automate":
             for g, q in AUTOMATION_COST.items():
                 craft_for(g, q, t, f"automate {bname(typ)}")
-    craft_for(good, amount, total, "assemble goal")     # final manual assembly
+        elif kind == "upgrade":
+            for g, q in UPGRADES[typ]["cost"].items():
+                craft_for(g, q, t, f"upgrade {bname(typ[0])}")
+    if good is not None:
+        craft_for(good, amount, total, "assemble goal")     # final manual assembly
 
     # aggregate: one order per good per phase (the player batches a repeat count)
     agg = {}
@@ -733,14 +960,17 @@ def fmt(sec):
 def _label(kind, typ):
     if kind == "build":
         return bname(typ)
-    if kind == "research":
+    if kind in ("research", "wresearch"):
         return f"~research {typ}"
     if kind == "automate":
         return f"* automate {bname(typ)}"
+    if kind == "upgrade":
+        return f"^ upgrade {bname(typ[0])}: {UPGRADES[typ]['display']}"
     return typ
 
 
-def report(good, amount):
+def report(res):
+    steps, bs, total, crafts = res["steps"], res["buildings"], res["total"], res["crafts"]
     print("=" * 78)
     print("  12 STINKY STARKNIGHTS  --  pacing model (parsed from game source)")
     print("=" * 78)
@@ -749,15 +979,9 @@ def report(good, amount):
     if G["skipped"]:
         print(f"  skipped {len(G['skipped'])} incomplete recipe(s): "
               f"{', '.join(G['skipped'])}  (no work/outputs yet)")
-    print(f"  Goal: {amount} x {name(good)}   (story gate: {bname(STORY_GATE)})")
+    print(f"  Goal: {res['label']}")
     print()
 
-    try:
-        res = evaluate(good, amount)
-    except RuntimeError as e:
-        print(f"  !! {e}")
-        return None, None
-    steps, bs, total, crafts = res["steps"], res["buildings"], res["total"], res["crafts"]
     build_times = {s[1]: s[2] for s in steps if s[0] == "build"}
     fires = cutscene_timeline(build_times)
 
@@ -767,7 +991,9 @@ def report(good, amount):
     for kind, typ, t in steps:
         tag = "   <- Jelly debut + merch challenge" if typ == STORY_GATE else ""
         print(f"    {_label(kind, typ):<36} @ {fmt(t)}{tag}")
-    print(f"    {'ASSEMBLE ' + str(amount) + ' ' + name(good):<36} @ {fmt(total)}")
+    goal_line = (f"ASSEMBLE {res['amount']} {name(res['good'])}"
+                 if res["good"] is not None else f"COMPLETE {res['label']}")
+    print(f"    {goal_line:<36} @ {fmt(total)}")
     print()
 
     print("-" * 78)
@@ -788,10 +1014,11 @@ def report(good, amount):
     n_build = sum(1 for s in steps if s[0] == "build")
     n_res = sum(1 for s in steps if s[0] == "research")
     n_auto = sum(1 for s in steps if s[0] == "automate")
+    n_up = sum(1 for s in steps if s[0] == "upgrade")
     print("-" * 78)
     print("  PLAYER ACTIVITY  (density of actions = fun; want early >> late)")
     print("-" * 78)
-    print(f"    {n_build} builds, {n_res} research, {n_auto} automations, "
+    print(f"    {n_build} builds, {n_res} research, {n_up} upgrades, {n_auto} automations, "
           f"{len(crafts)} workshop crafts  ({n} actions total)")
     print(f"    density: early half {early:5.2f}/min   ->   late half {late:5.2f}/min")
     print()
@@ -809,24 +1036,26 @@ def report(good, amount):
     loadout = {c: 2 for c in BUILDING_TYPES}
     loadout["Warehouse"] = 1                 # required to make any challenge good
     all_auto = frozenset(BUILDING_TYPES)
+    full_ups = frozenset(UPGRADES)           # every throughput upgrade researched
     print("-" * 78)
-    print("  STEADY-STATE THROUGHPUT per finished good  (2x every building, all caps)")
+    print("  STEADY-STATE THROUGHPUT per finished good  (2x every building, all caps + upgrades)")
     print(f"  {'':30}{'manual (12 workers)':>22}{'fully automated':>20}")
     print("-" * 78)
     for g in FINISHED:
-        man, bm = max_bundle_rate({g: 1.0}, loadout, full_caps)
-        aut, ba = max_bundle_rate({g: 1.0}, loadout, full_caps, all_auto)
+        man, bm = max_bundle_rate({g: 1.0}, loadout, full_caps, ups=full_ups)
+        aut, ba = max_bundle_rate({g: 1.0}, loadout, full_caps, all_auto, full_ups)
         m = f"{man*60:8.3f}/min" if man > 1e-9 else " (no producer)"
         a = f"{aut*60:8.3f}/min" if aut > 1e-9 else " (no producer)"
         print(f"    {name(g):<28}{m:>20}{a:>20}   [auto: {ba}]")
     print("=" * 78)
-    return res, fires
+    return fires
 
 
-def make_plots(good, amount, res, fires):
+def make_plots(res, fires):
     steps, total, crafts = res["steps"], res["total"], res["crafts"]
-    palette = {"build": "#23deff", "research": "#b060e0", "automate": "#40c060",
-               "goal": "#e0a030", "craft": "#e0782a"}
+    palette = {"build": "#23deff", "research": "#b060e0", "wresearch": "#b060e0",
+               "automate": "#40c060", "goal": "#e0a030", "craft": "#e0782a",
+               "upgrade": "#d8b020"}
 
     # One ROW PER type; a dot marks each event. Workshop CRAFT orders are folded
     # into the same timeline (orange) and rows are ordered by first-occurrence
@@ -835,13 +1064,18 @@ def make_plots(good, amount, res, fires):
     def add_event(lab, t, kind):
         events.setdefault(lab, []).append((t, kind))
     for k, ty, t in steps:
-        lab = (f"research {ty}" if k == "research"
-               else f"automate {bname(ty)}" if k == "automate" else bname(ty))
+        if k in ("research", "wresearch"):
+            lab = f"research {ty}"
+        elif k == "automate":
+            lab = f"automate {bname(ty)}"
+        elif k == "upgrade":
+            lab = f"↑ {bname(ty[0])}: {UPGRADES[ty]['display']}"
+        else:
+            lab = bname(ty)
         add_event(lab, t, k)
     for t, g, qty, why, dur in crafts:
         add_event(f"⚒ craft {name(g)}", t, "craft")
-    goal_lab = f"▶ {amount} {name(good)}"
-    add_event(goal_lab, total, "goal")
+    add_event(res["goal_row"], total, "goal")
 
     # Order rows by first-occurrence time. At equal times a craft precedes the
     # build/research it feeds (you craft the inputs, THEN the job completes), and
@@ -873,15 +1107,15 @@ def make_plots(good, amount, res, fires):
         ax1.axvspan(d[0][0] / 60.0, d[0][1] / 60.0, color="#e0a030", alpha=0.15,
                     label="Jelly debut")
     ax1.set_xlabel("wall-clock minutes")
-    ax1.set_title(f"Optimal path to {amount} {name(good)}")
+    ax1.set_title(f"Optimal path to {res['label']}")
     legend_handles = [Line2D([0], [0], marker="o", linestyle="none",
                              markerfacecolor=palette[k], markeredgecolor="none",
                              markersize=7, label=lab)
                       for k, lab in [("build", "build"), ("research", "research"),
-                                     ("automate", "automate"), ("craft", "craft"),
-                                     ("goal", "goal")]]
+                                     ("upgrade", "upgrade"), ("automate", "automate"),
+                                     ("craft", "craft"), ("goal", "goal")]]
     ax1.legend(handles=legend_handles, fontsize=7, loc="upper right",
-               ncol=5, framealpha=0.9)
+               ncol=6, framealpha=0.9)
     ax1.margins(x=0.02)
     ax1.grid(True, axis="x", alpha=0.3)
 
@@ -916,17 +1150,32 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--good", default=GOAL_GOOD)
     ap.add_argument("--amount", type=int, default=GOAL_AMOUNT)
+    ap.add_argument("--research", metavar="NAME",
+                    help="benchmark reaching a Warehouse research, e.g. 'Meka Suit Integration'")
     ap.add_argument("--no-plots", action="store_true")
     args = ap.parse_args()
 
-    good = args.good.upper()
-    if good not in GOODS:
-        print(f"unknown good '{good}'. finished: {', '.join(FINISHED)}", file=sys.stderr)
-        return 1
+    if args.research:
+        match = next((d for d in WAREHOUSE_RESEARCH
+                      if d.lower() == args.research.lower()), None)
+        if match is None:
+            print(f"unknown research '{args.research}'. available: "
+                  f"{', '.join(WAREHOUSE_RESEARCH)}", file=sys.stderr)
+            return 1
+        res = evaluate_research(match)
+    else:
+        good = args.good.upper()
+        if good not in GOODS:
+            print(f"unknown good '{good}'. finished: {', '.join(FINISHED)}", file=sys.stderr)
+            return 1
+        try:
+            res = evaluate(good, args.amount)
+        except RuntimeError as e:
+            print(f"  !! {e}"); return 1
 
-    res, fires = report(good, args.amount)
-    if res and not args.no_plots:
-        make_plots(good, args.amount, res, fires)
+    fires = report(res)
+    if not args.no_plots:
+        make_plots(res, fires)
     return 0
 
 

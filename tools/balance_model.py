@@ -191,19 +191,25 @@ def _parse_building_upgrades(building_dir):
     'speed' -> work_scale (faster runs). Both multiply a building's net
     throughput per instance in this continuous model (see _tmul).
 
-    Helper signature: _<k>_upgrade(slot, name, description, scale, cost, prereq?)."""
+    Helper signature: _<k>_upgrade(slot, name, description, scale, cost, prereq?).
+    Factories use _output_upgrade (production_scale) / _speed_upgrade (work_scale);
+    extraction sites use _yield_upgrade (yield_scale). yield and output both scale a
+    building's net rate identically (kind 'output'); speed divides its duration."""
     upgrades = {}
     for path in sorted(Path(building_dir).glob("*.gd")):
         text = pg.read(path)
         m = re.search(r"class_name\s+(\w+)", text)
         cls = m.group(1) if m else path.stem
         items = []
+        # Match a helper call, optionally preceded by its `var NAME [: Type] =` (or
+        # `:=`) binding and an opening `[` (a typed list literal wraps single ones).
         for c in re.finditer(
-                r"var\s+(\w+)\s*:=\s*(_output_upgrade|_speed_upgrade)\s*\(", text):
+                r"(?:var\s+(\w+)\s*(?::\s*[\w\[\]]+)?\s*:?=\s*\[?\s*)?"
+                r"(_output_upgrade|_speed_upgrade|_yield_upgrade)\s*\(", text):
             args = _split_call_args(text, c.end())
             if len(args) < 5:
                 continue
-            kind = "output" if c.group(2) == "_output_upgrade" else "speed"
+            kind = "speed" if c.group(2) == "_speed_upgrade" else "output"
             scale = float(eval(args[3].split("#")[0].strip(), {"__builtins__": {}}, {}))
             cost = {cm.group(1): int(cm.group(2)) for cm in re.finditer(
                 r"Stockpile\.ItemType\.(\w+)\s*:\s*(\d+)", args[4])}
@@ -211,7 +217,8 @@ def _parse_building_upgrades(building_dir):
             if len(args) >= 6 and re.fullmatch(r"\w+", args[5].strip()):
                 prereqs.append(args[5].strip())
             display = args[1].strip().strip('"')
-            items.append(dict(var=c.group(1), kind=kind, display=display,
+            var = c.group(1) or f"slot{args[0].strip()}"   # id; fall back to slot
+            items.append(dict(var=var, kind=kind, display=display,
                               scale=scale, cost=cost, prereqs=prereqs))
         if items:
             upgrades[cls] = items
@@ -370,8 +377,9 @@ def _activities(caps, warehouse, tmul):
         acts.append((f"manual:{r}", HARVEST_DURATION / HARVEST_AMOUNT, {r: 1.0}, "worker_only"))
         bt = RAW_SOURCE.get(r)
         if bt is not None:
+            m = tmul.get(bt, 1.0)               # per-site yield upgrade
             acts.append((f"extract:{r}", (HARVEST_DURATION / EXTRACTION_SPEEDUP),
-                         {r: float(HARVEST_AMOUNT)}, ("building", bt)))
+                         {r: float(HARVEST_AMOUNT) * m}, ("building", bt)))
     for key, (inp, out, work, rcaps) in RECIPES.items():
         # challenge goods (merch / PC parts) can't be made until the Warehouse exists
         if not warehouse and any(o in CHALLENGE_ITEMS for o in out):

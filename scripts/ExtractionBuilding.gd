@@ -32,6 +32,8 @@ func _define_research() -> void:
     if not Research.can_register(self):
         return
 
+    var items: Array[ResearchItem] = _upgrade_research()
+
     var automation := ResearchItem.new()
     automation.display_name = "Automation"
     automation.description = "Fully automate this operation to run without a Starknight."
@@ -41,7 +43,35 @@ func _define_research() -> void:
     automation.on_complete = func() -> void:
         automated[get_script()] = true
 
-    Research.register_research(self, [automation])
+    items.append(automation)
+
+    Research.register_research(self, items)
+
+
+# Overridden by extraction sites that offer a yield upgrade (slots 1-8).
+func _upgrade_research() -> Array[ResearchItem]:
+    return []
+
+
+# Multiplies this site's harvest amount per run (yield_scale).
+func _yield_upgrade(slot: int, name: String, description: String, scale: int, cost: Dictionary, prerequisite: ResearchItem = null) -> ResearchItem:
+    var item := _new_upgrade(slot, name, description, cost, prerequisite)
+    var script: Script = get_script()
+    item.on_complete = func() -> void:
+        yield_scale[script] = scale
+    return item
+
+
+func _new_upgrade(slot: int, name: String, description: String, cost: Dictionary, prerequisite: ResearchItem) -> ResearchItem:
+    var item := ResearchItem.new()
+    item.slot = slot
+    item.display_name = name
+    item.description = description
+    for resource in cost:
+        item.cost[resource] = cost[resource]
+    if prerequisite != null:
+        item.prerequisites.append(prerequisite)
+    return item
 
 
 func _process(_delta: float) -> void:

@@ -100,28 +100,38 @@ func _define_cutscenes() -> void:
     ### standee into jelly coffee task ###
     ######################################
 
-    var jelly_coffee := Cutscene.new()
-    _locked_cutscenes.append(jelly_coffee)
+    var standee_crafted := Cutscene.new()
+    _locked_cutscenes.append(standee_crafted)
 
-    jelly_coffee.after = [merch_tutorial]
-    jelly_coffee.condition = func() -> bool:
+    standee_crafted.after = [merch_tutorial]
+    standee_crafted.condition = func() -> bool:
         return Stockpile.is_seen(Stockpile.ItemType.JELLY_STANDEES)
-    jelly_coffee.still = preload("res://assets/cutscenes/kevin.png")
-    jelly_coffee.text = say(SAKANA, "Sakana", "Great start! Now do it again. Just make as many as you can man.") + say(SAKANA, "Sakana", "What is the most important product of Phase Connect? Trick question, its coffee of course. We're a coffee company. Jelly wants sumatra beans, get back to work.")
-    jelly_coffee.on_complete = func() -> void:
+    standee_crafted.still = preload("res://assets/cutscenes/kevin.png")
+    standee_crafted.text = say(SAKANA, "Sakana", "Great start! Now do it again. Just make as many as you can man.") + say(SAKANA, "Sakana", "What is Phase Connect's most important product? Trick question, its coffee of course. We're a coffee company. Kelly wants sumatra beans, get back to work.")
+    standee_crafted.on_complete = func() -> void:
         Stockpile.start_challenge(Stockpile.ItemType.JELLY_COFFEE)
 
-    ##############################
-    ### steam engine choo choo ###
-    ##############################
+    var coffee_crafted := Cutscene.new()
+    _locked_cutscenes.append(coffee_crafted)
+
+    coffee_crafted.after = [standee_crafted]
+    coffee_crafted.condition = func() -> bool:
+        return Stockpile.is_seen(Stockpile.ItemType.JELLY_COFFEE)
+    coffee_crafted.video = preload("res://assets/cutscenes/jelly_coffee.ogv")
+    coffee_crafted.text = say(JELLY, "Jelly", "[wave amp=40 freq=4]Awawawawawawawawa![/wave]")
+    coffee_crafted.min_duration = 172.8
+
+    ####################
+    ### steam engine ###
+    ####################
 
     var steam_engine_start := Cutscene.new()
     _locked_cutscenes.append(steam_engine_start)
 
     steam_engine_start.condition = func() -> bool:
         return Workshop.has_capability(Crafting.Capabilities.OVERHEAD_CRANE)
-    steam_engine_start.still = preload("res://assets/cutscenes/kevin.png")
-    steam_engine_start.text = say(SAKANA, "Sakana", "Yeah so Jelly needs a steam engine. Don't ask me I don't now either, just get her a steam engine man.")
+    steam_engine_start.video = preload("res://assets/cutscenes/jelly_big_brother.ogv")
+    steam_engine_start.text = say(JELLY, "Jelly", "Starknights! Starknights! I want a steam engine make me a steam engine.")
     steam_engine_start.on_complete = func() -> void:
         Stockpile.start_challenge(Stockpile.ItemType.STEAM_ENGINE)
 

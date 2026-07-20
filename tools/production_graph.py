@@ -149,7 +149,14 @@ def parse_buildings(buildings_dir: Path) -> dict[str, Building]:
         base = (re.search(r"extends\s+(\w+)", text) or [None, ""])[1]
         disp = (re.search(r'get_display_name\(\)\s*->\s*String:\s*\n\s*return\s+"([^"]*)"',
                           text) or [None, cls])[1]
+        # A site harvests a fixed item (rather than its tile deposit) by overriding
+        # get_base_yield_types() to return literal ItemType(s) -- e.g. the coffee
+        # farm. (Also accept the legacy direct _will_harvest[ItemType.X] form.)
         harvest = re.findall(r"_will_harvest\[Stockpile\.ItemType\.(\w+)\]", text)
+        yt = re.search(r"func get_base_yield_types\(\)[^:]*:(.*?)(?=\nfunc |\Z)", text, re.S)
+        if yt:
+            harvest += re.findall(r"Stockpile\.ItemType\.(\w+)", yt.group(1))
+        harvest = list(dict.fromkeys(harvest))
         buildings[cls] = Building(cls=cls, base=base, display_name=disp,
                                   harvest_override=harvest)
 

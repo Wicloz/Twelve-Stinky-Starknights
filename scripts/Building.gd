@@ -40,6 +40,10 @@ func get_recipe() -> Recipe:
 	return null
 
 
+func get_display_recipe() -> Recipe:
+	return get_recipe()
+
+
 func has_popup() -> bool:
 	return false
 

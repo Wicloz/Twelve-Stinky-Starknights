@@ -105,12 +105,52 @@ func _process(_delta: float) -> void:
     _post_job()
 
 
+func _get_base_duration() -> float:
+    return tile.HARVEST_DURATION
+
+
 func _duration() -> float:
-    return tile.HARVEST_DURATION / BASE_WORK_SPEEDUP / _get_work_scale()
+    return _get_base_duration() / BASE_WORK_SPEEDUP / _get_work_scale()
+
+
+func _get_base_yield_amount() -> int:
+    return tile.HARVEST_AMOUNT
+
+
+func get_base_yield_types() -> Array[Stockpile.ItemType]:
+    if tile == null:
+        return []
+    return [tile.deposit]
 
 
 func _determine_harvest() -> void:
-    _will_harvest[tile.deposit] = tile.HARVEST_AMOUNT * _get_yield_scale()
+    var yield_amount: int = _get_base_yield_amount() * _get_yield_scale()
+
+    _will_harvest.clear()
+    for item_type in get_base_yield_types():
+        _will_harvest[item_type] = yield_amount
+
+
+# Extractors have no crafting recipe; synthesise a harvest "recipe" (no inputs) for
+# the building panel from the same base accessors _determine_harvest() uses, with the
+# current yield/speed scales folded in. Computed fresh -- it does NOT touch
+# _will_harvest, so opening the panel never disturbs an in-flight harvest.
+func get_display_recipe() -> Recipe:
+    if tile == null:
+        return null
+
+    var types := get_base_yield_types()
+    if types.is_empty():
+        return null
+
+    var amount: int = _get_base_yield_amount() * _get_yield_scale()
+
+    var harvest := Recipe.new()
+    harvest.display_name = "Harvest"
+    harvest.work = _get_base_duration() / _get_work_scale()
+    for item_type in types:
+        harvest.outputs[item_type] = amount
+    return harvest
 
 
 func _automated_run() -> void:

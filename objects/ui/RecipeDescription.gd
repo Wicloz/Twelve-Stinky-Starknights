@@ -4,6 +4,7 @@ extends VBoxContainer
 
 @onready var _recipe_name: Label = $RecipeName
 @onready var _recipe_inputs: Label = $RecipeIO/Inputs
+@onready var _recipe_arrow: Label = $RecipeIO/Arrow
 @onready var _recipe_outputs: Label = $RecipeIO/Outputs
 @onready var _recipe_work: Label = $RecipeWork
 
@@ -19,7 +20,12 @@ func show_recipe(recipe: Recipe) -> void:
 	_recipe_name.text = recipe.display_name
 	_recipe_inputs.text = _fmt_io(recipe.inputs)
 	_recipe_outputs.text = _fmt_io(recipe.outputs)
-	_recipe_work.text = "%ss" % recipe.work
+	_recipe_work.text = _fmt_work(recipe.work)
+
+	# Extractors have no inputs -- hide the empty input column and the "=>" arrow.
+	var has_inputs := not recipe.inputs.is_empty()
+	_recipe_inputs.visible = has_inputs
+	_recipe_arrow.visible = has_inputs
 
 
 func _fmt_io(items: Dictionary) -> String:
@@ -27,6 +33,12 @@ func _fmt_io(items: Dictionary) -> String:
 	for item in items:
 		lines.append("%d %s" % [items[item], Stockpile.get_display_name(item)])
 	return "\n".join(lines)
+
+
+func _fmt_work(work: float) -> String:
+	if is_equal_approx(work, roundf(work)):
+		return "%ds" % int(roundf(work))
+	return "%.1fs" % work
 
 
 func pin_min_size(recipes: Array[Recipe]) -> void:
@@ -47,7 +59,7 @@ func pin_min_size(recipes: Array[Recipe]) -> void:
 	var max_io_lines: int = 0
 	for recipe in recipes:
 		name_width = max(name_width, name_font.get_string_size(recipe.display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, name_size).x)
-		work_width = max(work_width, work_font.get_string_size("%ss" % recipe.work, HORIZONTAL_ALIGNMENT_LEFT, -1, work_size).x)
+		work_width = max(work_width, work_font.get_string_size(_fmt_work(recipe.work), HORIZONTAL_ALIGNMENT_LEFT, -1, work_size).x)
 		for item in recipe.inputs:
 			var line := "%d %s" % [recipe.inputs[item], Stockpile.get_display_name(item)]
 			inputs_width = max(inputs_width, io_font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, io_size).x)

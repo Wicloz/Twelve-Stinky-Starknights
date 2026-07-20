@@ -26,6 +26,9 @@ func _try_scene_probe() -> void:
         _items_produced.assign(recipe.outputs.keys())
         _items_consumed.assign(recipe.inputs.keys())
 
+    if building is ExtractionBuilding:
+        _items_produced.assign(building.get_base_yield_types())
+
     _texture = building.get_node("Sprite2D").texture
 
     _display_name = building.get_display_name()

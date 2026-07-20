@@ -33,5 +33,13 @@ func _upgrade_research() -> Array[ResearchItem]:
 	return items
 
 
-func _determine_harvest() -> void:
-	_will_harvest[Stockpile.ItemType.COFFEE_CHERRIES] = _get_yield_scale()
+func _get_base_duration() -> float:
+	return 1.0
+
+
+func _get_base_yield_amount() -> int:
+	return 1
+
+
+func get_base_yield_types() -> Array[Stockpile.ItemType]:
+	return [Stockpile.ItemType.COFFEE_CHERRIES]

@@ -25,6 +25,22 @@ func get_recipe() -> Recipe:
     return _recipe
 
 
+# The recipe as it CURRENTLY runs, with this building type's researched upgrades
+# folded in: bigger batch (production_scale), leaner input (efficiency_scale) and
+# faster work (work_scale). Mirrors the maths in _try_consume / _duration.
+func get_display_recipe() -> Recipe:
+    var eff := Recipe.new()
+    eff.display_name = _recipe.display_name
+    eff.work = _recipe.work / _get_work_scale()
+    var prod: int = _get_production_scale()
+    var effic: float = _get_efficiency_scale()
+    for item in _recipe.inputs:
+        eff.inputs[item] = ceili(_recipe.inputs[item] * prod / effic)
+    for item in _recipe.outputs:
+        eff.outputs[item] = _recipe.outputs[item] * prod
+    return eff
+
+
 func _define_research() -> void:
     if not Research.can_register(self):
         return

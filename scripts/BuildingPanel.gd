@@ -36,6 +36,7 @@ func _ready() -> void:
 		_research_items.append(null)
 
 	Research.changed.connect(_refresh_research)
+	Research.changed.connect(_refresh_recipe)
 	Stockpile.changed.connect(_refresh_research)
 
 
@@ -45,16 +46,13 @@ func show_for(building: Building) -> void:
 	_title.text = building.get_display_name()
 	_popup_button.visible = building.has_popup()
 
-	var recipe := building.get_recipe()
-	_recipe_description.visible = recipe != null
-	_recipe_description.show_recipe(recipe)
-
 	building.constructed.connect(_on_building_constructed)
 	_set_destruct_icon()
 	_destruct_button.visible = building.can_demolish()
 
 	show()
 
+	_refresh_recipe()
 	_refresh_research()
 	_open_popup()
 
@@ -70,6 +68,15 @@ func hide_panel() -> void:
 func _on_building_constructed() -> void:
 	_set_destruct_icon()
 	_refresh_research()
+
+
+func _refresh_recipe() -> void:
+	if not visible or _building == null:
+		return
+
+	var recipe := _building.get_display_recipe()
+	_recipe_description.visible = recipe != null
+	_recipe_description.show_recipe(recipe)
 
 
 func _refresh_research() -> void:

@@ -2,12 +2,26 @@ extends VBoxContainer
 
 
 @export var label_settings: LabelSettings
+## Bottom panels whose left edge should stay flush against the (variable-width)
+## resource list, so they fill only the space to its right.
+@export var bottom_panels: Array[Control] = []
 var _labels: Dictionary[Stockpile.ItemType, Label] = {}
 
 
 func _ready() -> void:
 	Stockpile.changed.connect(_refresh)
+	resized.connect(_sync_panel_offsets)
+	get_parent().resized.connect(_sync_panel_offsets)
 	_refresh()
+	_sync_panel_offsets()
+
+
+# Anchors can't reference a sibling's size, so push the scroll area's right edge
+# onto the bottom panels whenever the list or the viewport changes width.
+func _sync_panel_offsets() -> void:
+	var edge := (get_parent() as Control).size.x
+	for panel in bottom_panels:
+		panel.offset_left = edge
 
 
 func _refresh() -> void:

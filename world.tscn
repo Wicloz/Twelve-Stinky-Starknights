@@ -836,7 +836,6 @@ terrain_texture = ExtResource("17_jas3d")
 [node name="Tile=7,0" parent="HexMap" unique_id=2070420024 instance=ExtResource("30_5ocsm")]
 position = Vector2(1904, 0)
 q = 7
-walkable = false
 terrain_texture = ExtResource("7_gggvi")
 
 [node name="Tile=8,0" parent="HexMap" unique_id=226890065 instance=ExtResource("30_5ocsm")]

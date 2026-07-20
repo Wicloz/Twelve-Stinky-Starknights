@@ -73,14 +73,6 @@ func recipes_for_workshop() -> Array[Recipe]:
 		if not satisfied:
 			continue
 
-		for resource in recipe.inputs:
-			if Stockpile.is_unavailable_story_item(resource):
-				satisfied = false
-				break
-
-		if not satisfied:
-			continue
-
 		for resource in recipe.outputs:
 			if Stockpile.is_unavailable_story_item(resource):
 				satisfied = false

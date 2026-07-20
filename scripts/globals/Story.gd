@@ -128,6 +128,7 @@ func _define_cutscenes() -> void:
     var steam_engine_start := Cutscene.new()
     _locked_cutscenes.append(steam_engine_start)
 
+    steam_engine_start.after = [jelly_debut]
     steam_engine_start.condition = func() -> bool:
         return Workshop.has_capability(Crafting.Capabilities.OVERHEAD_CRANE)
     steam_engine_start.video = preload("res://assets/cutscenes/jelly_big_brother.ogv")
@@ -151,6 +152,7 @@ func _define_cutscenes() -> void:
     var white_paint_start := Cutscene.new()
     _locked_cutscenes.append(white_paint_start)
 
+    white_paint_start.after = [jelly_debut]
     white_paint_start.condition = func() -> bool:
         return Stockpile.get_cumulative(Stockpile.ItemType.PLASTIC) >= 10000
     white_paint_start.video = preload("res://assets/cutscenes/jelly_big_brother.ogv")

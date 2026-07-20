@@ -58,7 +58,6 @@
 [node name="World" type="Node2D" unique_id=1592913599]
 
 [node name="HexMap" type="Node2D" parent="." unique_id=1398524653]
-z_index = -1
 script = ExtResource("1_wse8f")
 
 [node name="Tile=0,-8" parent="HexMap" unique_id=1888360592 instance=ExtResource("30_5ocsm")]

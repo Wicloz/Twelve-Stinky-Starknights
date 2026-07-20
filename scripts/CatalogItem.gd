@@ -69,7 +69,6 @@ func try_place_on(tile: HexTile):
         return error
 
     var building = scene.instantiate() as Building
-    building.z_index = tile.z_index + 1
 
     tile.set_harvesting(false)
 

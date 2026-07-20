@@ -249,8 +249,9 @@ func get_unlocked_buildings() -> Array[CatalogItem]:
     return _catalog.filter(func(item: CatalogItem) -> bool:
         if item.always_unlocked:
             return true
+
         for resource in item.cost:
-            if not Stockpile.is_seen(resource) or Stockpile.is_unavailable_story_item(resource):
+            if Stockpile.is_unavailable_story_item(resource):
                 return false
         for resource in item.allowed_deposits:
             if Stockpile.is_unavailable_story_item(resource):
@@ -261,5 +262,9 @@ func get_unlocked_buildings() -> Array[CatalogItem]:
         for resource in item.get_items_consumed():
             if Stockpile.is_unavailable_story_item(resource):
                 return false
-        return true
+
+        for resource in item.cost:
+            if Stockpile.is_seen(resource):
+                return true
+        return false
     )

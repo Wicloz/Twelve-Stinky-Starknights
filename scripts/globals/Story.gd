@@ -43,7 +43,7 @@ func _define_cutscenes() -> void:
 
     opening_tutorial.after = [opening_sakana]
     opening_tutorial.still = preload("res://assets/cutscenes/aiko.jpg")
-    opening_tutorial.text = say(AIKO, "Aiko", "Click on a deposit tile and enable harvesting to have a Starknight work it. Use the [u]workshop[/u] to manually craft small amounts of items, you will need 10 clay bricks and 10 mechanical components to get started. Construct buildings from the picker at the bottom to speed up extraction and production. This menu will be hidden if you have a building or deposit selected. Buildings can also be upgraded after selecting them. Buildings only show up after you have discovered all of their construction materials, so make sure to explore everything you can.")
+    opening_tutorial.text = say(AIKO, "Aiko", "Click on a deposit tile and enable harvesting to have a Starknight work it. Use the [u]workshop[/u] to manually craft small amounts of items, you will need 10 clay bricks and 10 mechanical components to get started. Construct buildings from the picker at the bottom, then click on them to access their upgrades. This will significantly speed up extraction and production. Number go up!")
 
     ##############################
     ### warehouse intermission ###

@@ -107,7 +107,7 @@ func _select() -> void:
 
 	if tile == null:
 		deposit_panel.hide()
-		building_panel.hide()
+		building_panel.hide_panel()
 		construction_panel.show()
 
 	elif tile.building != null:
@@ -117,17 +117,17 @@ func _select() -> void:
 
 	elif tile.deposit != Stockpile.ItemType.NONE:
 		deposit_panel.show_for(tile)
-		building_panel.hide()
+		building_panel.hide_panel()
 		construction_panel.hide()
 
 	else:
 		deposit_panel.hide()
-		building_panel.hide()
+		building_panel.hide_panel()
 		construction_panel.show()
 
 
 func _on_building_panel_destruct() -> void:
-	building_panel.hide()
+	building_panel.hide_panel()
 	construction_panel.show()
 
 

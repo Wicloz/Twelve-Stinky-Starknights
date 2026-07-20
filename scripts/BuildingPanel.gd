@@ -25,7 +25,6 @@ var _research_items: Array[ResearchItem] = []
 func _ready() -> void:
 	hide()
 	_popup_button.pressed.connect(_open_popup)
-	visibility_changed.connect(_on_visibility_changed)
 	_destruct_button.pressed.connect(_on_destruct_pressed)
 	_close.pressed.connect(_on_close_pressed)
 
@@ -58,6 +57,12 @@ func show_for(building: Building) -> void:
 
 	_refresh_research()
 	_open_popup()
+
+
+func hide_panel() -> void:
+	hide()
+	_building.constructed.disconnect(_on_building_constructed)
+	_close_popup()
 
 
 func _on_building_constructed() -> void:
@@ -149,8 +154,3 @@ func _open_popup() -> void:
 
 	_popup.bind(_building)
 	_popup.register_close_handler(_close_popup)
-
-
-func _on_visibility_changed() -> void:
-	if not visible:
-		_close_popup()

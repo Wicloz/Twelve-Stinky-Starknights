@@ -88,6 +88,7 @@ func _define_playlists() -> void:
 	_add("AI Generated", preload("res://assets/music/suno/Wrong Star, Baby.ogg"))
 	_add("AI Generated", preload("res://assets/music/suno/Starknights build tonight.ogg"))
 	_add("AI Generated", preload("res://assets/music/suno/Titanium.ogg"))
+	_add("AI Generated", preload("res://assets/music/suno/Grinding on the Hex.ogg"))
 
 
 func _add(playlist: String, stream: AudioStream) -> void:

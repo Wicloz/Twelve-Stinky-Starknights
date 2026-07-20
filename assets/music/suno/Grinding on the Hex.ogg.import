@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dhkfvwl6i0hjw"
+path="res://.godot/imported/Grinding on the Hex.ogg-e97e2e6b47c8dc70e0708c85f0c3f180.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/music/suno/Grinding on the Hex.ogg"
+dest_files=["res://.godot/imported/Grinding on the Hex.ogg-e97e2e6b47c8dc70e0708c85f0c3f180.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

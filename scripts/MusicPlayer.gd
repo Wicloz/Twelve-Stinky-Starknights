@@ -148,12 +148,13 @@ func _play_index(index: int) -> void:
 	_index = wrapi(index, 0, list.size())
 	_player.stream = list[_index]
 
+	_seek.max_value = _player.stream.get_length()
+	_seek.value = 0.0
+
+	_refresh_title()
+
 	if _play_pause.button_pressed:
 		_player.play()
-
-	_seek.max_value = _player.stream.get_length()
-	_seek.set_value_no_signal(0.0)
-	_refresh_title()
 
 
 func _on_seek_changed(value: float) -> void:

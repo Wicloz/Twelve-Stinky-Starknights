@@ -119,7 +119,7 @@ func _define_cutscenes() -> void:
         return Stockpile.is_seen(Stockpile.ItemType.JELLY_COFFEE)
     coffee_crafted.video = preload("res://assets/cutscenes/jelly_coffee.ogv")
     coffee_crafted.text = say(JELLY, "Jelly", "[wave amp=40 freq=4]Awawawawawawawawa![/wave]")
-    coffee_crafted.min_duration = 172.8
+    coffee_crafted.min_duration = 1728.0 / 10.0
 
     ####################
     ### steam engine ###
@@ -143,6 +143,29 @@ func _define_cutscenes() -> void:
     steam_engine_done.video = preload("res://assets/cutscenes/jelly_choo_choo.ogv")
     steam_engine_done.text = say(JELLY, "Jelly", "[wave amp=40 freq=4]Choo! Choo![/wave]") + say(JELLY, "Jelly", "[wave amp=40 freq=4]Choo! Choo![/wave]") + say(JELLY, "Jelly", "[wave amp=40 freq=4]Choo! Choo![/wave]")
     steam_engine_done.min_duration = 349.0 / 60.0 + 113.0 / 30.0 + 59.0 / 4.0
+
+    ###################
+    ### white paint ###
+    ###################
+
+    var white_paint_start := Cutscene.new()
+    _locked_cutscenes.append(white_paint_start)
+
+    white_paint_start.condition = func() -> bool:
+        return Stockpile.get_cumulative(Stockpile.ItemType.PLASTIC) >= 10000
+    white_paint_start.video = preload("res://assets/cutscenes/jelly_big_brother.ogv")
+    white_paint_start.text = say(JELLY, "Jelly", "I'm all out of stream ideas man... Surely, surely, nobody would literally watch paint dry with me... I'm going to do a paint drying stream, Starknights, get me enough white paint for six hours.")
+    white_paint_start.on_complete = func() -> void:
+        Stockpile.start_challenge(Stockpile.ItemType.WHITE_PAINT)
+
+    var white_paint_done := Cutscene.new()
+    _locked_cutscenes.append(white_paint_done)
+
+    white_paint_done.condition = func() -> bool:
+        return Stockpile.is_challenge_completed(Stockpile.ItemType.WHITE_PAINT)
+    white_paint_done.video = preload("res://assets/cutscenes/white_paint_dries.ogv")
+    white_paint_done.text = say(JELLY, "Jelly", "...")
+    white_paint_done.min_duration = 1800.0 / 10.0
 
 
 const SAKANA := "#8682c6"

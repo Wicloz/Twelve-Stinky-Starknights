@@ -500,9 +500,6 @@ position = Vector2(408, -612)
 q = 3
 r = -3
 terrain_texture = ExtResource("16_ryup7")
-deposit = 1
-workable = true
-deposit_texture = ExtResource("9_nx736")
 
 [node name="Tile=4,-3" parent="HexMap" unique_id=1661750035 instance=ExtResource("30_5ocsm")]
 position = Vector2(680, -612)

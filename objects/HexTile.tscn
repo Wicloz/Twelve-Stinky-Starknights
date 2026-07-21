@@ -2,12 +2,14 @@
 
 [ext_resource type="Script" uid="uid://dpn2wkbtggnvw" path="res://objects/HexTile.gd" id="1_ha4sb"]
 [ext_resource type="Texture2D" uid="uid://bqkfqxh8yydoa" path="res://assets/new_terrain/hexPlains00.png" id="2_gyshk"]
+[ext_resource type="Material" uid="uid://ddn2fengtw3yu" path="res://assets/shaders/hex_tile.tres" id="3_vos60"]
 
 [node name="HexTile" type="Node2D" unique_id=1843538518]
 script = ExtResource("1_ha4sb")
 terrain_texture = ExtResource("2_gyshk")
 
 [node name="Terrain" type="Sprite2D" parent="." unique_id=1834524767]
+material = ExtResource("3_vos60")
 texture = ExtResource("2_gyshk")
 
 [node name="Deposit" type="Sprite2D" parent="." unique_id=1665630489]

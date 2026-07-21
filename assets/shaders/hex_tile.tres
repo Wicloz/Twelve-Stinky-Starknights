@@ -1,0 +1,8 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://ddn2fengtw3yu"]
+
+[ext_resource type="Shader" uid="uid://6w15je8bpm5e" path="res://assets/shaders/basic.gdshader" id="1_cbfvh"]
+
+[resource]
+shader = ExtResource("1_cbfvh")
+shader_parameter/brightness = 0.0
+shader_parameter/contrast = 0.800000038

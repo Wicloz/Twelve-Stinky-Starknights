@@ -1,5 +1,6 @@
 # Ignore WIP assets
-creation/
+creative/*/
+!creative/music/
 
 # Ignore local IDE files
 .vscode/

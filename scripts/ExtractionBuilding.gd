@@ -147,7 +147,7 @@ func get_display_recipe() -> Recipe:
 
     var harvest := Recipe.new()
     harvest.display_name = "Harvest"
-    harvest.work = _get_base_duration() / _get_work_scale()
+    harvest.work = _duration()
     for item_type in types:
         harvest.outputs[item_type] = amount
     return harvest

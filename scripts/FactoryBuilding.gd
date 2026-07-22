@@ -31,7 +31,7 @@ func get_recipe() -> Recipe:
 func get_display_recipe() -> Recipe:
     var eff := Recipe.new()
     eff.display_name = _recipe.display_name
-    eff.work = _recipe.work / _get_work_scale()
+    eff.work = _duration()
     var prod: int = _get_production_scale()
     var effic: float = _get_efficiency_scale()
     for item in _recipe.inputs:

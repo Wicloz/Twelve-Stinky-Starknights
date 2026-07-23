@@ -58,6 +58,19 @@ func _define_cutscenes() -> void:
     warehouse_intermission.still = preload("res://assets/cutscenes/kevin.png")
     warehouse_intermission.text = say(SAKANA, "Sakana", "People think a warehouse is just... a big box full of smaller boxes. Wrong. Amateur mindset. A warehouse is civilization. Every civilization invents roads, agriculture, taxes... and eventually someone has to figure out where to put thirty-seven pallets of Pippa socks without blocking the forklift. That someone is me. See these aisles? Beautiful. Straight. Infinite. Every rack has a purpose. Every pallet has an address. Every crate knows where it belongs. I did that. With this, Phase Connect shipping has expanded to yet another planet. And I have yet another warehouse to organize.")
 
+    #####################################
+    ### optional guides for slowpokes ###
+    #####################################
+
+    var pitmine_tutorial := Cutscene.new()
+    _locked_cutscenes.append(pitmine_tutorial)
+
+    pitmine_tutorial.after = [opening_tutorial]
+    pitmine_tutorial.condition = func() -> bool:
+        return Catalog.has_finished_construction(FluidHardwareFactory) and not Catalog.has_finished_construction(Pitmine)
+    pitmine_tutorial.still = preload("res://assets/cutscenes/aiko.jpg")
+    pitmine_tutorial.text = say(AIKO, "Aiko", "Build a pitmine on top of a metalloid or sediment deposit to significantly speed up extraction.")
+
     ##############################
     ### debut and standee task ###
     ##############################

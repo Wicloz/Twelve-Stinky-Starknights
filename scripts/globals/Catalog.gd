@@ -41,7 +41,6 @@ func _ready() -> void:
     item.cost[Stockpile.ItemType.BRICKS] = 10
     item.cost[Stockpile.ItemType.LUMBER] = 10
     item.allowed_deposits = [Stockpile.ItemType.NONE]
-    item.always_unlocked = true
 
     item = CatalogItem.new()
     _catalog.append(item)
@@ -66,6 +65,7 @@ func _ready() -> void:
         Stockpile.ItemType.SAND,
         Stockpile.ItemType.RAW_CUPRONICKEL,
     ]
+    item.always_unlocked = true
 
     item = CatalogItem.new()
     _catalog.append(item)
@@ -84,6 +84,7 @@ func _ready() -> void:
     item.cost[Stockpile.ItemType.RAW_TITANIUM] = 400
     item.cost[Stockpile.ItemType.BRICKS] = 800
     item.allowed_deposits = [Stockpile.ItemType.NONE]
+    item.always_unlocked = true
 
     item = CatalogItem.new()
     _catalog.append(item)

@@ -3,6 +3,7 @@ Content:
 
 Needs Rework:
 - UI
+- extraction buildings
 
 Polish:
 - sound effects

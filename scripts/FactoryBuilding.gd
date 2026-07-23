@@ -12,6 +12,7 @@ static var production_scale: Dictionary[Script, int] = {}
 
 var _recipe: Recipe
 var _has_active_job: bool = false
+var _active_job_is_automated: bool = false
 var _has_consumed: Dictionary[Stockpile.ItemType, int] = {}
 var _will_produce: Dictionary[Stockpile.ItemType, int] = {}
 
@@ -134,6 +135,7 @@ func _process(_delta: float) -> void:
         return
 
     if _is_automated():
+        _active_job_is_automated = true
         _try_automated_run()
         return
 
@@ -170,8 +172,19 @@ func _try_automated_run() -> void:
 
     await get_tree().create_timer(_duration()).timeout
 
+    if not _has_active_job:
+        return
+
     Stockpile.add_bulk(_will_produce)
     _has_active_job = false
+
+
+func demolish() -> void:
+    if _active_job_is_automated:
+        Stockpile.add_bulk(_has_consumed)
+        _has_active_job = false
+
+    super.demolish()
 
 
 func _try_post_job() -> void:

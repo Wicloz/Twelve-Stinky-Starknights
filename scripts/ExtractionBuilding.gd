@@ -9,6 +9,7 @@ static var yield_scale: Dictionary[Script, int] = {}
 const BASE_WORK_SPEEDUP: float = 10.0
 
 var _has_active_job: bool = false
+var _active_job_is_automated: bool = false
 var _will_harvest: Dictionary[Stockpile.ItemType, int] = {}
 
 
@@ -99,6 +100,7 @@ func _process(_delta: float) -> void:
         return
 
     if _is_automated():
+        _active_job_is_automated = true
         _automated_run()
         return
 
@@ -159,8 +161,18 @@ func _automated_run() -> void:
 
     await get_tree().create_timer(_duration()).timeout
 
+    if not _has_active_job:
+        return
+
     Stockpile.add_bulk(_will_harvest)
     _has_active_job = false
+
+
+func demolish() -> void:
+    if _active_job_is_automated:
+        _has_active_job = false
+
+    super.demolish()
 
 
 func _post_job() -> void:

@@ -7,6 +7,7 @@ signal building_placed(tile: HexTile)
 const CELL := Vector2(60, 85)
 
 var _tile: HexTile
+var _shown: Array[CatalogItem] = []
 
 @onready var _title: Label = $VBox/Header/Title
 @onready var _toggle: CheckButton = $VBox/HBox/Toggle
@@ -19,29 +20,42 @@ func _ready() -> void:
 	hide()
 	_toggle.toggled.connect(_on_harvest_toggled)
 	_close.pressed.connect(_on_close_pressed)
+	Stockpile.changed.connect(_refresh_buildings)
 
 
 func show_for(tile: HexTile) -> void:
 	_tile = tile
+
 	_title.text = Stockpile.get_display_name(tile.deposit)
 
 	_toggle.visible = tile.workable
 	_toggle.set_pressed_no_signal(tile.harvesting)
 
 	_error.hide()
-	_refresh_buildings()
 
 	show()
 
+	_refresh_buildings()
+
 
 func _refresh_buildings() -> void:
+	if not visible or _tile == null:
+		return
+
+	var items := Catalog.get_unlocked_buildings().filter(func(item: CatalogItem) -> bool:
+		return item.can_place_on(_tile)
+	)
+
+	if items == _shown:
+		return
+	_shown = items
+
 	for button in _buildings.get_children():
 		_buildings.remove_child(button)
 		button.queue_free()
 
-	for item in Catalog.get_unlocked_buildings():
-		if item.can_place_on(_tile):
-			_buildings.add_child(_make_button(item))
+	for item in items:
+		_buildings.add_child(_make_button(item))
 
 
 func _make_button(item: CatalogItem) -> Button:

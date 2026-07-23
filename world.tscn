@@ -167,7 +167,6 @@ terrain_texture = ExtResource("3_o3ebs")
 position = Vector2(408, -1428)
 q = 5
 r = -7
-walkable = false
 terrain_texture = ExtResource("6_jjr1n")
 deposit = 14
 
@@ -209,7 +208,6 @@ terrain_texture = ExtResource("3_o3ebs")
 [node name="Tile=0,-6" parent="HexMap" unique_id=240743430 instance=ExtResource("30_5ocsm")]
 position = Vector2(-816, -1224)
 r = -6
-walkable = false
 terrain_texture = ExtResource("6_jjr1n")
 deposit = 14
 
@@ -240,7 +238,6 @@ deposit = 14
 position = Vector2(272, -1224)
 q = 4
 r = -6
-walkable = false
 terrain_texture = ExtResource("6_jjr1n")
 deposit = 14
 

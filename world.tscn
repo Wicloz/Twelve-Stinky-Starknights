@@ -1763,13 +1763,20 @@ texture_normal = ExtResource("29_gggvi")
 [node name="HBox" type="HBoxContainer" parent="UI/DepositPanel/VBox" unique_id=856103709]
 layout_mode = 2
 
-[node name="Toggle" type="CheckButton" parent="UI/DepositPanel/VBox/HBox" unique_id=1631508977]
+[node name="Buildings" type="HBoxContainer" parent="UI/DepositPanel/VBox/HBox" unique_id=1900000101]
 layout_mode = 2
-text = "Harvest (H)"
+
+[node name="Error" type="Label" parent="UI/DepositPanel/VBox/HBox" unique_id=1900000102]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.45098, 0.45098, 1)
 
 [node name="Spacer" type="Control" parent="UI/DepositPanel/VBox/HBox" unique_id=1455959908]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="Toggle" type="CheckButton" parent="UI/DepositPanel/VBox/HBox" unique_id=1631508977]
+layout_mode = 2
+text = "Harvest (H)"
 
 [node name="BuildingPanel" type="PanelContainer" parent="UI" unique_id=1190837471]
 anchors_preset = -1

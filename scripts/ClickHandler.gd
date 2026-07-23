@@ -24,6 +24,7 @@ func _ready() -> void:
 	construction_panel.building_selected.connect(_begin_placement)
 	building_panel.self_destruct.connect(_on_building_panel_destruct)
 	deposit_panel.self_destruct.connect(_on_deposit_panel_destruct)
+	deposit_panel.building_placed.connect(_on_building_placed)
 
 
 func _begin_placement(item: CatalogItem) -> void:
@@ -129,6 +130,12 @@ func _select() -> void:
 func _on_building_panel_destruct() -> void:
 	building_panel.hide_panel()
 	construction_panel.show()
+
+
+func _on_building_placed(tile: HexTile) -> void:
+	deposit_panel.hide()
+	building_panel.show_for(tile.building)
+	construction_panel.hide()
 
 
 func _on_deposit_panel_destruct() -> void:

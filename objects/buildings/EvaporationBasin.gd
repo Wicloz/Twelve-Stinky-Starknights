@@ -11,11 +11,11 @@ func _upgrade_research() -> Array[ResearchItem]:
 	var basins := _output_upgrade(
 		1, "Wider Basins",
 		"Widen the basins to evaporate more brine at once.",
-		2, {Stockpile.ItemType.FLUID_HARDWARE: 15})
+		2, {Stockpile.ItemType.CLAY: 1000})
 	var cascade := _output_upgrade(
 		1, "Cascade Evaporation",
 		"Stage the basins into a multi-effect cascade to concentrate far larger batches.",
-		2, {Stockpile.ItemType.POWER_CELLS: 8}, basins)
+		2, {Stockpile.ItemType.CLAY: 100000}, basins)
 
 	# Speed chain (slot 2): boil the brine down faster.
 	var solar := _speed_upgrade(

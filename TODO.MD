@@ -1,9 +1,10 @@
 Content:
 - finish the story
+- space layer
+- new tech levels
 
 Needs Rework:
 - UI
-- extraction buildings
 
 Polish:
 - sound effects

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b2h63kdst8h3f"]
 
-[ext_resource type="Script" uid="uid://cowikp7nojeed" path="res://objects/buildings/WorkshopPopup.gd" id="1_7p4gc"]
+[ext_resource type="Script" uid="uid://cowikp7nojeed" path="res://objects/ui/WorkshopPopup.gd" id="1_7p4gc"]
 [ext_resource type="Texture2D" uid="uid://bfpoe3u077q62" path="res://assets/icons/close.svg" id="2_sge2c"]
 [ext_resource type="PackedScene" uid="uid://cwr8q3mxn5k2d" path="res://objects/ui/RecipeDescription.tscn" id="3_rdesc"]
 

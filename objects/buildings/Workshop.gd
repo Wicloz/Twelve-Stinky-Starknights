@@ -2,7 +2,7 @@ class_name Workshop
 extends Building
 
 
-const POPUP := preload("res://objects/buildings/WorkshopPopup.tscn")
+const POPUP := preload("res://objects/ui/WorkshopPopup.tscn")
 
 static var capabilities: Array[Crafting.Capabilities] = [
 	Crafting.Capabilities.FURNACE,

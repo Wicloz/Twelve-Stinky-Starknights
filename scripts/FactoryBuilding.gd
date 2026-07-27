@@ -78,6 +78,7 @@ func _upgrade_research() -> Array[ResearchItem]:
 # production_scale (int): bigger batches -- x`factor` output AND input per cycle.
 func _output_upgrade(slot: int, name: String, description: String, factor: int, cost: Dictionary, prereq = null) -> ResearchItem:
     var item := _new_upgrade(slot, name, description, cost, prereq)
+    item.display_effect = ResearchItem.format_effect("Batch size", factor)
     var script: Script = get_script()
     item.on_complete = func() -> void:
         production_scale[script] = int(production_scale.get(script, 1) * factor)
@@ -87,6 +88,7 @@ func _output_upgrade(slot: int, name: String, description: String, factor: int, 
 # work_scale (float): faster -- divides the work duration by `factor`.
 func _speed_upgrade(slot: int, name: String, description: String, factor: float, cost: Dictionary, prereq = null) -> ResearchItem:
     var item := _new_upgrade(slot, name, description, cost, prereq)
+    item.display_effect = ResearchItem.format_effect("Speed", factor)
     var script: Script = get_script()
     item.on_complete = func() -> void:
         work_scale[script] = work_scale.get(script, 1.0) * factor
@@ -96,6 +98,7 @@ func _speed_upgrade(slot: int, name: String, description: String, factor: float,
 # efficiency_scale (float): leaner -- divides the input each batch consumes by `factor`.
 func _efficiency_upgrade(slot: int, name: String, description: String, factor: float, cost: Dictionary, prereq = null) -> ResearchItem:
     var item := _new_upgrade(slot, name, description, cost, prereq)
+    item.display_effect = ResearchItem.format_effect("Material efficiency", factor)
     var script: Script = get_script()
     item.on_complete = func() -> void:
         efficiency_scale[script] = efficiency_scale.get(script, 1.0) * factor

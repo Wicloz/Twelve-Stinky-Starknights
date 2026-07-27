@@ -63,6 +63,7 @@ func _upgrade_research() -> Array[ResearchItem]:
 # yield_scale (int): x`factor` resource per harvest.
 func _yield_upgrade(slot: int, name: String, description: String, factor: int, cost: Dictionary, prereq = null) -> ResearchItem:
     var item := _new_upgrade(slot, name, description, cost, prereq)
+    item.display_effect = ResearchItem.format_effect("Harvest yield", factor)
     var script: Script = get_script()
     item.on_complete = func() -> void:
         yield_scale[script] = int(yield_scale.get(script, 1) * factor)
@@ -72,6 +73,7 @@ func _yield_upgrade(slot: int, name: String, description: String, factor: int, c
 # work_scale (float): divides the harvest duration by `factor`.
 func _speed_upgrade(slot: int, name: String, description: String, factor: float, cost: Dictionary, prereq = null) -> ResearchItem:
     var item := _new_upgrade(slot, name, description, cost, prereq)
+    item.display_effect = ResearchItem.format_effect("Harvest speed", factor)
     var script: Script = get_script()
     item.on_complete = func() -> void:
         work_scale[script] = work_scale.get(script, 1.0) * factor

@@ -69,7 +69,7 @@ func _define_cutscenes() -> void:
     pitmine_tutorial.condition = func() -> bool:
         return Catalog.has_finished_construction(FluidHardwareFactory) and not Catalog.has_finished_construction(Pitmine)
     pitmine_tutorial.still = preload("res://assets/cutscenes/aiko.jpg")
-    pitmine_tutorial.text = say(AIKO, "Aiko", "Build a pitmine on top of a metalloid or sediment deposit to significantly speed up extraction.")
+    pitmine_tutorial.text = say(AIKO, "Aiko", "Build a [u]pitmine[/u] on top of a metalloid or sediment deposit to significantly speed up extraction.")
 
     ##############################
     ### debut and standee task ###

@@ -20,11 +20,11 @@ func _upgrade_research() -> Array[ResearchItem]:
 	var whole_tree := _yield_upgrade(
 		1, "Whole-Tree Harvesting",
 		"Hydraulic feller-bunchers take the whole tree at once, stem and crown together.",
-		2, {Stockpile.ItemType.MECHANICAL_COMPONENTS: 20, Stockpile.ItemType.FLUID_HARDWARE: 12}, [saws, skids])
+		2, {Stockpile.ItemType.MECHANICAL_COMPONENTS: 40, Stockpile.ItemType.FLUID_HARDWARE: 5}, [saws, skids])
 	var winches := _speed_upgrade(
 		2, "Powered Winches",
 		"Brass-drummed cable winches yard the logs in a fraction of the time.",
-		1.5, {Stockpile.ItemType.BRASS_INGOTS: 25, Stockpile.ItemType.MECHANICAL_COMPONENTS: 15}, [saws, skids])
+		1.5, {Stockpile.ItemType.BRASS_INGOTS: 25, Stockpile.ItemType.MECHANICAL_COMPONENTS: 30}, [saws, skids])
 
 	var items: Array[ResearchItem] = [saws, skids, whole_tree, winches]
 	return items

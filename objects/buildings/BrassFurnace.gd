@@ -17,7 +17,7 @@ func _upgrade_research() -> Array[ResearchItem]:
 	var reverberatory := _output_upgrade(
 		1, "Reverberatory Furnace",
 		"A brick-vaulted reverberatory furnace smelts far larger charges at once.",
-		2, {Stockpile.ItemType.BRICKS: 150, Stockpile.ItemType.MECHANICAL_COMPONENTS: 15}, crucible)
+		2, {Stockpile.ItemType.BRICKS: 150, Stockpile.ItemType.MECHANICAL_COMPONENTS: 30}, crucible)
 
 	# Speed chain (slot 2): reach pouring temperature faster.
 	var burners := _speed_upgrade(
@@ -27,7 +27,7 @@ func _upgrade_research() -> Array[ResearchItem]:
 	var oxygen := _speed_upgrade(
 		2, "Oxygen Enrichment",
 		"Piping oxygen into the blast drives each heat to temperature faster still.",
-		1.5, {Stockpile.ItemType.FLUID_HARDWARE: 15, Stockpile.ItemType.MECHANICAL_COMPONENTS: 12}, burners)
+		1.5, {Stockpile.ItemType.FLUID_HARDWARE: 6, Stockpile.ItemType.MECHANICAL_COMPONENTS: 25}, burners)
 
 	# Efficiency chain (slot 3): recover metal that would be lost to slag.
 	var flux := _efficiency_upgrade(
@@ -37,13 +37,13 @@ func _upgrade_research() -> Array[ResearchItem]:
 	var reclaim := _efficiency_upgrade(
 		3, "Slag Reclamation",
 		"Leach the cold slag in spent battery acid to win back every entrained bead of metal.",
-		1.5, {Stockpile.ItemType.BATTERY_ACID: 20, Stockpile.ItemType.MECHANICAL_COMPONENTS: 20}, flux)
+		1.5, {Stockpile.ItemType.BATTERY_ACID: 60, Stockpile.ItemType.MECHANICAL_COMPONENTS: 40}, flux)
 
 	# Capstone (slot 4): all three chains converge -- bulk brick plus real power.
 	var melt_line := _output_upgrade(
 		4, "Continuous Melt Line",
 		"Tap the furnace without ever letting it cool, doubling output again.",
-		2, {Stockpile.ItemType.BRICKS: 200, Stockpile.ItemType.POWER_CELLS: 10},
+		2, {Stockpile.ItemType.BRICKS: 200, Stockpile.ItemType.POWER_CELLS: 30},
 		[reverberatory, oxygen, reclaim])
 
 	var items: Array[ResearchItem] = [crucible, reverberatory, burners, oxygen, flux, reclaim, melt_line]

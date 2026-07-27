@@ -22,17 +22,17 @@ func _upgrade_research() -> Array[ResearchItem]:
 	var precision := _yield_upgrade(
 		1, "Precision Agriculture",
 		"Sensor-guided fertigation pushes every bush on the hill to its full yield.",
-		2, {Stockpile.ItemType.ELECTRONIC_COMPONENTS: 15, Stockpile.ItemType.POWER_CELLS: 6}, terraces)
+		2, {Stockpile.ItemType.ELECTRONIC_COMPONENTS: 45, Stockpile.ItemType.POWER_CELLS: 18}, terraces)
 
 	# Speed chain (slot 2): bring each crop in sooner.
 	var irrigation := _speed_upgrade(
 		2, "Drip Irrigation",
 		"Plastic drip lines water every row, ripening each crop for harvest faster.",
-		1.5, {Stockpile.ItemType.PLASTIC: 25, Stockpile.ItemType.FLUID_HARDWARE: 10})
+		1.5, {Stockpile.ItemType.PLASTIC: 75, Stockpile.ItemType.FLUID_HARDWARE: 4})
 	var pickers := _speed_upgrade(
 		2, "Mechanical Pickers",
 		"Straddle-row pickers strip an entire terrace in a single pass.",
-		1.5, {Stockpile.ItemType.MECHANICAL_COMPONENTS: 20, Stockpile.ItemType.FLUID_HARDWARE: 12}, irrigation)
+		1.5, {Stockpile.ItemType.MECHANICAL_COMPONENTS: 40, Stockpile.ItemType.FLUID_HARDWARE: 5}, irrigation)
 
 	var items: Array[ResearchItem] = [cultivars, terraces, precision, irrigation, pickers]
 	return items

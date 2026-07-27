@@ -565,15 +565,21 @@ def _relevant_seed(seed_items):
                     caps.add(p); frontier.add(p)
         return cands, caps - BASE_CAPS
 
-    # Fold in the automation chain AND the research-cost chains of the caps the
-    # goal needs, iterating to a fixpoint, so factory-able research/automation
-    # inputs get their factory built rather than being hand-crafted avoidably.
+    # Fold in the automation chain, the research-cost chains of the caps the goal
+    # needs, AND the per-building UPGRADE costs, iterating to a fixpoint, so
+    # factory-able research/automation/upgrade inputs get their factory built
+    # rather than being hand-crafted avoidably. Without the upgrade costs, a
+    # narrow goal leaves late materials (power cells, actuators) unreachable and
+    # every capstone silently unaffordable -- so the optimiser never sees them.
     items = closure(set(goal_items) | set(AUTOMATION_COST))
     cands, caps = derive(items)
     for _ in range(8):
         seed = set(items)
         for c in caps:
             seed |= set(CAP_COST.get(c, {}))
+        for bt in cands:
+            for u in BUILDING_UPGRADES.get(bt, ()):
+                seed |= set(u["cost"])
         new_items = closure(seed)
         if new_items == items:
             break

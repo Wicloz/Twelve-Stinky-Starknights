@@ -18,7 +18,7 @@ func _upgrade_research() -> Array[ResearchItem]:
 	var transfer := _output_upgrade(
 		1, "Transfer Machining",
 		"Work moves itself from station to station, so the whole shop cuts as one machine.",
-		2, {Stockpile.ItemType.MECHANICAL_COMPONENTS: 80, Stockpile.ItemType.FLUID_HARDWARE: 12}, shafting)
+		2, {Stockpile.ItemType.MECHANICAL_COMPONENTS: 180}, shafting)
 
 	# Speed chain (slot 2): cut metal faster.
 	var tooling := _speed_upgrade(
@@ -28,7 +28,7 @@ func _upgrade_research() -> Array[ResearchItem]:
 	var screw_machines := _speed_upgrade(
 		2, "Automatic Screw Machines",
 		"Cam-driven screw machines turn out finished parts without an operator touching them.",
-		1.5, {Stockpile.ItemType.BRASS_INGOTS: 80, Stockpile.ItemType.MECHANICAL_COMPONENTS: 40}, tooling)
+		1.5, {Stockpile.ItemType.BRASS_INGOTS: 80, Stockpile.ItemType.MECHANICAL_COMPONENTS: 80}, tooling)
 
 	# Efficiency chain (slot 3): waste less brass and timber per part.
 	var swarf := _efficiency_upgrade(
@@ -44,7 +44,7 @@ func _upgrade_research() -> Array[ResearchItem]:
 	var toolroom := _output_upgrade(
 		4, "Master Toolroom",
 		"The shop starts building its own machine tools, doubling what it can turn out again.",
-		2, {Stockpile.ItemType.BRASS_INGOTS: 1111, Stockpile.ItemType.MECHANICAL_COMPONENTS: 111, Stockpile.ItemType.ELECTRONIC_ACTUATORS: 11},
+		2, {Stockpile.ItemType.BRASS_INGOTS: 1111, Stockpile.ItemType.MECHANICAL_COMPONENTS: 220, Stockpile.ItemType.ELECTRONIC_ACTUATORS: 35},
 		[transfer, screw_machines, jigs])
 
 	var items: Array[ResearchItem] = [shafting, transfer, tooling, screw_machines, swarf, jigs, toolroom]

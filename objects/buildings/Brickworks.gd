@@ -18,11 +18,11 @@ func _upgrade_research() -> Array[ResearchItem]:
 	var tunnel := _output_upgrade(
 		1, "Tunnel Kiln",
 		"Lay up a long brick tunnel and roll the clay through it on kiln cars.",
-		2, {Stockpile.ItemType.BRICKS: 240, Stockpile.ItemType.MECHANICAL_COMPONENTS: 12}, hotter)
+		2, {Stockpile.ItemType.BRICKS: 240, Stockpile.ItemType.MECHANICAL_COMPONENTS: 25}, hotter)
 	var roller := _output_upgrade(
 		1, "Roller-Hearth Kiln",
-		"A gas-fired roller hearth, lined with three times the brick, scales output higher still.",
-		2, {Stockpile.ItemType.BRICKS: 480, Stockpile.ItemType.FLUID_HARDWARE: 12}, tunnel)
+		"A driven roller hearth, lined with three times the brick, scales output higher still.",
+		2, {Stockpile.ItemType.BRICKS: 480, Stockpile.ItemType.MECHANICAL_COMPONENTS: 40}, tunnel)
 
 	# Speed chain (slot 2): drive heat through the kiln faster.
 	var draft := _speed_upgrade(
@@ -42,7 +42,7 @@ func _upgrade_research() -> Array[ResearchItem]:
 	var recovery := _efficiency_upgrade(
 		3, "Kiln Heat Recovery",
 		"Cupronickel ductwork reclaims waste heat to dry the green bricks with far less loss.",
-		1.5, {Stockpile.ItemType.MECHANICAL_COMPONENTS: 25, Stockpile.ItemType.CUPRONICKEL_INGOTS: 15}, firebox)
+		1.5, {Stockpile.ItemType.MECHANICAL_COMPONENTS: 50, Stockpile.ItemType.CUPRONICKEL_INGOTS: 45}, firebox)
 
 	var items: Array[ResearchItem] = [hotter, tunnel, roller, draft, regen, firebox, recovery]
 	return items

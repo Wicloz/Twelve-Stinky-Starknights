@@ -167,7 +167,7 @@ func _define_cutscenes() -> void:
 
     white_paint_start.after = [jelly_debut]
     white_paint_start.condition = func() -> bool:
-        return Stockpile.get_cumulative(Stockpile.ItemType.PLASTIC) >= 10000
+        return Stockpile.get_amount(Stockpile.ItemType.BRASS_INGOTS) >= 80 and Stockpile.get_amount(Stockpile.ItemType.ELECTRONIC_ACTUATORS) >= 4
     white_paint_start.video = preload("res://assets/cutscenes/jelly_big_brother.ogv")
     white_paint_start.text = say(JELLY, "Jelly", "I'm all out of stream ideas man... Surely, surely, nobody would literally watch paint dry with me... I'm going to do a paint drying stream, Starknights, get me enough white paint for six hours.")
     white_paint_start.on_complete = func() -> void:

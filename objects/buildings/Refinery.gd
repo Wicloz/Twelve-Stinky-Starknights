@@ -6,36 +6,45 @@ func get_display_name() -> String:
 	return "Petrochemical Refinery"
 
 
+# A process plant: it is largely built from its own products (plastic seals and
+# liners) and fed on bulk silica catalyst, capped by a controller-run complex.
 func _upgrade_research() -> Array[ResearchItem]:
 	# Output chain (slot 1): run more feedstock into acrylic and plastic per pass.
 	var column := _output_upgrade(
 		1, "Extra Cracking Column",
-		"Add a cracking column to process more petrochemicals per run.",
-		2, {Stockpile.ItemType.FLUID_HARDWARE: 15})
+		"Raise another brick-lined cracking column to process more petrochemicals per run.",
+		2, {Stockpile.ItemType.FLUID_HARDWARE: 20, Stockpile.ItemType.BRICKS: 60})
 	var cracker := _output_upgrade(
 		1, "Fluid Catalytic Cracker",
-		"Fluid catalytic cracking breaks heavier feedstock into far more product per run.",
-		2, {Stockpile.ItemType.POWER_CELLS: 8}, column)
+		"A fluidised bed of silica catalyst cracks heavy feedstock into far more product.",
+		2, {Stockpile.ItemType.SAND: 80, Stockpile.ItemType.FLUID_HARDWARE: 20}, column)
 
 	# Speed chain (slot 2): turn each batch around faster.
 	var vacuum := _speed_upgrade(
 		2, "Vacuum Distillation",
-		"Distil the heavy fractions under vacuum to complete each run faster.",
-		1.5, {Stockpile.ItemType.FLUID_HARDWARE: 15})
+		"Pull the heavy fractions over under vacuum to complete each run faster.",
+		1.5, {Stockpile.ItemType.FLUID_HARDWARE: 18, Stockpile.ItemType.MECHANICAL_COMPONENTS: 20})
 	var integrated := _speed_upgrade(
 		2, "Heat-Integrated Columns",
-		"Cross-exchange heat between columns so each run reaches cut point faster still.",
-		1.5, {Stockpile.ItemType.ELECTRONIC_ACTUATORS: 8}, vacuum)
+		"Cupronickel exchangers cross-feed heat between columns, reaching cut point sooner.",
+		1.5, {Stockpile.ItemType.CUPRONICKEL_INGOTS: 30}, vacuum)
 
 	# Efficiency chain (slot 3): wring more product from every barrel of feedstock.
 	var catalyst := _efficiency_upgrade(
 		3, "Catalyst Recovery",
-		"Regenerate and recycle the catalyst so less petrochemical feedstock is wasted.",
-		1.5, {Stockpile.ItemType.FLUID_HARDWARE: 15})
+		"Wash and reburn the spent catalyst in acid so less feedstock leaves as coke.",
+		1.5, {Stockpile.ItemType.SAND: 60, Stockpile.ItemType.BATTERY_ACID: 20})
 	var closed_loop := _efficiency_upgrade(
 		3, "Closed-Loop Cracking",
-		"Recirculate unconverted fractions back through the cracker, sipping far less feedstock.",
-		1.5, {Stockpile.ItemType.POWER_CELLS: 8}, catalyst)
+		"Plastic-lined recycle lines return unconverted fractions to the cracker.",
+		1.5, {Stockpile.ItemType.PLASTIC: 40, Stockpile.ItemType.ELECTRONIC_ACTUATORS: 8}, catalyst)
 
-	var items: Array[ResearchItem] = [column, cracker, vacuum, integrated, catalyst, closed_loop]
+	# Capstone (slot 4): the whole plant under one controller.
+	var complex := _output_upgrade(
+		4, "Integrated Petrochemical Complex",
+		"Run every column from one control room and double the plant's throughput again.",
+		2, {Stockpile.ItemType.INDUSTRIAL_CONTROLLERS: 6, Stockpile.ItemType.FLUID_HARDWARE: 40},
+		[cracker, integrated, closed_loop])
+
+	var items: Array[ResearchItem] = [column, cracker, vacuum, integrated, catalyst, closed_loop, complex]
 	return items

@@ -6,36 +6,35 @@ func get_display_name() -> String:
 	return "Cupronickel Foundry"
 
 
+# Deliberately lopsided: a cheap primitive start, then a big ELECTRO-MECHANICAL
+# spike (the induction furnace needs coil wire and power cells) on an otherwise
+# early building. Only one efficiency step, and no capstone.
 func _upgrade_research() -> Array[ResearchItem]:
 	# Output chain (slot 1): melt a bigger charge of cupronickel per heat.
 	var crucible := _output_upgrade(
 		1, "Larger Crucible",
-		"Reline a larger crucible in refractory brick to melt more raw cupronickel per heat.",
-		2, {Stockpile.ItemType.BRICKS: 15})
+		"Throw a bigger crucible and set it in a brick hearth to melt more ore per heat.",
+		2, {Stockpile.ItemType.CLAY: 50, Stockpile.ItemType.BRICKS: 40})
 	var induction := _output_upgrade(
 		1, "Induction Furnace",
-		"A refractory-lined induction furnace melts far larger charges at once.",
-		2, {Stockpile.ItemType.MECHANICAL_COMPONENTS: 15}, crucible)
+		"Wind a heavy electrum coil and melt the charge by induction, with no fire at all.",
+		2, {Stockpile.ItemType.ELECTRUM_WIRE: 30, Stockpile.ItemType.POWER_CELLS: 10}, crucible)
 
 	# Speed chain (slot 2): drive the melt and pour faster.
 	var blast := _speed_upgrade(
 		2, "Oxygen-Enriched Blast",
 		"Enrich the furnace blast with oxygen to smelt each heat faster.",
-		1.5, {Stockpile.ItemType.PLANKS: 20})
+		1.5, {Stockpile.ItemType.MECHANICAL_COMPONENTS: 20, Stockpile.ItemType.BRICKS: 60})
 	var casting := _speed_upgrade(
 		2, "Continuous Casting",
-		"Cast ingots in a continuous strand instead of moulds, clearing each heat faster still.",
-		1.5, {Stockpile.ItemType.FLUID_HARDWARE: 10}, blast)
+		"Withdraw a continuous strand through a water-cooled cupronickel mould instead of pouring pigs.",
+		1.5, {Stockpile.ItemType.CUPRONICKEL_INGOTS: 25, Stockpile.ItemType.FLUID_HARDWARE: 20}, blast)
 
-	# Efficiency chain (slot 3): lose less cupronickel to oxidation and slag.
+	# Efficiency (slot 3): a single step -- blanket the melt so it stops burning away.
 	var atmosphere := _efficiency_upgrade(
 		3, "Controlled Atmosphere",
-		"Smelt under a protective atmosphere so less cupronickel oxidises away.",
-		1.5, {Stockpile.ItemType.BRICKS: 15})
-	var reclaim := _efficiency_upgrade(
-		3, "Slag Reclamation",
-		"Reprocess the slag to reclaim entrained metal, wasting far less raw cupronickel.",
-		1.5, {Stockpile.ItemType.MECHANICAL_COMPONENTS: 15}, atmosphere)
+		"Flood the furnace with inert petrochemical gas so far less cupronickel oxidises away.",
+		1.5, {Stockpile.ItemType.PETROCHEMICALS: 40})
 
-	var items: Array[ResearchItem] = [crucible, induction, blast, casting, atmosphere, reclaim]
+	var items: Array[ResearchItem] = [crucible, induction, blast, casting, atmosphere]
 	return items

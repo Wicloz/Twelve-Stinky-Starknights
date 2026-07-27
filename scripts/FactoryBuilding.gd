@@ -76,8 +76,8 @@ func _upgrade_research() -> Array[ResearchItem]:
 # wasteful) -- the upgrade tree is where the power is.
 
 # production_scale (int): bigger batches -- x`factor` output AND input per cycle.
-func _output_upgrade(slot: int, name: String, description: String, factor: int, cost: Dictionary, prerequisite: ResearchItem = null) -> ResearchItem:
-    var item := _new_upgrade(slot, name, description, cost, prerequisite)
+func _output_upgrade(slot: int, name: String, description: String, factor: int, cost: Dictionary, prereq = null) -> ResearchItem:
+    var item := _new_upgrade(slot, name, description, cost, prereq)
     var script: Script = get_script()
     item.on_complete = func() -> void:
         production_scale[script] = int(production_scale.get(script, 1) * factor)
@@ -85,8 +85,8 @@ func _output_upgrade(slot: int, name: String, description: String, factor: int, 
 
 
 # work_scale (float): faster -- divides the work duration by `factor`.
-func _speed_upgrade(slot: int, name: String, description: String, factor: float, cost: Dictionary, prerequisite: ResearchItem = null) -> ResearchItem:
-    var item := _new_upgrade(slot, name, description, cost, prerequisite)
+func _speed_upgrade(slot: int, name: String, description: String, factor: float, cost: Dictionary, prereq = null) -> ResearchItem:
+    var item := _new_upgrade(slot, name, description, cost, prereq)
     var script: Script = get_script()
     item.on_complete = func() -> void:
         work_scale[script] = work_scale.get(script, 1.0) * factor
@@ -94,23 +94,28 @@ func _speed_upgrade(slot: int, name: String, description: String, factor: float,
 
 
 # efficiency_scale (float): leaner -- divides the input each batch consumes by `factor`.
-func _efficiency_upgrade(slot: int, name: String, description: String, factor: float, cost: Dictionary, prerequisite: ResearchItem = null) -> ResearchItem:
-    var item := _new_upgrade(slot, name, description, cost, prerequisite)
+func _efficiency_upgrade(slot: int, name: String, description: String, factor: float, cost: Dictionary, prereq = null) -> ResearchItem:
+    var item := _new_upgrade(slot, name, description, cost, prereq)
     var script: Script = get_script()
     item.on_complete = func() -> void:
         efficiency_scale[script] = efficiency_scale.get(script, 1.0) * factor
     return item
 
 
-func _new_upgrade(slot: int, name: String, description: String, cost: Dictionary, prerequisite: ResearchItem) -> ResearchItem:
+# `prereq` may be null, a single ResearchItem, or an Array of them (for chains
+# that converge -- a capstone that needs the tops of several other chains).
+func _new_upgrade(slot: int, name: String, description: String, cost: Dictionary, prereq) -> ResearchItem:
     var item := ResearchItem.new()
     item.slot = slot
     item.display_name = name
     item.description = description
     for resource in cost:
         item.cost[resource] = cost[resource]
-    if prerequisite != null:
-        item.prerequisites.append(prerequisite)
+    if prereq is Array:
+        for p in prereq:
+            item.prerequisites.append(p)
+    elif prereq != null:
+        item.prerequisites.append(prereq)
     return item
 
 

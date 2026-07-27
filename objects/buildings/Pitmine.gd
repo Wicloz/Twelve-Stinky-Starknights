@@ -6,28 +6,34 @@ func get_display_name() -> String:
 	return "Pitmine"
 
 
+# Interleaved lattice: each chain's second tier needs the first tier of BOTH, and
+# the capstone converges on the two tops. Costs run on primitive bulk (timber,
+# blasting acid, fuel) before the excavator finally demands power cells.
 func _upgrade_research() -> Array[ResearchItem]:
-	# Yield (slot 1) and Speed (slot 2) interleave, converging on the capstone.
 	var pit := _yield_upgrade(
 		1, "Wider Pit",
-		"Shore up and widen the pit walls to work more ore at each level.",
-		2, {Stockpile.ItemType.BRICKS: 15})
+		"Timber the walls and widen the pit to work more ore at every level.",
+		2, {Stockpile.ItemType.PLANKS: 40})
 	var hoist := _speed_upgrade(
 		2, "Powered Hoist",
-		"A powered hoist lifts each skip of ore out far faster.",
-		1.5, {Stockpile.ItemType.MECHANICAL_COMPONENTS: 12})
+		"A brass-geared hoist lifts each skip of ore out far faster.",
+		1.5, {Stockpile.ItemType.MECHANICAL_COMPONENTS: 15, Stockpile.ItemType.BRASS_INGOTS: 20})
 	var benches := _yield_upgrade(
 		1, "Bench Blasting",
-		"Drill-and-blast benches shatter and expose far more ore per round.",
-		2, {Stockpile.ItemType.MECHANICAL_COMPONENTS: 15}, [pit, hoist])
+		"Nitrate the charges in spent acid and shoot the face in benches, exposing far more ore.",
+		2, {Stockpile.ItemType.BATTERY_ACID: 25, Stockpile.ItemType.MECHANICAL_COMPONENTS: 15}, [pit, hoist])
 	var trucks := _speed_upgrade(
 		2, "Haul Trucks",
-		"Hydraulic haul trucks clear the muck pile between rounds much faster.",
-		1.5, {Stockpile.ItemType.FLUID_HARDWARE: 10}, [pit, hoist])
+		"A thirsty fleet of haul trucks clears the muck pile between rounds.",
+		1.5, {Stockpile.ItemType.PETROCHEMICALS: 60, Stockpile.ItemType.FLUID_HARDWARE: 20}, [pit, hoist])
 	var bucketwheel := _yield_upgrade(
 		3, "Bucket-Wheel Excavator",
-		"A continuous bucket-wheel excavator tears through the whole face at once.",
-		2, {Stockpile.ItemType.FLUID_HARDWARE: 12}, [benches, trucks])
+		"One continuous bucket-wheel chews through the entire face without stopping.",
+		2, {
+			Stockpile.ItemType.MECHANICAL_COMPONENTS: 40,
+			Stockpile.ItemType.FLUID_HARDWARE: 20,
+			Stockpile.ItemType.POWER_CELLS: 12,
+		}, [benches, trucks])
 
 	var items: Array[ResearchItem] = [pit, hoist, benches, trucks, bucketwheel]
 	return items

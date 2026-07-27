@@ -148,9 +148,9 @@ func _ready() -> void:
 	_recipe_map[RecipeType.MAKE_ELECTRONIC_ACTUATORS] = recipe
 
 	recipe.display_name = "Assemble Assorted Actuators"
-	recipe.inputs[Stockpile.ItemType.ELECTRUM_WIRE] = 8
 	recipe.inputs[Stockpile.ItemType.MECHANICAL_COMPONENTS] = 2
-	recipe.inputs[Stockpile.ItemType.RAW_TITANIUM] = 2
+	recipe.inputs[Stockpile.ItemType.ELECTRUM_WIRE] = 8
+	recipe.inputs[Stockpile.ItemType.RAW_TITANIUM] = 8
 	recipe.outputs[Stockpile.ItemType.ELECTRONIC_ACTUATORS] = 1
 	recipe.work = WORK_PACKAGES
 	recipe.needs_capabilities.append(Capabilities.WORKBENCH)

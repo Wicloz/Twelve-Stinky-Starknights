@@ -81,6 +81,8 @@ func try_place_on(tile: HexTile):
     tile.add_child(building)
     building.start_construction(cost, work)
 
+    ActivityLog.record("build", get_display_name(), tile)
+
     return false
 
 

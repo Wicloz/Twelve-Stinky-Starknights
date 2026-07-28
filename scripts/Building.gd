@@ -91,6 +91,7 @@ func abort() -> void:
 
 
 func demolish() -> void:
+	ActivityLog.record("demolish", get_display_name(), tile)
 	JobManager.cancel_jobs_on_tile(tile)
 	_construction_aborted()
 	Catalog.building_destroyed(get_script())

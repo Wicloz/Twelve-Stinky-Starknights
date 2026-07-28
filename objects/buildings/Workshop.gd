@@ -215,6 +215,9 @@ func apply_order(recipe: Recipe, repeat: Repeat, target: int) -> void:
 	if order_repeat == Repeat.COUNT:
 		_order_remaining = order_target
 
+	ActivityLog.record("craft", recipe.display_name, tile,
+		"%s %d" % [Repeat.keys()[order_repeat].to_lower(), order_target])
+
 	_try_post_job()
 
 

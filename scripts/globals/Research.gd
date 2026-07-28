@@ -42,6 +42,8 @@ func start_research(item: ResearchItem, building: Building) -> void:
 	Stockpile.remove_bulk(item.cost)
 	item.state = ResearchItem.State.RESEARCHING
 
+	ActivityLog.record_research(item, building)
+
 	var job := Job.new()
 	job.target = building.tile
 	job.priority = 11

@@ -48,6 +48,9 @@ func set_harvesting(enabled: bool) -> void:
 
 	harvesting = enabled
 
+	ActivityLog.record("harvest", Stockpile.get_display_name(deposit), self,
+		"on" if enabled else "off")
+
 	if enabled:
 		_post_harvest_job()
 	else:

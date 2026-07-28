@@ -768,6 +768,21 @@ def bname(v):
         len(BUILDING_DEPOSITS.get(vclass(v), [])) > 1 else disp
 
 
+def manned(bs, auto):
+    """Buildings that must be OPERATED by a Starknight.
+
+    THE central constraint, from the recorded playthrough: a built,
+    non-automated building whose inputs are affordable posts a Job and takes a
+    knight -- the game has no "pause this factory" control. So owning a building
+    you do not want running actively steals crew from the work that matters, and
+    the only way to shed one is to DEMOLISH it (which is instant and refunds the
+    full build cost). Real play keeps this number pinned at 9-14 against a crew
+    of 12 for the entire run, while total buildings climb past 60 -- the excess
+    is all automated. Automation is the only way past the cap."""
+    return sum(n for v, n in bs.items()
+               if n > 0 and v in BUILDING_TYPES and v not in auto)
+
+
 def site_pool_free(bs, v):
     """Copies of variant `v` the map can still take, given what is already built:
     every building standing on a deposit competes for that deposit's tiles."""
@@ -871,6 +886,14 @@ def _build_template(acts, auto):
             brow[bt] = len(rows); add(row, bt, True, bt)
     # hand-harvest is capped by free WORKABLE tiles: one job per tile, and a tile
     # under a building is not harvestable at all (CatalogItem.try_place_on).
+    # NOTE: there is deliberately NO extra "manned buildings + harvest <= crew"
+    # row here. Row 0 (workers) already charges 1.0 for every manual-harvest and
+    # every non-automated building activity, so the crew budget is enforced
+    # exactly once. Adding a second row that also subtracted the OWNED building
+    # count double-charged it, and once owned buildings exceeded the crew it
+    # pinned hand-harvest to zero -- which killed the titanium the bootstrap
+    # still depends on and made the whole goal unreachable.
+    sink_row = None
     trow = {}
     for r in sorted(HAND_HARVESTABLE):
         row = np.zeros(n + 1); used = False
@@ -886,7 +909,7 @@ def _build_template(acts, auto):
             if g in net:
                 row[i] = -net[g] / dur
         add(row, f"supply:{g}", False)
-    return acts, c, np.array(rows), labels, is_cap, cap_b, brow, trow, supply0
+    return acts, c, np.array(rows), labels, is_cap, cap_b, brow, trow, sink_row, supply0
 
 
 _template_cache = {}
@@ -939,7 +962,7 @@ def _solve(target, buildings, caps, auto, ups, spd=frozenset(), unlocked=None):
     if unlocked is None:
         unlocked = CHALLENGE_ITEMS            # story ignored (--no-story)
     travel = _travel_map(buildings, spd, auto)
-    acts, c, A0, labels, is_cap, cap_b, brow, trow, supply0 = _template(
+    acts, c, A0, labels, is_cap, cap_b, brow, trow, sink_row, supply0 = _template(
         caps, auto, unlocked, _umul(ups), travel)
     A = A0.copy()
     b = np.zeros(A.shape[0])
@@ -960,7 +983,7 @@ def _solve(target, buildings, caps, auto, ups, spd=frozenset(), unlocked=None):
     if TRAVEL_MODE == "auto" and travel and res.success:
         used = float(A0[0][:-1] @ res.x[:-1])
         if used < b[0] - 1e-6:
-            acts2, c2, A2, labels2, is_cap2, cap_b2, brow2, trow2, supply2 = _template(
+            acts2, c2, A2, labels2, is_cap2, cap_b2, brow2, trow2, sink2, supply2 = _template(
                 caps, auto, unlocked, _umul(ups), {})
             A2 = A2.copy()
             b2 = np.zeros(A2.shape[0])
@@ -1201,6 +1224,108 @@ def rate(bs, caps, auto, ups, spd, good):
     return _rate_cache[key]
 
 
+# ===========================================================================
+# THE STOCKPILE
+#
+# The model used to compute every cost from an EMPTY stockpile: each afford_time
+# accumulated its bundle from zero, so nothing a previous wait produced was ever
+# carried forward. Real play banks aggressively -- the opening move is to
+# overharvest titanium with knights that would otherwise idle, so the first
+# Pitmine costs no extra wall clock. Tracking stock closes that gap and makes
+# DEMOLITION meaningful too: tearing a building down refunds 100% of its build
+# cost straight back into the pile (Building._construction_aborted), instantly
+# and with no Job, so a finished factory can be cashed in to free a Starknight
+# and rebuilt later once it is automated.
+# ===========================================================================
+def _net_vector(target, bs, caps, auto, ups, spd, unlocked=None):
+    """(lambda, goods produced per second, crew occupancy used) at the LP optimum
+    for `target` -- including BYPRODUCTS the recipe forces out alongside what was
+    asked for (the Refinery yields acrylic whenever you ask it for plastic).
+    Those land in the pile too."""
+    res, acts, labels, is_cap, cap_b, b = _solve(target, bs, caps, auto, ups,
+                                                 spd, unlocked)
+    if not res.success:
+        return 0.0, {}, 0.0
+    net, used = {}, 0.0
+    for i, (nm, dur, nv, cap) in enumerate(acts):
+        x = res.x[i]
+        if x <= 1e-12:
+            continue
+        if not (isinstance(cap, tuple) and cap[1] in auto):
+            used += x                      # crew occupancy this solve consumes
+        for g, v in nv.items():
+            net[g] = net.get(g, 0.0) + x * v / dur
+    return res.x[-1], net, used
+
+
+def _bank_idle(bs, caps, auto, ups, spd, used_workers):
+    """What the crew banks with capacity the current job does not need.
+
+    This is the titanium overharvest: knights with nothing better to do work
+    deposits into the pile ahead of need. Only hand-harvest is used -- it is the
+    one activity a player can spin up freely, it needs no building, and it is
+    exactly what the recorded opening does (7 tiles on at 4 min, all off by 12)."""
+    slack = max(0.0, min(WORKERS - OVERHEAD_WORKERS, WORKERS) - used_workers)
+    if slack <= 1e-6:
+        return {}
+    tc = _tile_caps(bs)
+    out = {}
+    # bank what the plan will actually want first -- a player overharvests
+    # TITANIUM because the next building needs it, not whatever deposit happens
+    # to be nearest. Scarce deposits (few tiles) win ties: they are the ones a
+    # later step is most likely to be waiting on.
+    order = sorted(tc, key=lambda r: (r not in RELEVANT_ITEMS, tc[r]))
+    for r in order:
+        tiles = tc[r]
+        if tiles <= 0 or r not in HAND_HARVESTABLE:
+            continue
+        take = min(slack, tiles)
+        if take <= 0:
+            break
+        # one tile sustains HARVEST_AMOUNT / HARVEST_DURATION per second
+        out[r] = out.get(r, 0.0) + take * HARVEST_AMOUNT / HARVEST_DURATION
+        slack -= take
+        if slack <= 1e-6:
+            break
+    return out
+
+
+def pay(cost, bs, caps, auto, ups, spd, stock):
+    """Spend `cost` from the pile, returning (wait_seconds, new_stock).
+
+    Only the SHORTFALL has to be produced; anything already banked is free. What
+    the colony makes during the wait -- the bundle, its byproducts, and whatever
+    idle knights harvest -- is credited back."""
+    need = {g: q - stock.get(g, 0.0) for g, q in cost.items()
+            if q - stock.get(g, 0.0) > 1e-9}
+    new = dict(stock)
+    if not need:                                  # already in the pile: instant
+        for g, q in cost.items():
+            new[g] = new.get(g, 0.0) - q
+        return 0.0, new
+
+    lam, net, used = _net_vector(need, bs, caps, auto, ups, spd)
+    if lam <= 0:
+        return np.inf, stock
+    dt = 1.0 / lam
+
+    for g, rate in net.items():
+        new[g] = new.get(g, 0.0) + rate * dt
+    for g, rate in _bank_idle(bs, caps, auto, ups, spd, used).items():
+        new[g] = new.get(g, 0.0) + rate * dt
+    for g, q in cost.items():
+        new[g] = new.get(g, 0.0) - q
+    return dt, {g: v for g, v in new.items() if v > 1e-9}
+
+
+def refund(cost, stock):
+    """Demolition returns the FULL build cost to the pile, instantly."""
+    new = dict(stock)
+    for g, q in cost.items():
+        new[g] = new.get(g, 0.0) + q
+    return new
+
+
 _afford_cache = {}
 def afford_time(cost, bs, caps, auto, ups, spd):
     key = (_skey(bs, caps, auto, ups, spd), tuple(sorted(cost.items())))
@@ -1255,11 +1380,28 @@ def _actions(bs, caps, auto, ups, spd):
 
     Copy counts are capped by the MAP, not by an arbitrary number: a variant can
     only be built while its deposit still has a free tile, and every plain
-    factory competes for the same pool of blank tiles."""
+    factory competes for the same pool of blank tiles.
+
+    The CREW pressure is applied in the LP instead of here: hand-harvest and
+    manned buildings share one budget row, so owning more manned buildings really
+    does squeeze the crew. Blocking builds outright at manned == WORKERS was
+    tried and DEADLOCKED -- the only escape is automation, which needs a supply
+    chain you cannot build while blocked, so the planner fell back to
+    hand-crafting the goal over 27 hours. Real play briefly exceeds the crew size
+    too (measured 9-14 against 12), because a starved building posts no Job and
+    costs nothing."""
     for b in ACTIVE_CANDIDATES:
-        if site_pool_free(bs, b) > 0:
-            yield ("build", b, _addb(bs, b), caps, auto, ups, spd, _bcost(b),
-                   _job_time("build", b, bs, spd))
+        if site_pool_free(bs, b) <= 0:
+            continue
+        yield ("build", b, _addb(bs, b), caps, auto, ups, spd, _bcost(b),
+               _job_time("build", b, bs, spd))
+    # DEMOLISH: instant, posts no Job, and refunds the whole build cost
+    # (Building.demolish -> _construction_aborted). The point is to hand a
+    # Starknight back, so it is only worth offering for a manned building.
+    for b in ACTIVE_CANDIDATES:
+        if bs.get(b, 0) > 0 and b not in auto:
+            nbs = dict(bs); nbs[b] -= 1
+            yield ("demolish", b, nbs, caps, auto, ups, spd, {}, 0.0)
     for c in RELEVANT_CAPS:
         if c not in caps and CAP_PREREQ.get(c, set()) <= caps:
             yield ("research", c, bs, caps | {c}, auto, ups, spd, _cap_cost(c),
@@ -1315,6 +1457,10 @@ def _step_time(kind, typ, aff, jt, t):
 
 
 def remaining(bs, caps, auto, ups, spd, finish, memo):
+    """Lookahead heuristic only. It deliberately ignores the STOCKPILE so the memo
+    stays keyed on a small state -- carrying stock here would make every state
+    unique and destroy the cache. The greedy walk itself is exact; this just
+    ranks candidates."""
     key = _skey(bs, caps, auto, ups, spd)
     if key in memo:
         return memo[key]
@@ -1348,14 +1494,14 @@ MIN_GAIN_FRAC = 0.005
 MIN_GAIN_SECS = 5.0
 
 
-def greedy(finish, bs, caps, auto, ups, spd, t, steps, jobs):
+def greedy(finish, bs, caps, auto, ups, spd, t, steps, jobs, stock):
     memo = {}
     while True:
         best_total, best = t + finish(bs, caps, auto, ups, spd), None
         floor = best_total - max(MIN_GAIN_SECS, MIN_GAIN_FRAC * (best_total - t))
         for kind, typ, nbs, ncaps, nauto, nups, nspd, cost, jt in _actions(
                 bs, caps, auto, ups, spd):
-            aff = afford_time(cost, bs, caps, auto, ups, spd)
+            aff, nstock = pay(cost, bs, caps, auto, ups, spd, stock)
             if not np.isfinite(aff):
                 continue
             at = _step_time(kind, typ, aff, jt, t)
@@ -1363,16 +1509,19 @@ def greedy(finish, bs, caps, auto, ups, spd, t, steps, jobs):
                 continue
             total = at + remaining(nbs, ncaps, nauto, nups, nspd, finish, memo)
             if total < min(best_total, floor) - 1e-6:
-                best_total, best = total, (kind, typ, nbs, ncaps, nauto, nups, nspd, at, jt)
+                best_total, best = total, (kind, typ, nbs, ncaps, nauto, nups,
+                                           nspd, at, jt, nstock)
         if best is None:
-            return bs, caps, auto, ups, spd, t
-        kind, typ, nbs, ncaps, nauto, nups, nspd, at, jt = best
-        bs, caps, auto, ups, spd, t = nbs, ncaps, nauto, nups, nspd, at
+            return bs, caps, auto, ups, spd, t, stock
+        kind, typ, nbs, ncaps, nauto, nups, nspd, at, jt, nstock = best
+        if kind == "demolish":
+            nstock = refund(_bcost(typ), nstock)
+        bs, caps, auto, ups, spd, t, stock = nbs, ncaps, nauto, nups, nspd, at, nstock
         steps.append((kind, typ, t))
         jobs.append(jt)
 
 
-def ensure_producible(good, bs, caps, auto, ups, spd, t, steps, jobs):
+def ensure_producible(good, bs, caps, auto, ups, spd, t, steps, jobs, stock):
     """Make `good` producible at all by acquiring, cheapest-first, the unlocks
     that increase how many relevant items can be produced -- building a factory
     for recipes that have one, researching a capability for the workshop-only
@@ -1387,25 +1536,25 @@ def ensure_producible(good, bs, caps, auto, ups, spd, t, steps, jobs):
         best = fallback = None
         for kind, typ, nbs, ncaps, nauto, nups, nspd, cost, jt in _actions(
                 bs, caps, auto, ups, spd):
-            if kind in ("automate", "upgrade", "speed"):
+            if kind in ("automate", "upgrade", "speed", "demolish"):
                 continue
-            aff = afford_time(cost, bs, caps, auto, ups, spd)
+            aff, nstock = pay(cost, bs, caps, auto, ups, spd, stock)
             if not np.isfinite(aff):
                 continue
             key = _step_time(kind, typ, aff, jt, t)
             if not np.isfinite(key):
                 continue
             if fallback is None or key < fallback[0]:
-                fallback = (key, kind, typ, nbs, ncaps, jt)
+                fallback = (key, kind, typ, nbs, ncaps, jt, nstock)
             if pcount(nbs, ncaps) > cur and (best is None or key < best[0]):
-                best = (key, kind, typ, nbs, ncaps, jt)
+                best = (key, kind, typ, nbs, ncaps, jt, nstock)
         pick = best or fallback
         if pick is None:
             raise RuntimeError(f"{name(good)} is not reachable (missing recipe/deposit?)")
-        at, kind, typ, nbs, ncaps, jt = pick
+        at, kind, typ, nbs, ncaps, jt, stock = pick
         bs, caps, t = nbs, ncaps, at
         steps.append((kind, typ, t)); jobs.append(jt)
-    return bs, caps, auto, ups, spd, t
+    return bs, caps, auto, ups, spd, t, stock
 
 
 def _toposort(nodes, deps_fn):
@@ -1423,7 +1572,7 @@ def _toposort(nodes, deps_fn):
     return order
 
 
-def build_factory_tree(bs, caps, auto, ups, spd, t, steps, jobs):
+def build_factory_tree(bs, caps, auto, ups, spd, t, steps, jobs, stock):
     """Build one of every relevant producer in DEPENDENCY ORDER, so each one's
     construction inputs are already supplied by something upstream. This minimises
     hand-crafting to the true bootstrap (the first Brickworks' bricks, the first
@@ -1489,16 +1638,16 @@ def build_factory_tree(bs, caps, auto, ups, spd, t, steps, jobs):
     for f in sequence:
         if site_pool_free(bs, f) <= 0:
             continue
-        aff = afford_time(_bcost(f), bs, caps, auto, ups, spd)
+        aff, nstock = pay(_bcost(f), bs, caps, auto, ups, spd, stock)
         if not np.isfinite(aff):
             continue
         jt = _job_time("build", f, bs, spd)
         at = _step_time("build", f, aff, jt, t)
         if not np.isfinite(at):
             continue          # story-locked: its challenge never goes ACTIVE here
-        t = at
+        t, stock = at, nstock
         bs = _addb(bs, f); steps.append(("build", f, t)); jobs.append(jt)
-    return bs, caps, auto, ups, spd, t
+    return bs, caps, auto, ups, spd, t, stock
 
 
 def plan(good, amount):
@@ -1506,11 +1655,11 @@ def plan(good, amount):
     ACTIVE_CANDIDATES, RELEVANT_ITEMS, RELEVANT_CAPS = _relevant(good)
 
     bs, caps, auto, ups, spd = {}, set(BASE_CAPS), set(), frozenset(), frozenset()
-    t, steps, jobs = 0.0, [], []
+    t, steps, jobs, stock = 0.0, [], [], {}
 
     # The Warehouse is where the crew's move-speed research lives (and the story
     # nags for it from the first cutscene), so it goes up first.
-    aff = afford_time(_bcost("Warehouse"), bs, caps, auto, ups, spd)
+    aff, stock = pay(_bcost("Warehouse"), bs, caps, auto, ups, spd, stock)
     jt = _job_time("build", "Warehouse", bs, spd)
     t = _step_time("build", "Warehouse", aff, jt, t)
     bs = _addb(bs, "Warehouse"); steps.append(("build", "Warehouse", t)); jobs.append(jt)
@@ -1518,12 +1667,12 @@ def plan(good, amount):
     # Stand up the factory tree first (craft-minimal), research any workshop-only
     # capabilities the goal needs, then optimise throughput (copies + upgrades +
     # automation + move speed).
-    bs, caps, auto, ups, spd, t = build_factory_tree(
-        bs, caps, auto, ups, spd, t, steps, jobs)
-    bs, caps, auto, ups, spd, t = ensure_producible(
-        good, bs, caps, auto, ups, spd, t, steps, jobs)
-    bs, caps, auto, ups, spd, t = greedy(
-        make_produce_goal(good, amount), bs, caps, auto, ups, spd, t, steps, jobs)
+    bs, caps, auto, ups, spd, t, stock = build_factory_tree(
+        bs, caps, auto, ups, spd, t, steps, jobs, stock)
+    bs, caps, auto, ups, spd, t, stock = ensure_producible(
+        good, bs, caps, auto, ups, spd, t, steps, jobs, stock)
+    bs, caps, auto, ups, spd, t, stock = greedy(
+        make_produce_goal(good, amount), bs, caps, auto, ups, spd, t, steps, jobs, stock)
     # the goal itself cannot start before its challenge is ACTIVE
     t = max(t, story_floor({good}))
     t += amount / rate(bs, caps, auto, ups, spd, good)
@@ -1559,14 +1708,14 @@ def plan_research(target):
     ACTIVE_CANDIDATES, RELEVANT_ITEMS, RELEVANT_CAPS = _relevant_seed(cost_items)
 
     bs, caps, auto, ups, spd = {}, set(BASE_CAPS), set(), frozenset(), frozenset()
-    t, steps, jobs = 0.0, [], []
-    aff = afford_time(_bcost("Warehouse"), bs, caps, auto, ups, spd)
+    t, steps, jobs, stock = 0.0, [], [], {}
+    aff, stock = pay(_bcost("Warehouse"), bs, caps, auto, ups, spd, stock)
     jt = _job_time("build", "Warehouse", bs, spd)
     t = _step_time("build", "Warehouse", aff, jt, t)
     bs = _addb(bs, "Warehouse"); steps.append(("build", "Warehouse", t)); jobs.append(jt)
 
-    bs, caps, auto, ups, spd, t = build_factory_tree(
-        bs, caps, auto, ups, spd, t, steps, jobs)
+    bs, caps, auto, ups, spd, t, stock = build_factory_tree(
+        bs, caps, auto, ups, spd, t, steps, jobs, stock)
     caps, t = _research_all_caps(RELEVANT_CAPS, bs, caps, auto, ups, spd, t, steps, jobs)
 
     # Optimise the building set for the whole chain's cost, then research in order.
@@ -1574,11 +1723,13 @@ def plan_research(target):
         return sum(afford_time({g: v * WAREHOUSE_COST_MULT for g, v in
                                 WAREHOUSE_RESEARCH[d]["cost"].items()},
                                bs, caps, auto, ups, spd) + RESEARCH_WORK for d in chain)
-    bs, caps, auto, ups, spd, t = greedy(finish, bs, caps, auto, ups, spd, t, steps, jobs)
+    bs, caps, auto, ups, spd, t, stock = greedy(
+        finish, bs, caps, auto, ups, spd, t, steps, jobs, stock)
     for d in chain:
         cost = {g: v * WAREHOUSE_COST_MULT for g, v in WAREHOUSE_RESEARCH[d]["cost"].items()}
         jt = _job_time("speed", d, bs, spd)
-        t = _step_time("wresearch", d, afford_time(cost, bs, caps, auto, ups, spd), jt, t)
+        aff, stock = pay(cost, bs, caps, auto, ups, spd, stock)
+        t = _step_time("wresearch", d, aff, jt, t)
         t = max(t, story_floor(set(cost)))
         spd = spd | {d}
         steps.append(("wresearch", d, t)); jobs.append(jt)
@@ -1875,6 +2026,8 @@ def _label(kind, typ):
         return f"~research {typ}"
     if kind == "speed":
         return f"> crew speed: {typ}"
+    if kind == "demolish":
+        return f"x demolish {bname(typ)}  (refunded, frees a Starknight)"
     if kind == "automate":
         return f"* automate {bname(typ)}"
     if kind == "upgrade":
@@ -2062,7 +2215,7 @@ def make_plots(res, fires):
     steps, total, crafts = res["steps"], res["total"], res["crafts"]
     palette = {"build": "#23deff", "research": "#b060e0", "wresearch": "#b060e0",
                "automate": "#40c060", "goal": "#e0a030", "craft": "#e0782a",
-               "upgrade": "#d8b020", "speed": "#e05a8a"}
+               "upgrade": "#d8b020", "speed": "#e05a8a", "demolish": "#d05050"}
 
     # One ROW PER type; a dot marks each event. Workshop CRAFT orders are folded
     # into the same timeline (orange) and rows are ordered by first-occurrence
@@ -2075,6 +2228,8 @@ def make_plots(res, fires):
             lab = f"research {ty}"
         elif k == "speed":
             lab = f"» crew speed: {ty}"
+        elif k == "demolish":
+            lab = f"x demolish {bname(ty)}"
         elif k == "automate":
             lab = f"automate {bname(ty)}"
         elif k == "upgrade":

@@ -245,9 +245,10 @@ func _ready() -> void:
 	_recipe_map[RecipeType.MAKE_INDUSTRIAL_CONTROLLERS] = recipe
 
 	recipe.display_name = "Manufacture Industrial Computer Modules"
-	recipe.inputs[Stockpile.ItemType.INTEGRATED_CIRCUITS] = 6
-	recipe.inputs[Stockpile.ItemType.ELECTRUM_WIRE] = 6
-	recipe.inputs[Stockpile.ItemType.PLASTIC] = 3
+	recipe.inputs[Stockpile.ItemType.INTEGRATED_CIRCUITS] = 5
+	recipe.inputs[Stockpile.ItemType.ELECTRUM_WIRE] = 5
+	recipe.inputs[Stockpile.ItemType.ELECTRONIC_COMPONENTS] = 5
+	recipe.inputs[Stockpile.ItemType.PLASTIC] = 5
 	recipe.outputs[Stockpile.ItemType.INDUSTRIAL_CONTROLLERS] = 1
 	recipe.work = WORK_PACKAGES
 	recipe.needs_capabilities.append(Capabilities.ASSEMBLY_STATION)

@@ -163,6 +163,7 @@ ICONS["petrochemicals"] = (
             f'<path d="M20 22 L20 48 A3 3 0 0 0 23 51 L23 23 Z" fill="{OIL_L}" opacity=".7"/>')
     + thin('M16 28 A16 6 0 0 0 48 28 M16 40 A16 6 0 0 0 48 40', "#8f86a8", 2.4)
 )
+
 ICONS["planks"] = (
     f'<rect x="6" y="38" width="52" height="12" rx="2.5" fill="{WOOD_D}"/>'
     f'<rect x="9" y="26" width="46" height="12" rx="2.5" fill="{WOOD}"/>'
@@ -382,95 +383,6 @@ ICONS["white_paint"] = (
 )
 
 # --- PC build ----------------------------------------------------------------
-ICONS["pc_ram"] = (
-    f'<rect x="6" y="20" width="52" height="20" rx="2" fill="{PCB}"/>'
-    + plain(f'<rect x="11" y="24" width="9" height="12" rx="1" fill="{DARK}"/>'
-            f'<rect x="23" y="24" width="9" height="12" rx="1" fill="{DARK}"/>'
-            f'<rect x="35" y="24" width="9" height="12" rx="1" fill="{DARK}"/>'
-            f'<rect x="47" y="24" width="6" height="12" rx="1" fill="{DARK}"/>')
-    + f'<path d="M8 44 h48" fill="none" stroke="{GOLD}" stroke-width="7"/>'
-    + thin('M18 41 v7 M30 41 v7 M42 41 v7', PCB, 3)
-)
-
-ICONS["pc_cpu"] = (
-    f'<path d="M14 12 L50 12 L50 44 L44 50 L14 50 Z" fill="{DARK}"/>'
-    + plain(f'<rect x="20" y="18" width="24" height="20" rx="2" fill="{NICKEL}"/>'
-            f'<rect x="20" y="18" width="24" height="7" rx="2" fill="{NICKEL_L}"/>')
-    + thin(f'M10 20 h4 M10 28 h4 M10 36 h4 M50 20 h4 M50 28 h4 '
-           f'M20 8 v4 M30 8 v4 M40 8 v4 M20 50 v4 M30 50 v4', GOLD, 3.5)
-)
-
-ICONS["pc_gpu"] = (
-    f'<rect x="6" y="18" width="46" height="28" rx="3" fill="{PCB}"/>'
-    f'<rect x="52" y="12" width="6" height="40" rx="2" fill="{STEEL}"/>'
-    f'<circle cx="24" cy="32" r="12" fill="{DARK}"/>'
-    + plain(blades(24, 32, 3, 11, 5, DARK_L)
-            + f'<circle cx="24" cy="32" r="3.5" fill="{STEEL_L}"/>'
-            + f'<rect x="40" y="24" width="9" height="16" rx="2" fill="{DARK}"/>')
-    + f'<path d="M10 48 h26" fill="none" stroke="{GOLD}" stroke-width="6"/>'
-)
-
-ICONS["pc_motherboard"] = (
-    f'<rect x="8" y="8" width="48" height="48" rx="4" fill="{PCB}"/>'
-    + plain(f'<rect x="14" y="14" width="16" height="16" rx="2" fill="{NICKEL}"/>'
-            f'<rect x="36" y="13" width="6" height="20" rx="2" fill="{DARK}"/>'
-            f'<rect x="45" y="13" width="6" height="20" rx="2" fill="{DARK}"/>'
-            f'<rect x="14" y="40" width="34" height="6" rx="2" fill="{DARK}"/>'
-            f'<circle cx="52" cy="50" r="2.5" fill="{PCB_L}"/>')
-    + thin('M14 36 h30', PCB_L, 2)
-)
-
-ICONS["pc_power_supply"] = (
-    f'<rect x="8" y="14" width="48" height="34" rx="4" fill="{DARK}"/>'
-    f'<circle cx="28" cy="31" r="12" fill="{DARK_L}"/>'
-    + plain(blades(28, 31, 3, 11, 6, DARK)
-            + f'<circle cx="28" cy="31" r="3.5" fill="{STEEL_L}"/>')
-    + thin('M46 22 h4 M46 28 h4 M46 34 h4 M46 40 h4', STEEL_L, 2.5)
-    + f'<path d="M56 44 C62 44 62 54 54 54" fill="none" stroke="{INK}" stroke-width="4"/>'
-)
-
-ICONS["pc_glass"] = (
-    f'<rect x="10" y="8" width="44" height="48" rx="3" fill="{GLASS}"/>'
-    + plain(f'<path d="M16 56 L38 8 L46 8 L24 56 Z" fill="#ffffff" opacity=".45"/>'
-            f'<path d="M44 56 L52 38 L52 56 Z" fill="#ffffff" opacity=".35"/>'
-            f'<circle cx="16" cy="14" r="2.5" fill="{STEEL_D}"/>'
-            f'<circle cx="48" cy="14" r="2.5" fill="{STEEL_D}"/>'
-            f'<circle cx="16" cy="50" r="2.5" fill="{STEEL_D}"/>'
-            f'<circle cx="48" cy="50" r="2.5" fill="{STEEL_D}"/>')
-)
-
-ICONS["pc_case"] = (
-    f'<rect x="16" y="6" width="32" height="52" rx="4" fill="{DARK}"/>'
-    + plain(f'<rect x="21" y="11" width="22" height="14" rx="2" fill="{DARK_L}"/>'
-            f'<circle cx="32" cy="38" r="8" fill="{DARK_L}"/>'
-            + blades(32, 38, 2.5, 7.5, 5, DARK)
-            + f'<circle cx="24" cy="52" r="2.5" fill="{ACID}"/>')
-    + thin('M25 15 h14 M25 20 h9', DARK, 2)
-)
-
-ICONS["pc_fans"] = (
-    f'<rect x="6" y="6" width="52" height="52" rx="8" fill="{DARK}"/>'
-    f'<circle cx="32" cy="32" r="21" fill="{DARK_L}"/>'
-    + plain(blades(32, 32, 6, 20, 6, DARK)
-            + f'<circle cx="32" cy="32" r="7" fill="{STEEL}"/>'
-            + f'<circle cx="30" cy="30" r="2.5" fill="{STEEL_L}"/>'
-            + f'<circle cx="13" cy="13" r="2.5" fill="{STEEL_D}"/>'
-            + f'<circle cx="51" cy="13" r="2.5" fill="{STEEL_D}"/>'
-            + f'<circle cx="13" cy="51" r="2.5" fill="{STEEL_D}"/>'
-            + f'<circle cx="51" cy="51" r="2.5" fill="{STEEL_D}"/>')
-)
-
-ICONS["pc_aio_cooler"] = (
-    f'<rect x="8" y="6" width="48" height="18" rx="3" fill="{STEEL}"/>'
-    + thin('M14 8 v14 M20 8 v14 M26 8 v14 M32 8 v14 M38 8 v14 M44 8 v14 M50 8 v14',
-           STEEL_D, 2.4)
-    + f'<path d="M22 24 C18 32 20 38 24 42" fill="none" stroke="{INK}" stroke-width="7"/>'
-    + f'<path d="M42 24 C46 32 44 38 40 42" fill="none" stroke="{INK}" stroke-width="7"/>'
-    + f'<rect x="20" y="40" width="24" height="16" rx="4" fill="{DARK}"/>'
-    + plain(f'<circle cx="32" cy="48" r="5" fill="{WATER}"/>'
-            f'<circle cx="30" cy="46" r="2" fill="{WATER_L}"/>')
-)
-
 ICONS["pc"] = (
     f'<rect x="6" y="10" width="36" height="26" rx="3" fill="{DARK}"/>'
     + plain(f'<rect x="10" y="14" width="28" height="18" rx="1.5" fill="{WATER}"/>'

@@ -290,55 +290,46 @@ func _register_items() -> void:
 	_item_map[ItemType.PC_RAM] = item
 
 	item.display_name = "Phase™ RAM"
-	item.icon = preload("res://assets/stockpile/pc_ram.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_CPU] = item
 
 	item.display_name = "Phase™ CPU"
-	item.icon = preload("res://assets/stockpile/pc_cpu.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_GPU] = item
 
 	item.display_name = "Phase™ GPU"
-	item.icon = preload("res://assets/stockpile/pc_gpu.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_MOTHERBOARD] = item
 
 	item.display_name = "PC Motherboard"
-	item.icon = preload("res://assets/stockpile/pc_motherboard.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_POWER_SUPPLY] = item
 
 	item.display_name = "PC Power Supply"
-	item.icon = preload("res://assets/stockpile/pc_power_supply.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_GLASS] = item
 
 	item.display_name = "Tempered Glass Panel"
-	item.icon = preload("res://assets/stockpile/pc_glass.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_CASE] = item
 
 	item.display_name = "PC Case"
-	item.icon = preload("res://assets/stockpile/pc_case.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_FANS] = item
 
 	item.display_name = "PC Fans"
-	item.icon = preload("res://assets/stockpile/pc_fans.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_AIO_COOLER] = item
 
 	item.display_name = "AIO Cooler"
-	item.icon = preload("res://assets/stockpile/pc_aio_cooler.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_PC] = item

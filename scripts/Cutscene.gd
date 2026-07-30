@@ -9,7 +9,7 @@ var video: VideoStream = null
 var song: AudioStream = null
 
 var text: String
-var typing_speed: float = 30.0
+var typing_speed: float = 24.0
 var min_duration: float = 3.0
 
 var on_complete: Callable

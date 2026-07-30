@@ -110,23 +110,25 @@ func _register_items() -> void:
 	_item_map[ItemType.LUMBER] = item
 
 	item.display_name = "Lumber"
-	item.icon = preload("res://assets/stockpile/lumber.png")
+	item.icon = preload("res://assets/stockpile/lumber.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PLANKS] = item
 
 	item.display_name = "Planks"
+	item.icon = preload("res://assets/stockpile/planks.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.CLAY] = item
 
 	item.display_name = "Clay"
+	item.icon = preload("res://assets/stockpile/clay.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.BRICKS] = item
 
 	item.display_name = "Fired Clay Bricks"
-	item.icon = preload("res://assets/stockpile/bricks.png")
+	item.icon = preload("res://assets/stockpile/bricks.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.RAW_BRASS] = item
@@ -138,11 +140,13 @@ func _register_items() -> void:
 	_item_map[ItemType.BRASS_INGOTS] = item
 
 	item.display_name = "Brass Ingots"
+	item.icon = preload("res://assets/stockpile/brass_ingots.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.MECHANICAL_COMPONENTS] = item
 
 	item.display_name = "Mechanical Components"
+	item.icon = preload("res://assets/stockpile/mechanical_components.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.RAW_ELECTRUM] = item
@@ -154,37 +158,43 @@ func _register_items() -> void:
 	_item_map[ItemType.ELECTRUM_WIRE] = item
 
 	item.display_name = "Electrum Wire"
+	item.icon = preload("res://assets/stockpile/electrum_wire.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.SAND] = item
 
 	item.display_name = "Silica Sand"
+	item.icon = preload("res://assets/stockpile/sand.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.EVAPORITES] = item
 
 	item.display_name = "Evaporites"
+	item.icon = preload("res://assets/stockpile/evaporites.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.WATER] = item
 
 	item.display_name = "Mineral Water"
+	item.icon = preload("res://assets/stockpile/water.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PETROCHEMICALS] = item
 
 	item.display_name = "Petrochemicals"
-	item.icon = preload("res://assets/deposits/petrochemicals.png")
+	item.icon = preload("res://assets/stockpile/petrochemicals.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.ACRYLIC] = item
 
 	item.display_name = "Acrylic Plastic"
+	item.icon = preload("res://assets/stockpile/acrylic.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PLASTIC] = item
 
 	item.display_name = "Multi-Purpose Polymer"
+	item.icon = preload("res://assets/stockpile/plastic.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.RAW_CUPRONICKEL] = item
@@ -196,121 +206,145 @@ func _register_items() -> void:
 	_item_map[ItemType.CUPRONICKEL_INGOTS] = item
 
 	item.display_name = "Cupronickel Ingots"
+	item.icon = preload("res://assets/stockpile/cupronickel_ingots.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.FLUID_HARDWARE] = item
 
 	item.display_name = "Fluid Hardware Package"
+	item.icon = preload("res://assets/stockpile/fluid_hardware.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.BATTERY_ACID] = item
 
 	item.display_name = "Sulfuric Acid"
+	item.icon = preload("res://assets/stockpile/sulfuric_acid.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.POWER_CELLS] = item
 
 	item.display_name = "Power Cells"
+	item.icon = preload("res://assets/stockpile/power_cells.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.SEMICONDUCTORS] = item
 
 	item.display_name = "Semiconductor Precursors"
+	item.icon = preload("res://assets/stockpile/semiconductors.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.INTEGRATED_CIRCUITS] = item
 
 	item.display_name = "Integrated Circuits"
+	item.icon = preload("res://assets/stockpile/integrated_circuits.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.ELECTRONIC_COMPONENTS] = item
 
 	item.display_name = "Electronic Components"
+	item.icon = preload("res://assets/stockpile/electronic_components.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.INDUSTRIAL_CONTROLLERS] = item
 
 	item.display_name = "Industrial Computer Modules"
+	item.icon = preload("res://assets/stockpile/industrial_controllers.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.ELECTRONIC_ACTUATORS] = item
 
 	item.display_name = "Assorted Actuators"
+	item.icon = preload("res://assets/stockpile/actuators.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.JELLY_STANDEES] = item
 
 	item.display_name = "Jelly Standees"
+	item.icon = preload("res://assets/stockpile/jelly_standees.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.COFFEE_CHERRIES] = item
 
 	item.display_name = "Sumatra Cherries"
+	item.icon = preload("res://assets/stockpile/coffee_cherries.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.JELLY_COFFEE] = item
 
 	item.display_name = "Jelly Coffee"
+	item.icon = preload("res://assets/stockpile/jelly_coffee.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.STEAM_ENGINE] = item
 
 	item.display_name = "Steam Engine"
+	item.icon = preload("res://assets/stockpile/steam_engine.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.WHITE_PAINT] = item
 
 	item.display_name = "White Paint"
+	item.icon = preload("res://assets/stockpile/white_paint.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_RAM] = item
 
 	item.display_name = "Phase™ RAM"
+	item.icon = preload("res://assets/stockpile/pc_ram.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_CPU] = item
 
 	item.display_name = "Phase™ CPU"
+	item.icon = preload("res://assets/stockpile/pc_cpu.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_GPU] = item
 
 	item.display_name = "Phase™ GPU"
+	item.icon = preload("res://assets/stockpile/pc_gpu.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_MOTHERBOARD] = item
 
 	item.display_name = "PC Motherboard"
+	item.icon = preload("res://assets/stockpile/pc_motherboard.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_POWER_SUPPLY] = item
 
 	item.display_name = "PC Power Supply"
+	item.icon = preload("res://assets/stockpile/pc_power_supply.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_GLASS] = item
 
 	item.display_name = "Tempered Glass Panel"
+	item.icon = preload("res://assets/stockpile/pc_glass.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_CASE] = item
 
 	item.display_name = "PC Case"
+	item.icon = preload("res://assets/stockpile/pc_case.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_FANS] = item
 
 	item.display_name = "PC Fans"
+	item.icon = preload("res://assets/stockpile/pc_fans.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_AIO_COOLER] = item
 
 	item.display_name = "AIO Cooler"
+	item.icon = preload("res://assets/stockpile/pc_aio_cooler.svg")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.PC_PC] = item
 
 	item.display_name = "Personal Computer"
+	item.icon = preload("res://assets/stockpile/pc.svg")
 
 
 func _register_challenges() -> void:

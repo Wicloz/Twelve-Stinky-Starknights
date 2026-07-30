@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://db0ejy6ktlnbf"
-path="res://.godot/imported/lumber.png-7df15be91d1aeaf0aa6ad9b5ac4dc70e.ctex"
+uid="uid://blqpxukp0tl3r"
+path="res://.godot/imported/evaporites.svg-0c0b568370aeb934f4a509e965287a5c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/stockpile/lumber.png"
-dest_files=["res://.godot/imported/lumber.png-7df15be91d1aeaf0aa6ad9b5ac4dc70e.ctex"]
+source_file="res://assets/stockpile/evaporites.svg"
+dest_files=["res://.godot/imported/evaporites.svg-0c0b568370aeb934f4a509e965287a5c.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

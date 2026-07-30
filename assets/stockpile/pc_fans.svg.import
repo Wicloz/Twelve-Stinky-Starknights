@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b38earmw7aemc"
-path="res://.godot/imported/bricks.png-b4709e5708633916a0b8c6ca2ec975cb.ctex"
+uid="uid://y8g6ycvpnviq"
+path="res://.godot/imported/pc_fans.svg-ebe661e9d1e672049b14ade84182890b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/stockpile/bricks.png"
-dest_files=["res://.godot/imported/bricks.png-b4709e5708633916a0b8c6ca2ec975cb.ctex"]
+source_file="res://assets/stockpile/pc_fans.svg"
+dest_files=["res://.godot/imported/pc_fans.svg-ebe661e9d1e672049b14ade84182890b.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

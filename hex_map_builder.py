@@ -9,7 +9,10 @@ node:
   * positions - each HexTile's `position` is derived from its axial `q`/`r`, so
     a dragged tile or a changed tile size snaps back onto the grid;
   * render order - tiles are sorted back-to-front (row by row) so tall tiles
-    overlap the row behind them correctly instead of being clipped by it.
+    overlap the row behind them correctly instead of being clipped by it;
+  * the PlanetFog hexagons - the decorative sprites are scaled and placed into
+    map-sized hexagons that ring the real map and cap it above and below,
+    creating any sprite nodes that don't exist yet.
 
 Default action is `realign` (safe, non-destructive): it does both. The one-time
 structural operations are behind flags (`--build` also lays tiles down in row
@@ -50,6 +53,10 @@ TILE_WIDTH = 256
 TILE_HEIGHT = 256
 PADDING = 16
 RADIUS = 8                  # size of the hex --build lays down
+
+FOG_PARENT = "PlanetFog"    # node holding the decorative surrounding hexagons
+FOG_TEXTURE_SIZE = (1000.0, 866.0)    # hexagon.svg, as rasterised by Godot
+FOG_PADDING = 136           # gap around the hexagons, in world px (half a tile cell)
 
 _ID_ALPHABET = string.ascii_lowercase + string.digits
 _SECTION_RE = re.compile(r"(?m)^\[")
@@ -137,12 +144,60 @@ def hex_coords(radius: int):
             yield q, r
 
 
-def tile_row_key(section: "Section") -> tuple[int, int]:
-    """Sort key placing a tile in back-to-front render order: by r (row) then
-    q, read from the tile's own q/r (default 0), matching realign's source."""
+def tile_qr(section: "Section") -> tuple[int, int]:
+    """A tile's axial coordinates, read from its own q/r (absent = 0)."""
     qm = re.search(r"(?m)^q = (-?\d+)\s*$", section.raw)
     rm = re.search(r"(?m)^r = (-?\d+)\s*$", section.raw)
-    return (int(rm.group(1)) if rm else 0, int(qm.group(1)) if qm else 0)
+    return (int(qm.group(1)) if qm else 0, int(rm.group(1)) if rm else 0)
+
+
+def tile_row_key(section: "Section") -> tuple[int, int]:
+    """Sort key placing a tile in back-to-front render order: by r (row) then q."""
+    q, r = tile_qr(section)
+    return (r, q)
+
+
+def map_extent(coords):
+    """Centre and size of the whole map as a flat-top hexagon, in world units:
+    (cx, cy, width point-to-point, height flat-to-flat), padding included."""
+    xy = [axial_to_world(q, r) for q, r in coords]
+    xs = [p[0] for p in xy]
+    ys = [p[1] for p in xy]
+    return ((min(xs) + max(xs)) / 2,
+            (min(ys) + max(ys)) / 2,
+            (max(xs) - min(xs)) + TILE_WIDTH + PADDING,
+            (max(ys) - min(ys)) + TILE_HEIGHT + PADDING)
+
+
+# How far the fog field spreads around the map, in lattice cells.
+FOG_COLUMNS = 3      # columns either side of the map's own column
+FOG_ROWS = 2.5       # how far above and below the map it reaches
+
+
+def fog_cells():
+    """(column, row) slots for the fog hexagons, in lattice units of
+    (0.75 * cell width, cell height), ordered top-left to bottom-right.
+
+    The map as a whole is a FLAT-TOP hexagon - its corner tiles sit at the left
+    and right points - which is the shape hexagon.svg draws, even though the
+    individual tiles are pointy-top. Being an affine image of the regular
+    flat-top tiling, these slots interlock for any width/height ratio,
+    including the map's vertically squashed proportions.
+
+    Even columns sit on whole rows and odd columns half a cell off; that offset
+    is what makes the hexagons interlock, and what makes the row widths
+    alternate as the field steps outward. The map itself owns (0, 0), so that
+    slot stays empty.
+    """
+    cells = []
+    for step in range(-int(FOG_ROWS * 2), int(FOG_ROWS * 2) + 1):
+        row = step / 2
+        for col in range(-FOG_COLUMNS, FOG_COLUMNS + 1):
+            if (col % 2 == 0) != (row == int(row)):
+                continue                     # slot belongs to the other parity
+            if (col, row) != (0, 0.0):
+                cells.append((col, row))
+    return cells
 
 
 # ============================================================================
@@ -174,9 +229,101 @@ def realign(sections: list[Section], nl: str) -> int:
     return changed
 
 
-def find_hexmap(sections: list[Section]):
+def find_node(sections: list[Section], name: str, parent: str = "."):
     return next((s for s in sections if s.kind == "node"
-                 and s.name == PARENT_NODE and s.parent == "."), None)
+                 and s.name == name and s.parent == parent), None)
+
+
+def find_hexmap(sections: list[Section]):
+    return find_node(sections, PARENT_NODE)
+
+
+def collect_unique_ids(sections: list[Section]) -> set:
+    return {int(x) for x in
+            re.findall(r"\bunique_id=(\d+)", "".join(s.raw for s in sections))}
+
+
+def mint_unique_id(used: set) -> int:
+    while True:
+        uid = random.randint(1, 2147483647)
+        if uid not in used:
+            used.add(uid)
+            return uid
+
+
+def node_position(section) -> tuple[float, float]:
+    if section is None:
+        return 0.0, 0.0
+    m = re.search(r"(?m)^position = Vector2\(([^,]+),\s*([^)]+)\)", section.raw)
+    return (float(m.group(1)), float(m.group(2))) if m else (0.0, 0.0)
+
+
+def set_transform(section: Section, pos: str, scale: str, nl: str) -> str:
+    """Rewrite a node's position/scale, keeping Godot's serialisation order
+    (CanvasItem's `material`, then Node2D's transform, then the subclass's own
+    properties). Every other property is left untouched."""
+    cut = section.raw.find(nl) + len(nl)
+    header, body = section.raw[:cut], section.raw[cut:]
+    lines = body.split(nl)
+    while lines and not lines[-1].strip():
+        lines.pop()
+
+    keep = [ln for ln in lines if not re.match(r"^(position|scale) = ", ln)]
+    transform = [f"position = {pos}", f"scale = {scale}"]
+    for i, ln in enumerate(keep):
+        if ln.startswith("material = "):
+            keep[i + 1:i + 1] = transform
+            break
+    else:
+        keep = transform + keep
+    return header + nl.join(keep) + nl + nl
+
+
+def fog_hexagons(sections: list[Section], nl: str, coords) -> tuple[int, int]:
+    """Scale and position the PlanetFog sprites into map-sized hexagons ringing
+    and capping the real map, creating any that don't exist yet. Returns
+    (sprites changed, sprites added)."""
+    sprites = sorted((s for s in sections if s.kind == "node"
+                      and s.parent == FOG_PARENT), key=lambda s: s.name)
+    if not sprites or not coords:
+        return 0, 0
+    cells = fog_cells()
+
+    # Clone the first sprite for any missing slot, so new hexagons inherit
+    # whatever material/texture the existing ones use.
+    added = 0
+    if len(sprites) < len(cells):
+        used = collect_unique_ids(sections)
+        last = max(i for i, s in enumerate(sections)
+                   if s.kind == "node" and s.parent == FOG_PARENT)
+        fresh = []
+        for n in range(len(sprites) + 1, len(cells) + 1):
+            raw = re.sub(r'name="[^"]*"', f'name="Tile{n:02d}"', sprites[0].raw, count=1)
+            raw = re.sub(r"unique_id=\d+", f"unique_id={mint_unique_id(used)}", raw, count=1)
+            fresh.append(Section(raw))
+        sections[last + 1:last + 1] = fresh
+        sprites += fresh
+        added = len(fresh)
+
+    cx, cy, width, height = map_extent(coords)
+    # The hexagons stay map-sized; it's the lattice they sit on that grows, so
+    # they are spaced off the map - and off each other - the way tiles are.
+    cell_w = width + FOG_PADDING
+    cell_h = height + FOG_PADDING
+    # Child positions are relative to PlanetFog, which need not sit at the origin.
+    ox, oy = node_position(find_node(sections, FOG_PARENT))
+    scale = (f"Vector2({fmt_num(round(width / FOG_TEXTURE_SIZE[0], 5))}, "
+             f"{fmt_num(round(height / FOG_TEXTURE_SIZE[1], 5))})")
+
+    changed = 0
+    for sprite, (col, row) in zip(sprites, cells):
+        pos = (f"Vector2({fmt_num(cx + col * 0.75 * cell_w - ox)}, "
+               f"{fmt_num(cy + row * cell_h - oy)})")
+        raw = set_transform(sprite, pos, scale, nl)
+        if raw != sprite.raw:
+            sprite.raw = raw
+            changed += 1
+    return changed, added
 
 
 def reorder(sections: list[Section]) -> tuple[list[str], int]:
@@ -305,16 +452,21 @@ def process(text: str, action: str):
     sections = split_sections(text)
 
     if action == "build":
+        fog, added = fog_hexagons(sections, nl, list(hex_coords(RADIUS)))
         out, n = build(sections, nl)
-        return "".join(out), {"action": "build", "tiles": n}
+        return "".join(out), {"action": "build", "tiles": n,
+                              "fog": fog, "added": added}
     if action == "clear":
         removed = sum(1 for s in sections if is_subtree(s))
         out = "".join(s.raw for s in sections if not is_subtree(s))
         return out, {"action": "clear", "removed": removed}
-    # realign (default): fix positions, then sort into render order
+    # realign (default): fix positions, refit the fog, sort into render order
     moved = realign(sections, nl)
+    fog, added = fog_hexagons(sections, nl,
+                              [tile_qr(s) for s in sections if is_tile(s)])
     out, reordered = reorder(sections)
-    return "".join(out), {"action": "realign", "moved": moved, "reordered": reordered}
+    return "".join(out), {"action": "realign", "moved": moved,
+                          "reordered": reordered, "fog": fog, "added": added}
 
 
 def main(argv=None):
@@ -340,11 +492,16 @@ def main(argv=None):
     result, stats = process(text, args.action)
     dest = args.output or args.scene
 
+    fog = ""
+    if "fog" in stats:
+        fog = f", refitted {stats['fog']} {FOG_PARENT} hexagon(s)"
+        if stats["added"]:
+            fog += f" ({stats['added']} newly created)"
     if stats["action"] == "realign":
         summary = (f"realign: repositioned {stats['moved']} tile(s), "
-                   f"reordered {stats['reordered']} into row order")
+                   f"reordered {stats['reordered']} into row order" + fog)
     elif stats["action"] == "build":
-        summary = f"build: wrote {stats['tiles']} tile(s)"
+        summary = f"build: wrote {stats['tiles']} tile(s)" + fog
     else:
         summary = f"clear: removed {stats['removed']} node(s)"
     summary += f" {'->' if not args.dry_run else '(target)'} {dest}"

@@ -1,0 +1,18 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://hy878wl5v13h"]
+
+[ext_resource type="Shader" uid="uid://br4ulsqenctrl" path="res://assets/shaders/fog.gdshader" id="1_fog"]
+
+[resource]
+shader = ExtResource("1_fog")
+shader_parameter/fog_color = Color(0.9, 0.93, 0.97, 1)
+shader_parameter/fog_shadow = Color(0.55, 0.6, 0.7, 1)
+shader_parameter/fog_alpha = 0.90000004275
+shader_parameter/base_opacity = 0.6000000285
+shader_parameter/coverage = 0.5
+shader_parameter/softness = 0.5
+shader_parameter/world_scale = 400.0
+shader_parameter/drift_speed = 0.035
+shader_parameter/wispiness = 0.5
+shader_parameter/edge_feather = 0.10000000475
+shader_parameter/edge_opacity = 0.0
+shader_parameter/rim_glow = 0.15

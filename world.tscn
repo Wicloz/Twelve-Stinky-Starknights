@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://w2nnm8tc46ps"]
 
+[ext_resource type="Texture2D" uid="uid://dyyutj475tdfm" path="res://assets/planet.png" id="1_iett8"]
 [ext_resource type="Script" uid="uid://cdr2jyps6m0my" path="res://scripts/HexMap.gd" id="1_wse8f"]
 [ext_resource type="Texture2D" uid="uid://c54gtae8eqqyx" path="res://assets/new_terrain/hexOcean00.png" id="3_bh8nc"]
 [ext_resource type="Texture2D" uid="uid://63lcbhvl5pjw" path="res://assets/new_terrain/hexSnowField00.png" id="3_bo7i5"]
@@ -49,13 +50,249 @@
 [ext_resource type="Texture2D" uid="uid://c23ttlahd464e" path="res://assets/deposits/hoshiumium.png" id="24_olr1q"]
 [ext_resource type="Texture2D" uid="uid://bmuo20cw6l57t" path="res://assets/icons/building_cancel.svg" id="27_k83mh"]
 [ext_resource type="Texture2D" uid="uid://dwba8qnudiyb4" path="res://assets/icons/building_delete.svg" id="28_qktwf"]
+[ext_resource type="Texture2D" uid="uid://binp26mbh2bp" path="res://assets/hexagon.svg" id="29_b7btk"]
 [ext_resource type="Texture2D" uid="uid://bfpoe3u077q62" path="res://assets/icons/close.svg" id="29_gggvi"]
+[ext_resource type="Material" uid="uid://hy878wl5v13h" path="res://assets/shaders/fog.tres" id="29_kkgr2"]
 [ext_resource type="PackedScene" uid="uid://bo1ttpfaa10pe" path="res://objects/HexTile.tscn" id="30_5ocsm"]
 [ext_resource type="Texture2D" uid="uid://dssmal74dhmus" path="res://assets/icons/guidebook.svg" id="48_nx736"]
 [ext_resource type="Script" uid="uid://cprd8chnvwr01" path="res://scripts/ProductionChainViewer.gd" id="49_pcv01"]
 [ext_resource type="Texture2D" uid="uid://dx5j5dki6sqoo" path="res://assets/production_graph.png" id="50_pcv02"]
 
 [node name="World" type="Node2D" unique_id=1592913599]
+
+[node name="PlanetBG" type="Sprite2D" parent="." unique_id=790983586]
+scale = Vector2(30, 30)
+texture = ExtResource("1_iett8")
+
+[node name="PlanetFog" type="Node2D" parent="." unique_id=1434334864]
+
+[node name="Tile01" type="Sprite2D" parent="PlanetFog" unique_id=1492546295]
+material = ExtResource("29_kkgr2")
+position = Vector2(-10710, -9180)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile02" type="Sprite2D" parent="PlanetFog" unique_id=1198062256]
+material = ExtResource("29_kkgr2")
+position = Vector2(-3570, -9180)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile03" type="Sprite2D" parent="PlanetFog" unique_id=125295202]
+material = ExtResource("29_kkgr2")
+position = Vector2(3570, -9180)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile04" type="Sprite2D" parent="PlanetFog" unique_id=2045930773]
+material = ExtResource("29_kkgr2")
+position = Vector2(10710, -9180)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile05" type="Sprite2D" parent="PlanetFog" unique_id=1529543262]
+material = ExtResource("29_kkgr2")
+position = Vector2(-7140, -7344)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile06" type="Sprite2D" parent="PlanetFog" unique_id=2004091083]
+material = ExtResource("29_kkgr2")
+position = Vector2(0, -7344)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile07" type="Sprite2D" parent="PlanetFog" unique_id=1227936842]
+material = ExtResource("29_kkgr2")
+position = Vector2(7140, -7344)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile08" type="Sprite2D" parent="PlanetFog" unique_id=1564732183]
+material = ExtResource("29_kkgr2")
+position = Vector2(-10710, -5508)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile09" type="Sprite2D" parent="PlanetFog" unique_id=1919028143]
+material = ExtResource("29_kkgr2")
+position = Vector2(-3570, -5508)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile10" type="Sprite2D" parent="PlanetFog" unique_id=162594743]
+material = ExtResource("29_kkgr2")
+position = Vector2(3570, -5508)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile11" type="Sprite2D" parent="PlanetFog" unique_id=821866235]
+material = ExtResource("29_kkgr2")
+position = Vector2(10710, -5508)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile12" type="Sprite2D" parent="PlanetFog" unique_id=587568131]
+material = ExtResource("29_kkgr2")
+position = Vector2(-7140, -3672)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile13" type="Sprite2D" parent="PlanetFog" unique_id=925380642]
+material = ExtResource("29_kkgr2")
+position = Vector2(0, -3672)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile14" type="Sprite2D" parent="PlanetFog" unique_id=1091275009]
+material = ExtResource("29_kkgr2")
+position = Vector2(7140, -3672)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile15" type="Sprite2D" parent="PlanetFog" unique_id=949763712]
+material = ExtResource("29_kkgr2")
+position = Vector2(-10710, -1836)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile16" type="Sprite2D" parent="PlanetFog" unique_id=1833664666]
+material = ExtResource("29_kkgr2")
+position = Vector2(-3570, -1836)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile17" type="Sprite2D" parent="PlanetFog" unique_id=67262300]
+material = ExtResource("29_kkgr2")
+position = Vector2(3570, -1836)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile18" type="Sprite2D" parent="PlanetFog" unique_id=295829285]
+material = ExtResource("29_kkgr2")
+position = Vector2(10710, -1836)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile19" type="Sprite2D" parent="PlanetFog" unique_id=1553436247]
+material = ExtResource("29_kkgr2")
+position = Vector2(-7140, 0)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile20" type="Sprite2D" parent="PlanetFog" unique_id=1547786516]
+material = ExtResource("29_kkgr2")
+position = Vector2(7140, 0)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile21" type="Sprite2D" parent="PlanetFog" unique_id=1152044373]
+material = ExtResource("29_kkgr2")
+position = Vector2(-10710, 1836)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile22" type="Sprite2D" parent="PlanetFog" unique_id=204800601]
+material = ExtResource("29_kkgr2")
+position = Vector2(-3570, 1836)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile23" type="Sprite2D" parent="PlanetFog" unique_id=70103361]
+material = ExtResource("29_kkgr2")
+position = Vector2(3570, 1836)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile24" type="Sprite2D" parent="PlanetFog" unique_id=1099805815]
+material = ExtResource("29_kkgr2")
+position = Vector2(10710, 1836)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile25" type="Sprite2D" parent="PlanetFog" unique_id=1278448379]
+material = ExtResource("29_kkgr2")
+position = Vector2(-7140, 3672)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile26" type="Sprite2D" parent="PlanetFog" unique_id=1339226485]
+material = ExtResource("29_kkgr2")
+position = Vector2(0, 3672)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile27" type="Sprite2D" parent="PlanetFog" unique_id=732753377]
+material = ExtResource("29_kkgr2")
+position = Vector2(7140, 3672)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile28" type="Sprite2D" parent="PlanetFog" unique_id=210565884]
+material = ExtResource("29_kkgr2")
+position = Vector2(-10710, 5508)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile29" type="Sprite2D" parent="PlanetFog" unique_id=624550673]
+material = ExtResource("29_kkgr2")
+position = Vector2(-3570, 5508)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile30" type="Sprite2D" parent="PlanetFog" unique_id=631748448]
+material = ExtResource("29_kkgr2")
+position = Vector2(3570, 5508)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile31" type="Sprite2D" parent="PlanetFog" unique_id=1810460747]
+material = ExtResource("29_kkgr2")
+position = Vector2(10710, 5508)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile32" type="Sprite2D" parent="PlanetFog" unique_id=795564734]
+material = ExtResource("29_kkgr2")
+position = Vector2(-7140, 7344)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile33" type="Sprite2D" parent="PlanetFog" unique_id=407428436]
+material = ExtResource("29_kkgr2")
+position = Vector2(0, 7344)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile34" type="Sprite2D" parent="PlanetFog" unique_id=319484360]
+material = ExtResource("29_kkgr2")
+position = Vector2(7140, 7344)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile35" type="Sprite2D" parent="PlanetFog" unique_id=1529415804]
+material = ExtResource("29_kkgr2")
+position = Vector2(-10710, 9180)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile36" type="Sprite2D" parent="PlanetFog" unique_id=449730505]
+material = ExtResource("29_kkgr2")
+position = Vector2(-3570, 9180)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile37" type="Sprite2D" parent="PlanetFog" unique_id=571723222]
+material = ExtResource("29_kkgr2")
+position = Vector2(3570, 9180)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
+
+[node name="Tile38" type="Sprite2D" parent="PlanetFog" unique_id=278706601]
+material = ExtResource("29_kkgr2")
+position = Vector2(10710, 9180)
+scale = Vector2(4.624, 4.08314)
+texture = ExtResource("29_b7btk")
 
 [node name="HexMap" type="Node2D" parent="." unique_id=1398524653]
 script = ExtResource("1_wse8f")

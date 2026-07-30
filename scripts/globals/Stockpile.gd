@@ -260,7 +260,7 @@ func _register_items() -> void:
 	_item_map[ItemType.JELLY_STANDEES] = item
 
 	item.display_name = "Jelly Standees"
-	item.icon = preload("res://assets/stockpile/jelly_standees.svg")
+	item.icon = preload("res://assets/stockpile/standee.png")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.COFFEE_CHERRIES] = item
@@ -272,7 +272,7 @@ func _register_items() -> void:
 	_item_map[ItemType.JELLY_COFFEE] = item
 
 	item.display_name = "Jelly Coffee"
-	item.icon = preload("res://assets/stockpile/jelly_coffee.svg")
+	item.icon = preload("res://assets/stockpile/coffee.png")
 
 	item = StockpileItem.new()
 	_item_map[ItemType.STEAM_ENGINE] = item

@@ -64,62 +64,7 @@ enum ItemType {
 
 var ItemTypes: Array[ItemType] = []
 
-const _ITEM_NAMES: Dictionary[ItemType, String] = {
-	ItemType.RAW_TITANIUM: "Compacted Titanium Alloy",
-	ItemType.HOSHIUMIUM: "Hoshiumium",
-
-	ItemType.LUMBER: "Lumber",
-	ItemType.PLANKS: "Planks",
-	ItemType.CLAY: "Clay",
-	ItemType.BRICKS: "Fired Clay Bricks",
-
-	ItemType.RAW_BRASS: "Cu-Zn Sulfide Deposit",
-	ItemType.BRASS_INGOTS: "Brass Ingots",
-	ItemType.MECHANICAL_COMPONENTS: "Mechanical Components",
-
-	ItemType.RAW_ELECTRUM: "Compacted Electrum",
-	ItemType.ELECTRUM_WIRE: "Electrum Wire",
-
-	ItemType.SAND: "Silica Sand",
-	ItemType.EVAPORITES: "Evaporites",
-	ItemType.WATER: "Mineral Water",
-
-	ItemType.PETROCHEMICALS: "Petrochemicals",
-	ItemType.ACRYLIC: "Acrylic Plastic",
-	ItemType.PLASTIC: "Multi-Purpose Polymer",
-
-	ItemType.RAW_CUPRONICKEL: "Cu-Ni Sulfide Deposit",
-	ItemType.CUPRONICKEL_INGOTS: "Cupronickel Ingots",
-	ItemType.FLUID_HARDWARE: "Fluid Hardware Package",
-
-	ItemType.BATTERY_ACID: "Sulfuric Acid",
-	ItemType.POWER_CELLS: "Power Cells",
-
-	ItemType.SEMICONDUCTORS: "Semiconductor Precursors",
-	ItemType.INTEGRATED_CIRCUITS: "Integrated Circuits",
-
-	ItemType.ELECTRONIC_COMPONENTS: "Electronic Components",
-	ItemType.INDUSTRIAL_CONTROLLERS: "Industrial Computer Modules",
-	ItemType.ELECTRONIC_ACTUATORS: "Assorted Actuators",
-
-	ItemType.JELLY_STANDEES: "Jelly Standees",
-	ItemType.COFFEE_CHERRIES: "Sumatra Cherries",
-	ItemType.JELLY_COFFEE: "Jelly Coffee",
-
-	ItemType.STEAM_ENGINE: "Steam Engine",
-	ItemType.WHITE_PAINT: "White Paint",
-
-	ItemType.PC_RAM: "Phase™ RAM",
-	ItemType.PC_CPU: "Phase™ CPU",
-	ItemType.PC_GPU: "Phase™ GPU",
-	ItemType.PC_MOTHERBOARD: "PC Motherboard",
-	ItemType.PC_POWER_SUPPLY: "PC Power Supply",
-	ItemType.PC_GLASS: "Tempered Glass Panel",
-	ItemType.PC_CASE: "PC Case",
-	ItemType.PC_FANS: "PC Fans",
-	ItemType.PC_AIO_COOLER: "AIO Cooler",
-	ItemType.PC_PC: "Personal Computer",
-}
+var _item_map: Dictionary[ItemType, StockpileItem] = {}
 
 var _current: Dictionary[ItemType, int] = {}
 var _produced: Dictionary[ItemType, int] = {}
@@ -142,7 +87,230 @@ func _ready() -> void:
 			_produced[item] = 0
 			_seen[item] = false
 
+	_register_items()
 	_register_challenges()
+
+
+func _register_items() -> void:
+	var item: StockpileItem
+
+	item = StockpileItem.new()
+	_item_map[ItemType.RAW_TITANIUM] = item
+
+	item.display_name = "Compacted Titanium Alloy"
+	item.icon = preload("res://assets/stockpile/titanium.png")
+
+	item = StockpileItem.new()
+	_item_map[ItemType.HOSHIUMIUM] = item
+
+	item.display_name = "Hoshiumium"
+	item.icon = preload("res://assets/stockpile/hoshiumium.png")
+
+	item = StockpileItem.new()
+	_item_map[ItemType.LUMBER] = item
+
+	item.display_name = "Lumber"
+	item.icon = preload("res://assets/stockpile/lumber.png")
+
+	item = StockpileItem.new()
+	_item_map[ItemType.PLANKS] = item
+
+	item.display_name = "Planks"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.CLAY] = item
+
+	item.display_name = "Clay"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.BRICKS] = item
+
+	item.display_name = "Fired Clay Bricks"
+	item.icon = preload("res://assets/stockpile/bricks.png")
+
+	item = StockpileItem.new()
+	_item_map[ItemType.RAW_BRASS] = item
+
+	item.display_name = "Cu-Zn Sulfide Deposit"
+	item.icon = preload("res://assets/stockpile/cuzn.png")
+
+	item = StockpileItem.new()
+	_item_map[ItemType.BRASS_INGOTS] = item
+
+	item.display_name = "Brass Ingots"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.MECHANICAL_COMPONENTS] = item
+
+	item.display_name = "Mechanical Components"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.RAW_ELECTRUM] = item
+
+	item.display_name = "Compacted Electrum"
+	item.icon = preload("res://assets/stockpile/electrum.png")
+
+	item = StockpileItem.new()
+	_item_map[ItemType.ELECTRUM_WIRE] = item
+
+	item.display_name = "Electrum Wire"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.SAND] = item
+
+	item.display_name = "Silica Sand"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.EVAPORITES] = item
+
+	item.display_name = "Evaporites"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.WATER] = item
+
+	item.display_name = "Mineral Water"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.PETROCHEMICALS] = item
+
+	item.display_name = "Petrochemicals"
+	item.icon = preload("res://assets/deposits/petrochemicals.png")
+
+	item = StockpileItem.new()
+	_item_map[ItemType.ACRYLIC] = item
+
+	item.display_name = "Acrylic Plastic"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.PLASTIC] = item
+
+	item.display_name = "Multi-Purpose Polymer"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.RAW_CUPRONICKEL] = item
+
+	item.display_name = "Cu-Ni Sulfide Deposit"
+	item.icon = preload("res://assets/stockpile/cuni.png")
+
+	item = StockpileItem.new()
+	_item_map[ItemType.CUPRONICKEL_INGOTS] = item
+
+	item.display_name = "Cupronickel Ingots"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.FLUID_HARDWARE] = item
+
+	item.display_name = "Fluid Hardware Package"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.BATTERY_ACID] = item
+
+	item.display_name = "Sulfuric Acid"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.POWER_CELLS] = item
+
+	item.display_name = "Power Cells"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.SEMICONDUCTORS] = item
+
+	item.display_name = "Semiconductor Precursors"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.INTEGRATED_CIRCUITS] = item
+
+	item.display_name = "Integrated Circuits"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.ELECTRONIC_COMPONENTS] = item
+
+	item.display_name = "Electronic Components"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.INDUSTRIAL_CONTROLLERS] = item
+
+	item.display_name = "Industrial Computer Modules"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.ELECTRONIC_ACTUATORS] = item
+
+	item.display_name = "Assorted Actuators"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.JELLY_STANDEES] = item
+
+	item.display_name = "Jelly Standees"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.COFFEE_CHERRIES] = item
+
+	item.display_name = "Sumatra Cherries"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.JELLY_COFFEE] = item
+
+	item.display_name = "Jelly Coffee"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.STEAM_ENGINE] = item
+
+	item.display_name = "Steam Engine"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.WHITE_PAINT] = item
+
+	item.display_name = "White Paint"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.PC_RAM] = item
+
+	item.display_name = "Phase™ RAM"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.PC_CPU] = item
+
+	item.display_name = "Phase™ CPU"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.PC_GPU] = item
+
+	item.display_name = "Phase™ GPU"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.PC_MOTHERBOARD] = item
+
+	item.display_name = "PC Motherboard"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.PC_POWER_SUPPLY] = item
+
+	item.display_name = "PC Power Supply"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.PC_GLASS] = item
+
+	item.display_name = "Tempered Glass Panel"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.PC_CASE] = item
+
+	item.display_name = "PC Case"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.PC_FANS] = item
+
+	item.display_name = "PC Fans"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.PC_AIO_COOLER] = item
+
+	item.display_name = "AIO Cooler"
+
+	item = StockpileItem.new()
+	_item_map[ItemType.PC_PC] = item
+
+	item.display_name = "Personal Computer"
 
 
 func _register_challenges() -> void:
@@ -217,10 +385,20 @@ func get_cumulative(item: ItemType) -> int:
 	return _produced[item]
 
 
+func get_item(item: ItemType) -> StockpileItem:
+	return _item_map[item]
+
+
 func get_display_name(item: ItemType) -> String:
-	if not _ITEM_NAMES.has(item):
+	if not _item_map.has(item):
 		return "???"
-	return _ITEM_NAMES[item]
+	return _item_map[item].display_name
+
+
+func get_icon(item: ItemType) -> Texture2D:
+	if not _item_map.has(item):
+		return null
+	return _item_map[item].icon
 
 
 func is_seen(item: ItemType) -> bool:

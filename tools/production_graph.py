@@ -84,10 +84,21 @@ def parse_enum(text: str, name: str) -> list[str]:
 def parse_items(stockpile_text: str) -> dict[str, str]:
     """ItemType enum name -> human display name."""
     names: dict[str, str] = {}
-    block = re.search(r"_ITEM_NAMES.*?\{(.*?)\n\}", stockpile_text, re.S)
-    src = block.group(1) if block else stockpile_text
-    for enum_name, disp in re.findall(r"ItemType\.(\w+)\s*:\s*\"([^\"]*)\"", src):
-        names[enum_name] = disp
+    current: str | None = None
+    for raw in stockpile_text.splitlines():
+        line = raw.split("#", 1)[0]
+
+        m = re.search(r"_item_map\[ItemType\.(\w+)\]\s*=\s*item", line)
+        if m:
+            current = m.group(1)
+            continue
+        if current is None:
+            continue
+
+        m = re.search(r"\.display_name\s*=\s*\"([^\"]*)\"", line)
+        if m:
+            names[current] = m.group(1)
+            current = None
     # make sure every enum member exists even if it has no pretty name
     for enum_name in parse_enum(stockpile_text, "ItemType"):
         names.setdefault(enum_name, enum_name.replace("_", " ").title())

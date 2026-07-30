@@ -35,6 +35,40 @@ func can_research(item: ResearchItem) -> bool:
 	return true
 
 
+func try_research(item: ResearchItem, building: Building):
+	if not building.is_constructed():
+		return "This building is still under construction."
+
+	match item.state:
+		ResearchItem.State.COMPLETED:
+			return "This upgrade has already been researched."
+		ResearchItem.State.RESEARCHING:
+			return "This upgrade is already being researched."
+		ResearchItem.State.LOCKED:
+			var locked := "Missing prerequisites for this upgrade:"
+			for prerequisite in item.prerequisites:
+				if prerequisite.state != ResearchItem.State.COMPLETED:
+					locked += "\n" + "  - %s" % prerequisite.display_name
+			return locked
+
+	var missing: Dictionary[Stockpile.ItemType, int] = {}
+
+	for resource in item.cost:
+		var missing_amount := item.cost[resource] - Stockpile.get_amount(resource)
+		if missing_amount > 0:
+			missing[resource] = missing_amount
+
+	if missing.size() > 0:
+		var error := "Not enough resources to research this upgrade:"
+		for resource in missing:
+			error += "\n" + "  - missing %d %s" % [missing[resource], Stockpile.get_display_name(resource)]
+		return error
+
+	start_research(item, building)
+
+	return false
+
+
 func start_research(item: ResearchItem, building: Building) -> void:
 	if not can_research(item):
 		return

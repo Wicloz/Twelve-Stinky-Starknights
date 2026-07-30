@@ -3,6 +3,8 @@ extends PanelContainer
 signal self_destruct
 
 
+const UNAVAILABLE_MODULATE := Color(1, 1, 1, 0.45)
+
 @export var cancel_icon: Texture2D
 @export var demolish_icon: Texture2D
 
@@ -11,6 +13,8 @@ signal self_destruct
 
 @onready var _destruct_button: TextureButton = $VBox/HBox/DestructButton
 @onready var _popup_button: Button = $VBox/HBox/PopupButton
+
+@onready var _error: Label = $VBox/HBox/Error
 
 @onready var _research: GridContainer = $VBox/HBox/Research
 var _research_buttons: Array[Button] = []
@@ -49,6 +53,8 @@ func show_for(building: Building) -> void:
 	building.constructed.connect(_on_building_constructed)
 	_set_destruct_icon()
 	_destruct_button.visible = building.can_demolish()
+
+	_error.hide()
 
 	show()
 
@@ -97,12 +103,17 @@ func _bind_research_button(research_button: Button, item: ResearchItem) -> void:
 		research_button.text = ""
 		research_button.tooltip_text = ""
 		research_button.disabled = true
+		research_button.modulate = Color.WHITE
 		return
 
 	research_button.icon = item.texture
 	research_button.text = "" if item.texture else item.acronym()
 	research_button.tooltip_text = item.tooltip()
-	research_button.disabled = not _building.is_constructed() or not Research.can_research(item)
+	research_button.disabled = false
+
+	# Stays pressable when unavailable so a press can report what is missing.
+	var available := _building.is_constructed() and Research.can_research(item)
+	research_button.modulate = Color.WHITE if available else UNAVAILABLE_MODULATE
 
 
 func _on_research_button_pressed(index: int) -> void:
@@ -110,7 +121,14 @@ func _on_research_button_pressed(index: int) -> void:
 	if item == null:
 		return
 
-	Research.start_research(item, _building)
+	var error = Research.try_research(item, _building)
+
+	if error is String:
+		_error.text = error
+		_error.show()
+		return
+
+	_error.hide()
 
 
 func _unhandled_input(event: InputEvent) -> void:

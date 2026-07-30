@@ -1870,6 +1870,10 @@ layout_mode = 2
 icon_alignment = 1
 expand_icon = true
 
+[node name="Error" type="Label" parent="UI/BuildingPanel/VBox/HBox" unique_id=1900000201]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.45098, 0.45098, 1)
+
 [node name="Spacer1" type="Control" parent="UI/BuildingPanel/VBox/HBox" unique_id=529905656]
 layout_mode = 2
 size_flags_horizontal = 3

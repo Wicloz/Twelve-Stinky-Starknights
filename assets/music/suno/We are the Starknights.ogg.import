@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://r2bddsmhr3fn"
+path="res://.godot/imported/We are the Starknights.ogg-3694e3c44087eb2c38903ecd4e211254.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/music/suno/We are the Starknights.ogg"
+dest_files=["res://.godot/imported/We are the Starknights.ogg-3694e3c44087eb2c38903ecd4e211254.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

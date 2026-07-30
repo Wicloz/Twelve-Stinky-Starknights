@@ -193,6 +193,7 @@ func _ready() -> void:
 
 	recipe.display_name = "Draw Electrum Wire"
 	recipe.inputs[Stockpile.ItemType.RAW_ELECTRUM] = 1
+	recipe.inputs[Stockpile.ItemType.PLASTIC] = 1
 	recipe.outputs[Stockpile.ItemType.ELECTRUM_WIRE] = 1
 	recipe.work = WORK_CRAFTING
 	recipe.needs_capabilities.append(Capabilities.WIRE_MILL)

@@ -5,4 +5,4 @@
 [resource]
 shader = ExtResource("1_cbfvh")
 shader_parameter/brightness = 0.0
-shader_parameter/contrast = 0.800000038
+shader_parameter/contrast = 0.8

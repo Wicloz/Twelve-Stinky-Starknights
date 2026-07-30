@@ -29,12 +29,11 @@ ACID, ACID_L = "#c2d43f", "#e2ef86"
 GLASS, GLASS_L = "#a8d3e2", "#e6f5fa"
 POLY, POLY_L = "#6fc0a8", "#9ad9c6"
 SILICON, SILICON_L = "#5b6b8c", "#8493b3"
-PCB, PCB_L = "#2f8f57", "#4fb87a"
+PCB_L = "#4fb87a"
 GOLD = "#e5c04a"
 DARK, DARK_L = "#3b4250", "#5a6375"
-JELLY, JELLY_L = "#f06fa0", "#ffa6c8"
 CHERRY, CHERRY_L = "#c8384a", "#e2637a"
-COFFEE, COFFEE_L = "#6b4530", "#8f6248"
+COFFEE = "#6b4530"
 LEAF = "#4f9e46"
 WHITE, WHITE_D = "#f4f4f1", "#d3d3cd"
 RED = "#d0483c"
@@ -326,15 +325,6 @@ ICONS["actuators"] = (
 )
 
 # --- challenge goods ---------------------------------------------------------
-ICONS["jelly_standees"] = (
-    f'<path d="M14 44 C14 26 22 14 32 14 C42 14 50 26 50 44 Z" fill="{JELLY}"/>'
-    + plain(f'<path d="M22 32 C22 23 26 18 31 18 C28 22 26 27 26 34 Z" fill="{JELLY_L}"/>'
-            f'<circle cx="26" cy="34" r="3" fill="{INK}"/>'
-            f'<circle cx="38" cy="34" r="3" fill="{INK}"/>')
-    + f'<rect x="10" y="44" width="44" height="8" rx="2" fill="{SAND}"/>'
-    + f'<path d="M40 52 L48 58" fill="none" stroke="{INK}" stroke-width="3"/>'
-)
-
 # Coffee cherries, not sweet cherries: a tight cluster sitting directly on the
 # branch, each fruit crowned by its calyx, under the long pointed coffee leaf.
 ICONS["coffee_cherries"] = (
@@ -350,17 +340,6 @@ ICONS["coffee_cherries"] = (
             f'<circle cx="20" cy="52" r="2.4" fill="{COFFEE}"/>'
             f'<circle cx="48" cy="52" r="2.2" fill="{COFFEE}"/>'
             f'<circle cx="25" cy="23" r="2.2" fill="{COFFEE}"/>')
-)
-
-ICONS["jelly_coffee"] = (
-    f'<path d="M16 14 L48 14 L43 52 A4 4 0 0 1 39 56 L25 56 '
-    f'A4 4 0 0 1 21 52 Z" fill="{GLASS_L}"/>'
-    + plain(f'<path d="M19 34 L45 34 L43 52 A4 4 0 0 1 39 56 L25 56 '
-            f'A4 4 0 0 1 21 52 Z" fill="{COFFEE}"/>'
-            f'<path d="M20.5 44 L43.5 44 L43 52 A4 4 0 0 1 39 56 L25 56 '
-            f'A4 4 0 0 1 21 52 Z" fill="{JELLY}"/>'
-            f'<path d="M22 18 L26 18 L24 32 L21 32 Z" fill="#ffffff" opacity=".65"/>')
-    + f'<path d="M38 10 L44 30" fill="none" stroke="{INK}" stroke-width="3"/>'
 )
 
 ICONS["steam_engine"] = (

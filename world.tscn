@@ -1195,9 +1195,7 @@ terrain_texture = ExtResource("12_my276")
 [node name="Tile=0,4" parent="HexMap" unique_id=1732270638 instance=ExtResource("30_5ocsm")]
 position = Vector2(544, 816)
 r = 4
-terrain_texture = ExtResource("9_7htu6")
-deposit = 5
-workable = true
+terrain_texture = ExtResource("12_my276")
 
 [node name="Tile=1,4" parent="HexMap" unique_id=1188693344 instance=ExtResource("30_5ocsm")]
 position = Vector2(816, 816)
@@ -1283,9 +1281,7 @@ deposit_texture = ExtResource("22_fnoqa")
 [node name="Tile=0,5" parent="HexMap" unique_id=532807480 instance=ExtResource("30_5ocsm")]
 position = Vector2(680, 1020)
 r = 5
-terrain_texture = ExtResource("9_7htu6")
-deposit = 5
-workable = true
+terrain_texture = ExtResource("12_my276")
 
 [node name="Tile=1,5" parent="HexMap" unique_id=2053813913 instance=ExtResource("30_5ocsm")]
 position = Vector2(952, 1020)

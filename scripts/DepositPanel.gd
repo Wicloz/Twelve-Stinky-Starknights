@@ -5,6 +5,7 @@ signal building_placed(tile: HexTile)
 
 
 const CELL := Vector2(60, 85)
+const GREYSCALE := preload("res://assets/shaders/greyscale.tres")
 
 var _tile: HexTile
 var _shown: Array[CatalogItem] = []
@@ -46,16 +47,27 @@ func _refresh_buildings() -> void:
 		return item.can_place_on(_tile)
 	)
 
-	if items == _shown:
-		return
-	_shown = items
+	if items != _shown:
+		_shown = items
 
-	for button in _buildings.get_children():
-		_buildings.remove_child(button)
-		button.queue_free()
+		for button in _buildings.get_children():
+			_buildings.remove_child(button)
+			button.queue_free()
 
-	for item in items:
-		_buildings.add_child(_make_button(item))
+		for item in items:
+			_buildings.add_child(_make_button(item))
+
+	_refresh_desirability()
+
+
+func _refresh_desirability() -> void:
+	var desirable := Catalog.get_desirable_buildings()
+
+	# Undesirable buildings only go greyscale, they stay pressable so a press can
+	# report what is missing.
+	for i in _shown.size():
+		var button: Button = _buildings.get_child(i)
+		button.material = null if _shown[i] in desirable else GREYSCALE
 
 
 func _make_button(item: CatalogItem) -> Button:

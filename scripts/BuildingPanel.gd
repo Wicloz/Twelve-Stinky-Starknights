@@ -3,6 +3,7 @@ extends PanelContainer
 signal self_destruct
 
 
+const GREYSCALE := preload("res://assets/shaders/greyscale.tres")
 const UNAVAILABLE_MODULATE := Color(1, 1, 1, 0.45)
 
 @export var cancel_icon: Texture2D
@@ -103,6 +104,7 @@ func _bind_research_button(research_button: Button, item: ResearchItem) -> void:
 		research_button.text = ""
 		research_button.tooltip_text = ""
 		research_button.disabled = true
+		research_button.material = null
 		research_button.modulate = Color.WHITE
 		return
 
@@ -111,9 +113,17 @@ func _bind_research_button(research_button: Button, item: ResearchItem) -> void:
 	research_button.tooltip_text = item.tooltip()
 	research_button.disabled = false
 
-	# Stays pressable when unavailable so a press can report what is missing.
+	# Unavailable upgrades are only greyed out, they stay pressable so a press can
+	# report what is missing. Greyscale does nothing to an acronym label, so those
+	# buttons are dimmed instead.
 	var available := _building.is_constructed() and Research.can_research(item)
-	research_button.modulate = Color.WHITE if available else UNAVAILABLE_MODULATE
+
+	if item.texture:
+		research_button.material = null if available else GREYSCALE
+		research_button.modulate = Color.WHITE
+	else:
+		research_button.material = null
+		research_button.modulate = Color.WHITE if available else UNAVAILABLE_MODULATE
 
 
 func _on_research_button_pressed(index: int) -> void:

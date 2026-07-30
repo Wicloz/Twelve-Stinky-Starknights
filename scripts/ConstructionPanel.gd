@@ -7,8 +7,10 @@ signal building_selected(item: CatalogItem)
 
 const ROWS := 2
 const CELL := Vector2(60, 85)
+const GREYSCALE := preload("res://assets/shaders/greyscale.tres")
 
 var _shown: Array[CatalogItem] = []
+var _buttons: Array[Button] = []
 
 
 func _ready() -> void:
@@ -19,15 +21,26 @@ func _ready() -> void:
 func _refresh() -> void:
 	var items := Catalog.get_unlocked_buildings()
 
-	if items.size() == _shown.size():
-		return
+	if items.size() != _shown.size():
+		for item in items:
+			if item in _shown:
+				continue
 
-	for item in items:
-		if item in _shown:
-			continue
+			var button := _make_button(item)
 
-		_shown.append(item)
-		_last_open_column().add_child(_make_button(item))
+			_shown.append(item)
+			_buttons.append(button)
+			_last_open_column().add_child(button)
+
+	_refresh_desirability()
+
+
+func _refresh_desirability() -> void:
+	var desirable := Catalog.get_desirable_buildings()
+
+	# Undesirable buildings only go greyscale, they stay pressable.
+	for i in _shown.size():
+		_buttons[i].material = null if _shown[i] in desirable else GREYSCALE
 
 
 func _last_open_column() -> VBoxContainer:

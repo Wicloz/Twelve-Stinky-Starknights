@@ -265,8 +265,21 @@ func get_unlocked_buildings() -> Array[CatalogItem]:
             if Stockpile.is_unavailable_story_item(resource):
                 return false
 
+        return true
+    )
+
+
+func get_desirable_buildings() -> Array[CatalogItem]:
+    return _catalog.filter(func(item: CatalogItem) -> bool:
+        pass
+
         for resource in item.cost:
-            if Stockpile.is_seen(resource):
-                return true
-        return false
+            if Stockpile.get_amount(resource) < item.cost[resource]:
+                return false
+
+        for resource in item.get_items_consumed():
+            if not Stockpile.is_seen(resource):
+                return false
+
+        return true
     )

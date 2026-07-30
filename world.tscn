@@ -58,6 +58,9 @@
 [ext_resource type="Script" uid="uid://cprd8chnvwr01" path="res://scripts/ProductionChainViewer.gd" id="49_pcv01"]
 [ext_resource type="Texture2D" uid="uid://dx5j5dki6sqoo" path="res://assets/production_graph.png" id="50_pcv02"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_story"]
+bg_color = Color(0, 0, 0, 1)
+
 [node name="World" type="Node2D" unique_id=1592913599]
 
 [node name="PlanetBG" type="Sprite2D" parent="." unique_id=790983586]
@@ -1859,6 +1862,7 @@ anchors_preset = -1
 anchor_left = 0.75
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_story")
 script = ExtResource("14_ikiii")
 
 [node name="VBox" type="VBoxContainer" parent="UI/StoryUI" unique_id=97677321]

@@ -274,6 +274,7 @@ func _ready() -> void:
 	recipe.display_name = "Brew Jelly Coffee"
 	recipe.inputs[Stockpile.ItemType.COFFEE_CHERRIES] = 1
 	recipe.inputs[Stockpile.ItemType.WATER] = 1
+	recipe.inputs[Stockpile.ItemType.HOSHIUMIUM] = 1
 	recipe.outputs[Stockpile.ItemType.JELLY_COFFEE] = 1
 	recipe.work = WORK_CRAFTING
 	recipe.needs_capabilities.append(Capabilities.WORKBENCH)

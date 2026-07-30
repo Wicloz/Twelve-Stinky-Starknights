@@ -1692,7 +1692,7 @@ mute_icon = ExtResource("20_4h6ng")
 [node name="Picker" type="OptionButton" parent="UI/StoryUI/VBox/MusicPlayer" unique_id=1625507575]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="UI/StoryUI/VBox/MusicPlayer" unique_id=1656522307]
+[node name="Tracks" type="OptionButton" parent="UI/StoryUI/VBox/MusicPlayer" unique_id=1656522307]
 layout_mode = 2
 
 [node name="Transport" type="HBoxContainer" parent="UI/StoryUI/VBox/MusicPlayer" unique_id=1514774984]
@@ -1700,28 +1700,34 @@ layout_mode = 2
 
 [node name="Prev" type="TextureButton" parent="UI/StoryUI/VBox/MusicPlayer/Transport" unique_id=1307444426]
 layout_mode = 2
+size_flags_vertical = 4
 
 [node name="PlayPause" type="TextureButton" parent="UI/StoryUI/VBox/MusicPlayer/Transport" unique_id=2090649875]
 layout_mode = 2
+size_flags_vertical = 4
 toggle_mode = true
 
 [node name="Next" type="TextureButton" parent="UI/StoryUI/VBox/MusicPlayer/Transport" unique_id=2084980525]
 layout_mode = 2
+size_flags_vertical = 4
 
 [node name="Seek" type="HSlider" parent="UI/StoryUI/VBox/MusicPlayer/Transport" unique_id=209804627]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
 
 [node name="VolumeRow" type="HBoxContainer" parent="UI/StoryUI/VBox/MusicPlayer" unique_id=635059516]
 layout_mode = 2
 
 [node name="Mute" type="TextureButton" parent="UI/StoryUI/VBox/MusicPlayer/VolumeRow" unique_id=2033230807]
 layout_mode = 2
+size_flags_vertical = 4
 toggle_mode = true
 
 [node name="Volume" type="HSlider" parent="UI/StoryUI/VBox/MusicPlayer/VolumeRow" unique_id=1612642855]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
 
 [node name="Player" type="AudioStreamPlayer" parent="UI/StoryUI/VBox/MusicPlayer" unique_id=281882130]
 bus = &"Music"

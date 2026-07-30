@@ -13,7 +13,7 @@ const MAX_DB := 6.0
 @export var volume_icon: Texture2D
 @export var mute_icon: Texture2D
 
-@onready var _title: Label = $Title
+@onready var _tracks: OptionButton = $Tracks
 @onready var _picker: OptionButton = $Picker
 @onready var _prev: TextureButton = $Transport/Prev
 @onready var _play_pause: TextureButton = $Transport/PlayPause
@@ -50,6 +50,7 @@ func _ready() -> void:
 	_play_pause.texture_normal = play_icon
 
 	_picker.item_selected.connect(_on_playlist_selected)
+	_tracks.item_selected.connect(_play_index)
 	_prev.pressed.connect(func() -> void: _step(-1))
 	_next.pressed.connect(func() -> void: _step(1))
 	_play_pause.toggled.connect(_on_play_toggled)
@@ -125,6 +126,7 @@ func _select_playlist(playlist: String) -> void:
 	_current = playlist
 	_index = 0
 	_picker.select(_names.find(playlist))
+	_refresh_tracks()
 	_play_index(_index)
 
 
@@ -155,7 +157,7 @@ func _play_index(index: int) -> void:
 	_seek.max_value = _player.stream.get_length()
 	_seek.value = 0.0
 
-	_refresh_title()
+	_tracks.select(_index)
 
 	if _play_pause.button_pressed:
 		_player.play()
@@ -194,12 +196,18 @@ func _apply_volume() -> void:
 		AudioServer.set_bus_volume_db(_bus, _volume.value)
 
 
-func _refresh_title() -> void:
+func _refresh_tracks() -> void:
+	_tracks.clear()
+
 	var list := _current_list()
 	if list.is_empty():
-		_title.text = "-- empty --"
+		_tracks.add_item("-- empty --")
+		_tracks.disabled = true
 		return
-	_title.text = _track_name(list[_index])
+
+	for stream: AudioStream in list:
+		_tracks.add_item(_track_name(stream))
+	_tracks.disabled = false
 
 
 func _track_name(stream: AudioStream) -> String:

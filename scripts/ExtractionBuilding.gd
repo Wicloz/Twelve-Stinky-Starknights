@@ -6,7 +6,7 @@ static var work_scale: Dictionary[Script, float] = {}
 static var automated: Dictionary[Script, bool] = {}
 static var yield_scale: Dictionary[Script, int] = {}
 
-const BASE_WORK_SPEEDUP: float = 10.0
+const BASE_WORK_SPEEDUP: float = 5.0
 
 var _has_active_job: bool = false
 var _active_job_is_automated: bool = false

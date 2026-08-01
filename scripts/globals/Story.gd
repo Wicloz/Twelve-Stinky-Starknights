@@ -76,9 +76,18 @@ func _define_cutscenes() -> void:
 
     factory_tutorial.after = [opening_tutorial]
     factory_tutorial.condition = func() -> bool:
-        return Stockpile.get_amount(Stockpile.ItemType.MECHANICAL_COMPONENTS) > 21 and not Catalog.has_finished_construction(MechanicalComponentFactory)
+        return Stockpile.get_cumulative(Stockpile.ItemType.MECHANICAL_COMPONENTS) > 20 and not Catalog.has_finished_construction(MechanicalComponentFactory)
     factory_tutorial.still = preload("res://assets/cutscenes/aiko.jpg")
     factory_tutorial.text = say(AIKO, "Aiko", "Starknights work significantly faster at production buildings, compared to the workshop. Production buildings can even be automated! Try building a [u]mechanical component factory[/u].")
+
+    var unused_extraction_tutorial := Cutscene.new()
+    _locked_cutscenes.append(unused_extraction_tutorial)
+
+    unused_extraction_tutorial.after = [opening_tutorial]
+    unused_extraction_tutorial.condition = func() -> bool:
+        return (Stockpile.get_amount(Stockpile.ItemType.RAW_ELECTRUM) > 100 and not Catalog.has_finished_construction(WireMill)) or (Stockpile.get_amount(Stockpile.ItemType.RAW_CUPRONICKEL) > 100 and not Catalog.has_finished_construction(CupronickelFurnace))
+    unused_extraction_tutorial.still = preload("res://assets/cutscenes/aiko.jpg")
+    unused_extraction_tutorial.text = say(AIKO, "Aiko", "If you have enough of a harvestable deposit, or no immediate need for it, consider reassigning Starknights to work more important deposit types. You cannot get more Starknights, so make sure to use them optimally.")
 
     ##############################
     ### debut and standee task ###

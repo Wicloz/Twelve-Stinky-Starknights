@@ -1,13 +1,13 @@
 @tool
 extends EditorPlugin
 
-const WebExportZip := preload("res://addons/web_export_zip/web_export_zip.gd")
+const BuildHooks := preload("res://addons/build_hooks/build_hooks.gd")
 
 var _export_plugin: EditorExportPlugin
 
 
 func _enter_tree() -> void:
-	_export_plugin = WebExportZip.new()
+	_export_plugin = BuildHooks.new()
 	add_export_plugin(_export_plugin)
 
 

@@ -40,7 +40,3 @@ func _upgrade_research() -> Array[ResearchItem]:
 
 	var items: Array[ResearchItem] = [array, drones, crater, separators, grid]
 	return items
-
-
-func can_demolish() -> bool:
-	return false

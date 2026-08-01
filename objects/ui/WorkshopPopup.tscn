@@ -51,6 +51,10 @@ layout_mode = 2
 [node name="OrderConfig" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=439511777]
 layout_mode = 2
 
+[node name="Spacer" type="Control" parent="PanelContainer/VBoxContainer/OrderConfig" unique_id=1733736471]
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="RepeatMode" type="OptionButton" parent="PanelContainer/VBoxContainer/OrderConfig" unique_id=1393575984]
 layout_mode = 2
 item_count = 3
@@ -69,6 +73,19 @@ update_on_text_changed = true
 layout_mode = 2
 text = "Confirm"
 
-[node name="ClearButton" type="Button" parent="PanelContainer/VBoxContainer" unique_id=1646209328]
+[node name="CurrentOrder" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=1579312119]
 layout_mode = 2
-text = "Cancel Current Order"
+
+[node name="Spacer" type="Control" parent="PanelContainer/VBoxContainer/CurrentOrder" unique_id=388426627]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Description" type="Label" parent="PanelContainer/VBoxContainer/CurrentOrder" unique_id=1495639164]
+layout_mode = 2
+
+[node name="Duration" type="Label" parent="PanelContainer/VBoxContainer/CurrentOrder" unique_id=1201058317]
+layout_mode = 2
+
+[node name="Cancel" type="Button" parent="PanelContainer/VBoxContainer/CurrentOrder" unique_id=1646209328]
+layout_mode = 2
+text = "Cancel"

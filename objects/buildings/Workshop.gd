@@ -1,5 +1,6 @@
 class_name Workshop
 extends Building
+signal order_changed
 
 
 const POPUP := preload("res://objects/ui/WorkshopPopup.tscn")
@@ -15,7 +16,7 @@ var order: Recipe = null
 var order_repeat: Repeat = Repeat.COUNT
 var order_target: int = 1
 
-var _order_remaining: int
+var order_remaining: int
 var _order_job: Job = null
 
 
@@ -213,12 +214,13 @@ func apply_order(recipe: Recipe, repeat: Repeat, target: int) -> void:
 	order_target = target
 
 	if order_repeat == Repeat.COUNT:
-		_order_remaining = order_target
+		order_remaining = order_target
 
 	ActivityLog.record("craft", recipe.display_name, tile,
 		"%s %d" % [Repeat.keys()[order_repeat].to_lower(), order_target])
 
 	_try_post_job()
+	order_changed.emit()
 
 
 func clear_order() -> void:
@@ -227,6 +229,8 @@ func clear_order() -> void:
 	order = null
 	order_repeat = Repeat.COUNT
 	order_target = 1
+
+	order_changed.emit()
 
 
 func _cancel_current_job() -> void:
@@ -256,11 +260,12 @@ func _try_post_job() -> void:
 
 func _on_craft_complete() -> void:
 	if order_repeat == Repeat.COUNT:
-		_order_remaining -= 1
+		order_remaining -= 1
 	Stockpile.add_bulk(order.outputs)
 
 	_order_job = null
 	_try_post_job()
+	order_changed.emit()
 
 
 func _on_craft_aborted() -> void:
@@ -280,7 +285,7 @@ func _order_active() -> bool:
 		Repeat.FOREVER:
 			return true
 		Repeat.COUNT:
-			return _order_remaining > 0
+			return order_remaining > 0
 		Repeat.UNTIL:
 			for item in order.outputs:
 				if Stockpile.get_amount(item) < order_target:

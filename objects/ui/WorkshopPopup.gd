@@ -16,13 +16,15 @@ var _selected_count: int
 @onready var _order_count := $PanelContainer/VBoxContainer/OrderConfig/Count
 
 @onready var _details: RecipeDescription = $PanelContainer/VBoxContainer/OrderSelection/Details
-
 @onready var _order_confirm := $PanelContainer/VBoxContainer/OrderConfig/Confirm
-@onready var _clear_button := $PanelContainer/VBoxContainer/ClearButton
 
 @onready var _panel := $PanelContainer
 @onready var _header := $PanelContainer/VBoxContainer/Header
 @export var close_button: BaseButton
+
+@onready var _order_cancel: Button = $PanelContainer/VBoxContainer/CurrentOrder/Cancel
+@onready var _current_duration: Label = $PanelContainer/VBoxContainer/CurrentOrder/Duration
+@onready var _current_description: Label = $PanelContainer/VBoxContainer/CurrentOrder/Description
 
 var _dragging := false
 var _drag_offset := Vector2.ZERO
@@ -42,7 +44,7 @@ func _ready() -> void:
 	_order_repeat.item_selected.connect(_on_repeat_selected)
 	_order_count.value_changed.connect(_on_count_changed)
 	_order_confirm.pressed.connect(_on_confirm_pressed)
-	_clear_button.pressed.connect(_on_clear_pressed)
+	_order_cancel.pressed.connect(_on_cancel_pressed)
 	_header.gui_input.connect(_on_header_gui_input)
 
 	_populate_recipes()
@@ -72,6 +74,9 @@ func bind(building: Building) -> void:
 	_selected_count = _workshop.order_target
 	_order_count.set_value_no_signal(_selected_count)
 
+	_workshop.order_changed.connect(_refresh_current_order)
+	_refresh_current_order()
+
 
 func register_close_handler(close_handler: Callable) -> void:
 	close_button.pressed.connect(close_handler)
@@ -91,7 +96,7 @@ func _on_count_changed(value: int) -> void:
 	_selected_count = value
 
 
-func _on_clear_pressed() -> void:
+func _on_cancel_pressed() -> void:
 	_workshop.clear_order()
 
 
@@ -119,3 +124,26 @@ func _populate_recipes() -> void:
 		_selected_recipe = null
 		_recipe_list.deselect_all()
 		_refresh_details()
+
+
+func _refresh_current_order() -> void:
+	if _workshop.order == null:
+		_order_cancel.disabled = true
+		_current_description.text = "Current Order: None"
+		_current_duration.text = ""
+		return
+
+	_current_description.text = "Current Order: " + _workshop.order.display_name
+	_order_cancel.disabled = false
+
+	match _workshop.order_repeat:
+		Workshop.Repeat.COUNT:
+			var order_completed := _workshop.order_target - _workshop.order_remaining
+			_current_duration.text = "%d/%d" % [order_completed, _workshop.order_target]
+		Workshop.Repeat.FOREVER:
+			_current_duration.text = "∞"
+		Workshop.Repeat.UNTIL:
+			var min_output_satisfied: int = 9223372036854775807
+			for item in _workshop.order.outputs:
+				min_output_satisfied = mini(min_output_satisfied, Stockpile.get_amount(item))
+			_current_duration.text = "%d/%d" % [min_output_satisfied, _workshop.order_target]

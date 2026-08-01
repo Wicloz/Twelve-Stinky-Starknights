@@ -133,7 +133,7 @@ func _refresh_current_order() -> void:
 		_current_duration.text = ""
 		return
 
-	_current_description.text = "Current Order: " + _workshop.order.display_name
+	_current_description.text = "Current Order: " + _workshop.order.display_name + ", "
 	_order_cancel.disabled = false
 
 	match _workshop.order_repeat:

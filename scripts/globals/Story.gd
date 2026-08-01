@@ -71,6 +71,15 @@ func _define_cutscenes() -> void:
     pitmine_tutorial.still = preload("res://assets/cutscenes/aiko.jpg")
     pitmine_tutorial.text = say(AIKO, "Aiko", "Build a [u]pitmine[/u] on top of a metalloid or sediment deposit to significantly speed up extraction.")
 
+    var factory_tutorial := Cutscene.new()
+    _locked_cutscenes.append(factory_tutorial)
+
+    factory_tutorial.after = [opening_tutorial]
+    factory_tutorial.condition = func() -> bool:
+        return Stockpile.get_amount(Stockpile.ItemType.MECHANICAL_COMPONENTS) > 21 and not Catalog.has_finished_construction(MechanicalComponentFactory)
+    factory_tutorial.still = preload("res://assets/cutscenes/aiko.jpg")
+    factory_tutorial.text = say(AIKO, "Aiko", "Starknights work significantly faster at production buildings, compared to the workshop. Production buildings can even be automated! Try building a [u]mechanical component factory[/u].")
+
     ##############################
     ### debut and standee task ###
     ##############################
@@ -108,6 +117,13 @@ func _define_cutscenes() -> void:
     merch_tutorial.after = [standee_intro]
     merch_tutorial.still = preload("res://assets/cutscenes/aiko.jpg")
     merch_tutorial.text = say(AIKO, "Aiko", "Merchandise targets are listed below. You will need a [u]warehouse[/u] to store and ship this merchandise. Build one if you have not already.")
+
+    var oil_tutorial := Cutscene.new()
+    _locked_cutscenes.append(oil_tutorial)
+
+    oil_tutorial.after = [merch_tutorial]
+    oil_tutorial.still = preload("res://assets/cutscenes/aiko.jpg")
+    oil_tutorial.text = say(AIKO, "Aiko", "Some deposits cannot be worked by hand. In order to extract oil, for example, you will need to build an [u]oil rig[/u] on top of it. Starknights can then use this building to extract the deposit.")
 
     ######################################
     ### standee into jelly coffee task ###

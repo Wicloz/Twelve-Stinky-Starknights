@@ -1,2358 +1,1160 @@
 #!/usr/bin/env python
-"""
-Continuous-time economy / pacing model + autonomous balancer for 12 Stinky
-Starknights.
+"""Pacing / economy model for 12 Stinky Starknights.
 
-A "number go up" game (~1-2 h, PACED BY CUTSCENES). The whole recipe tree, build
-costs, deposits, the research trees, the challenge/cutscene story AND THE MAP
-ITSELF (world.tscn: every tile, deposit and Starknight) are PARSED from the Godot
-source every run, so the model tracks the game as it grows.
+It plays the game. tools/sim.py runs the real GDScript headless (jobs, walking,
+recipes, research, challenges, the cutscene clock -- all the game's own code);
+this file is the PLAYER sitting in front of it, plus the report.
 
-The spine of the game is the single Workshop: it starts with FURNACE + WORKBENCH
-and researches a capability tech-tree (Lathe -> CNC -> Assembly Station; Refinery;
-Injection Molding; Wire Mill -> Soldering -> Cleanroom -> Lithography). Each
-unlock lets the one workshop craft the recipes that need that capability (slowly,
-one order at a time). Factory buildings are the parallel/fast alternative for the
-recipes that have one. Recipes 16-26 (the PC chain, steam engine) have no factory,
-so they are workshop-only and gated purely by research.
+The player is deliberately simple and readable, because a balance answer is only
+worth as much as the play it assumes:
 
-Balancing happens through the RESEARCH / UPGRADE tree (Workshop capabilities,
-per-building throughput upgrades, automation). The build-cost lever was removed.
+  * it works ONE objective at a time -- the next thing worth owning -- and saves
+    for it, exactly like a player with a shopping list;
+  * ONE bill of materials (_retarget) decides everything: what to build, what to
+    dig, what to craft and what to tear down. They cannot contradict each other;
+  * it OWNS ONLY WHAT IT IS USING. A built, non-automated building whose inputs
+    are affordable posts a Job -- the game has no off switch -- so anything the
+    bill no longer wants is demolished (instant, full refund) and rebuilt later.
+    Nothing here targets walking: keeping fewer standing claims than Starknights
+    is just what owning only what you use looks like, and the crew stops
+    commuting as a RESULT (~78% walking before this rule, ~25% after);
+  * it keeps the Workshop on one standing order, and only re-clicks it when the
+    bench goes idle for want of inputs -- a re-click cancels and refunds;
+  * idle Starknights dig ahead of need rather than stand around.
 
-The model measures PLAYER ACTIVITY = density of player actions over time
-(building, research, and workshop craft orders). Design goal: high early density
-(busy = fun) tapering to a calm late game where the player only hand-crafts the
-workshop-only PC parts.
-
-EVERY action and constraint of a real playthrough is modelled (see the notes on
-each section):
-  * TRAVEL -- every Job is done by a Starknight who must WALK to the tile. Job
-    stickiness is read straight off the source: manual harvest and Workshop
-    orders re-post their job from INSIDE on_complete (the same knight keeps it,
-    zero travel), while factories/extractors re-post a frame later (the knight
-    has already reported idle and is re-assigned, so it pays travel every cycle
-    whenever another job is waiting). See TRAVEL MODEL.
-  * MAP -- tiles, deposits and placement rules from world.tscn + CatalogItem.
-    allowed_deposits. Buildings compete for a finite number of sites; extractors
-    are bound to their deposit's tiles (1 Hoshiumium tile, 2 Petrochemicals...);
-    manual harvest only works on `workable` tiles and only where no building
-    stands.
-  * WORKER COST OF INVESTMENTS -- construction and research are Jobs too. They
-    take a Starknight (travel + work) away from production, and they run in
-    PARALLEL across buildings rather than one at a time.
-  * STORY -- challenge goods (merch / steam engine / paint / PC parts) cannot be
-    made until their cutscene chain has fired, and the buildings that make them
-    are not even in the catalog until then. Cutscene durations/queueing come
-    from Story.gd.
-  * STARKNIGHT SPEED -- the Warehouse move-speed tree is a first-class action
-    (it divides every travel time).
-
-Remaining simplifications: production is continuous flow between investment
-events (piecewise-linear exact timings); job PRIORITIES are not simulated (the
-LP just prices worker-seconds); one representative travel time per building type
-per colony size rather than a per-trip simulation.
+What comes out is a timeline of player actions, the cutscene clock, crew
+utilisation and -- the number this is all for -- how long the player spent
+waiting on each thing.
 
 Usage:
-  python balance_model.py [--good JELLY_STANDEES] [--amount 50] [--no-plots]
-                          [--travel-mode auto|churn|parked] [--no-story] [--passes N]
+  python balance_model.py [--goal PC_PC] [--amount 1] [--minutes 180]
+  python balance_model.py --research "MekaSuit Integration"
+  ... [--dt 0.033] [--seed 0] [--no-plots] [-v]
+
+The player's assumptions are the constants at the top of Player -- BANK,
+REASSIGN, COPY_LIMIT, GRACE, PATIENCE, DETOUR, STALLED. They are the knobs.
 """
 
 from __future__ import annotations
 
 import argparse
+import math
 import re
 import sys
+from dataclasses import dataclass, field
 from pathlib import Path
 
-import numpy as np
-from scipy.optimize import linprog
-import matplotlib
+import sim
+from sim import GAME, Res
 
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import production_graph as pg
+CEIL = math.ceil
 
 
 # ===========================================================================
-# 1. ENGINE CONSTANTS  (stable scalars, kept with source; the TREE is parsed)
+# What the player knows about the game (derived once, from the loaded source)
 # ===========================================================================
-WORKSHOPS = 1                # one Workshop; ONE order at a time
-HARVEST_DURATION = 1.0       # HexTile.HARVEST_DURATION
-HARVEST_AMOUNT = 1           # HexTile.HARVEST_AMOUNT
-RESEARCH_WORK = 60.0         # ResearchItem default work
-CUTSCENE_GAP = 3.0           # Story.DELAY_BETWEEN_CUTSCENES
-CUTSCENE_POLL = 1.0          # Story.CONDITION_POLL_INTERVAL (mean wait ~half)
-TYPING_SPEED = 30.0          # Cutscene.typing_speed
-MIN_CUTSCENE = 3.0           # Cutscene.min_duration default
-# WORKERS, worker speeds, the map, construction work, EXTRACTION_SPEEDUP /
-# FACTORY_SPEEDUP and AUTOMATION_COST are all parsed from source -- see load_game.
-
-GAME_ROOT = Path(__file__).resolve().parent.parent
-
-
-# ===========================================================================
-# 2. LOAD THE GAME  (recipes / costs / buildings / deposits / research)
-# ===========================================================================
-def _parse_work_constants(text):
-    ns = {}
-    for m in re.finditer(r"const\s+(WORK_\w+)\s*:?=\s*(.+)", text):
-        ns[m.group(1)] = float(eval(m.group(2).split("#")[0].strip(),
-                                    {"__builtins__": {}}, ns))
-    return ns
-
-
-def _parse_workshop_research(text):
-    """capability -> {cost, prereqs(caps), base}.  Parsed from Workshop.gd."""
-    blocks, cur = {}, None
-    for raw in text.splitlines():
-        line = raw.split("#", 1)[0]
-        m = re.search(r"var\s+(\w+)\s*:=\s*ResearchItem\.new\(\)", line)
-        if m:
-            cur = m.group(1)
-            blocks[cur] = dict(cap=None, cost={}, prereqs=[], base=False)
-            continue
-        if cur is None:
-            continue
-        m = re.search(r"\.cost\[Stockpile\.ItemType\.(\w+)\]\s*=\s*(\d+)", line)
-        if m:
-            blocks[cur]["cost"][m.group(1)] = int(m.group(2))
-        m = re.search(r"\.prerequisites\.append\((\w+)\)", line)
-        if m:
-            blocks[cur]["prereqs"].append(m.group(1))
-        if re.search(r"\.state\s*=\s*ResearchItem\.State\.COMPLETED", line):
-            blocks[cur]["base"] = True
-        m = re.search(r"Workshop\.capabilities\.append\(Crafting\.Capabilities\.(\w+)\)", line)
-        if m:
-            blocks[cur]["cap"] = m.group(1)
-    for name, b in blocks.items():                 # base items grant their named cap
-        if b["cap"] is None and b["base"]:
-            b["cap"] = name.upper()
-    var2cap = {n: b["cap"] for n, b in blocks.items()}
-
-    cap_cost, cap_prereq, base_caps = {}, {}, set()
-    for b in blocks.values():
-        cap = b["cap"]
-        if cap is None:
-            continue
-        if b["base"]:
-            base_caps.add(cap)
-        else:
-            cap_cost[cap] = dict(b["cost"])
-            cap_prereq[cap] = {var2cap.get(p, p) for p in b["prereqs"]}
-    return cap_cost, cap_prereq, base_caps
-
-
-def _parse_research_items(text):
-    """Generic ResearchItem parser (display_name / cost / prerequisites), used
-    for per-building research chains like the Warehouse Starknight-speed tree."""
-    blocks, order, cur = {}, [], None
-    for raw in text.splitlines():
-        line = raw.split("#", 1)[0]
-        m = re.search(r"var\s+(\w+)\s*:=\s*ResearchItem\.new\(\)", line)
-        if m:
-            cur = m.group(1)
-            blocks[cur] = dict(var=cur, display="", cost={}, prereqs=[])
-            order.append(cur); continue
-        if cur is None:
-            continue
-        m = re.search(r'\.display_name\s*=\s*"([^"]*)"', line)
-        if m:
-            blocks[cur]["display"] = m.group(1)
-        m = re.search(r"\.cost\[Stockpile\.ItemType\.(\w+)\]\s*=\s*(\d+)", line)
-        if m:
-            blocks[cur]["cost"][m.group(1)] = int(m.group(2))
-        m = re.search(r"\.prerequisites\.append\((\w+)\)", line)
-        if m:
-            blocks[cur]["prereqs"].append(m.group(1))
-    var2disp = {v: blocks[v]["display"] for v in order}
-    return {blocks[v]["display"]: dict(cost=blocks[v]["cost"],
-            prereqs=[var2disp.get(p, p) for p in blocks[v]["prereqs"]]) for v in order}
-
-
-def _parse_float_const(text, cname, default):
-    m = re.search(r"const\s+" + cname + r"\s*:\s*\w+\s*=\s*([\d.]+)", text)
-    return float(m.group(1)) if m else default
-
-
-def _parse_automation_cost(text):
-    return {m.group(1): int(m.group(2)) for m in re.finditer(
-        r"automation\.cost\[Stockpile\.ItemType\.(\w+)\]\s*=\s*(\d+)", text)}
-
-
-def _split_call_args(text, start):
-    """Given `text` and the index just AFTER a call's opening '(', return the
-    list of top-level argument substrings (comma-split, but respecting nested
-    (), [], {} and skipping string literals)."""
-    depth, args, cur, i = 0, [], [], start
-    while i < len(text):
-        ch = text[i]
-        if ch in "([{":
-            depth += 1; cur.append(ch)
-        elif ch in ")]}":
-            if depth == 0:
-                break                              # the call's closing ')'
-            depth -= 1; cur.append(ch)
-        elif ch == "," and depth == 0:
-            args.append("".join(cur).strip()); cur = []
-        elif ch == '"':
-            cur.append(ch); i += 1
-            while i < len(text) and text[i] != '"':
-                cur.append(text[i]); i += 1
-            if i < len(text):
-                cur.append(text[i])
-        else:
-            cur.append(ch)
-        i += 1
-    if "".join(cur).strip():
-        args.append("".join(cur).strip())
-    return args
-
-
-def _parse_building_upgrades(building_dir):
-    """Per-building upgrades declared in each building's _upgrade_research() via
-    FactoryBuilding's _output_upgrade()/_speed_upgrade()/_efficiency_upgrade()
-    helpers. Returns {building_cls: [dict(var, kind, display, scale, cost,
-    prereqs=[var,...])]}.  kind 'output' -> production_scale (bigger batch, x rate);
-    'speed' -> work_scale (faster runs, x rate); 'efficiency' -> efficiency_scale
-    (less input per batch). Effects multiply across tiers/chains (see _umul).
-
-    Helper signature: _<k>_upgrade(slot, name, description, factor, cost, prereq?).
-    Effects MULTIPLY (successive tiers and parallel chains stack)."""
-    kinds = {"_output_upgrade": "output", "_speed_upgrade": "speed",
-             "_efficiency_upgrade": "efficiency", "_yield_upgrade": "yield"}
-    upgrades = {}
-    for path in sorted(Path(building_dir).glob("*.gd")):
-        text = pg.read(path)
-        m = re.search(r"class_name\s+(\w+)", text)
-        cls = m.group(1) if m else path.stem
-        items = []
-        for c in re.finditer(
-                r"var\s+(\w+)\s*:=\s*(" + "|".join(kinds) + r")\s*\(", text):
-            args = _split_call_args(text, c.end())
-            if len(args) < 5:
-                continue
-            kind = kinds[c.group(2)]
-            scale = float(eval(args[3].split("#")[0].strip(), {"__builtins__": {}}, {}))
-            cost = {cm.group(1): int(cm.group(2)) for cm in re.finditer(
-                r"Stockpile\.ItemType\.(\w+)\s*:\s*(\d+)", args[4])}
-            # prereq arg (if any) is a var name or an array literal of var names
-            prereqs = re.findall(r"\w+", args[5]) if len(args) >= 6 else []
-            display = args[1].strip().strip('"')
-            items.append(dict(var=c.group(1), kind=kind, display=display,
-                              scale=scale, cost=cost, prereqs=prereqs))
-        if items:
-            upgrades[cls] = items
-    return upgrades
-
-
-def _parse_catalog_placement(text):
-    """The placement fields production_graph drops: `work` (construction job
-    duration), the FULL allowed_deposits list (NONE included -- it means "a plain
-    tile"), and always_unlocked. building class -> dict."""
-    out = {}
-    for block in text.split("item = CatalogItem.new()"):
-        scene = re.search(r'preload\("res://objects/buildings/(\w+)\.tscn"\)', block)
-        if not scene:
-            continue
-        dep = re.search(r"allowed_deposits\s*=\s*\[([^\]]*)\]", block, re.S)
-        work = re.search(r"item\.work\s*=\s*([\d.]+)", block)
-        out[scene.group(1)] = dict(
-            deposits=re.findall(r"ItemType\.(\w+)", dep.group(1)) if dep else [],
-            work=float(work.group(1)) if work else 10.0,   # CatalogItem.work default
-            always_unlocked=bool(re.search(r"always_unlocked\s*=\s*true", block)))
-    return out
-
-
-def _parse_challenges(stock_text):
-    """Stockpile._register_challenges -> item -> dict(limit=int|None, shown=bool).
-
-    A challenge item can only be produced while its challenge is ACTIVE: it is
-    LOCKED until a cutscene calls start_challenge(), and goes COMPLETED (locked
-    again) the moment cumulative production reaches `limit`.  Both states make
-    Stockpile.is_unavailable_story_item() true, which pulls the item's recipes out
-    of the Workshop and its buildings out of the catalog."""
-    out = {}
-    body = re.search(r"func _register_challenges\(\).*?(?=\nfunc )", stock_text, re.S)
-    src = body.group(0) if body else stock_text
-    for m in re.finditer(r"_challenges\[ItemType\.(\w+)\]\s*=\s*Challenge\.new\(([^)]*)\)", src):
-        args = [a.strip() for a in m.group(2).split(",") if a.strip()]
-        limit = None
-        if args and args[0] not in ("false",):
-            limit = int(args[0])
-        out[m.group(1)] = dict(limit=limit,
-                               shown=(len(args) < 2 or args[1] != "false"))
-    return out
-
-
-def _parse_cutscenes(story_text):
-    """Story._define_cutscenes -> ordered list of dicts describing the cutscene
-    DAG: var name, `after` predecessors, the trigger CONDITION (as a structured
-    tuple we can evaluate against a plan), the on-screen DURATION, and any
-    challenges the cutscene starts.
-
-    Cutscenes are automatic: no player input ends them.  Story polls conditions
-    every CONDITION_POLL_INTERVAL, waits DELAY_BETWEEN_CUTSCENES, then plays ONE
-    at a time; a scene lasts max(text_chars / typing_speed, min_duration).  They
-    do not pause the sim, but they gate every challenge, so they sit on the
-    critical path of anything merch/PC related."""
-    body = re.search(r"func _define_cutscenes\(\).*?(?=\nconst SAKANA)", story_text, re.S)
-    src = body.group(0) if body else story_text
-    scenes, order, cur = {}, [], None
-    for raw in src.splitlines():
-        line = raw.split("#", 1)[0]
-        m = re.search(r"var\s+(\w+)\s*:=\s*Cutscene\.new\(\)", line)
-        if m:
-            cur = m.group(1)
-            scenes[cur] = dict(var=cur, after=[], cond=None, min_duration=MIN_CUTSCENE,
-                               chars=0, starts=[], unparsed=None)
-            order.append(cur)
-            continue
-        if cur is None:
-            continue
-        s = scenes[cur]
-        m = re.search(r"\.after\s*=\s*\[([^\]]*)\]", line)
-        if m:
-            s["after"] = re.findall(r"\w+", m.group(1))
-        m = re.search(r"\.min_duration\s*=\s*(.+)", line)
-        if m:
-            try:
-                s["min_duration"] = float(eval(m.group(1).strip(), {"__builtins__": {}}, {}))
-            except Exception:
-                pass
-        # typing time counts the VISIBLE characters of every say() on the line
-        # (speaker prefix + spoken line; the bbcode tags themselves don't count)
-        for who, said in re.findall(r'say\([^,]+,\s*"([^"]*)",\s*"((?:[^"\\]|\\.)*)"', line):
-            s["chars"] += len(who) + 2 + len(re.sub(r"\[/?[^\]]*\]", "", said))
-        s["starts"] += re.findall(r"start_challenge\(Stockpile\.ItemType\.(\w+)\)", line)
-        # conditions -- the handful of forms Story.gd actually uses
-        m = re.search(r"Catalog\.has_finished_construction\((\w+)\)", line)
-        if m:
-            s["cond"] = ("built", m.group(1))
-        m = re.search(r"Workshop\.has_capability\(Crafting\.Capabilities\.(\w+)\)", line)
-        if m:
-            s["cond"] = ("cap", m.group(1))
-        m = re.search(r"Stockpile\.is_seen\(Stockpile\.ItemType\.(\w+)\)", line)
-        if m:
-            s["cond"] = ("seen", m.group(1))
-        m = re.search(r"Stockpile\.get_cumulative\(Stockpile\.ItemType\.(\w+)\)\s*>=\s*(\d+)", line)
-        if m:
-            s["cond"] = ("cumulative", m.group(1), int(m.group(2)))
-        m = re.search(r"Stockpile\.is_challenge_completed\(Stockpile\.ItemType\.(\w+)\)", line)
-        if m:
-            s["cond"] = ("challenge_done", m.group(1))
-        # "have N of X (and M of Y ...) in the stockpile right now"
-        held = re.findall(
-            r"Stockpile\.get_amount\(Stockpile\.ItemType\.(\w+)\)\s*>=\s*(\d+)", line)
-        if held:
-            s["cond"] = ("hold", tuple((g, int(n)) for g, n in held))
-        # anything else on a `return ...` line is a condition we cannot read; record
-        # it so the model complains instead of silently treating it as "always true"
-        if s["cond"] is None and line.strip().startswith("return "):
-            s["unparsed"] = line.strip()
-    for s in scenes.values():
-        s["duration"] = max(s["chars"] / TYPING_SPEED, s["min_duration"])
-    return [scenes[v] for v in order]
-
-
-def _parse_world(path, item_enum):
-    """world.tscn -> the actual MAP and crew: every tile (axial coords, pixel
-    position, walkable/workable, deposit), the Starknights (count + individual
-    move_speed) and the Workshop's tile.  Everything about placement caps and
-    travel distance is derived from this."""
-    text = pg.read(path)
-    tiles, speeds, workshop = [], [], None
-    for block in text.split("\n[node ")[1:]:
-        head, _, body = block.partition("\n")
-        if head.startswith('name="Tile='):
-            def num(k, d=0.0):
-                m = re.search(r"^" + k + r"\s*=\s*(-?[\d.]+)", body, re.M)
-                return float(m.group(1)) if m else d
-            def flag(k, d):
-                m = re.search(r"^" + k + r"\s*=\s*(true|false)", body, re.M)
-                return (m.group(1) == "true") if m else d
-            p = re.search(r"^position\s*=\s*Vector2\((-?[\d.]+),\s*(-?[\d.]+)\)", body, re.M)
-            dep = int(num("deposit"))
-            t = dict(q=int(num("q")), r=int(num("r")),
-                     pos=(float(p.group(1)), float(p.group(2))) if p else (0.0, 0.0),
-                     walkable=flag("walkable", True), workable=flag("workable", False),
-                     deposit=item_enum[dep] if 0 <= dep < len(item_enum) else "NONE",
-                     occupied=bool(re.search(r"^building\s*=\s*NodePath", body, re.M)))
-            tiles.append(t)
-            if re.search(r'^building\s*=\s*NodePath\("Workshop"\)', body, re.M):
-                workshop = (t["q"], t["r"])
-        elif head.startswith('name="Starknight'):
-            m = re.search(r"^move_speed\s*=\s*([\d.]+)", body, re.M)
-            if m:
-                speeds.append(float(m.group(1)))
-    return dict(tiles=tiles, speeds=speeds, workshop=workshop)
-
-
-def load_game():
-    stock = pg.read(GAME_ROOT / "scripts/globals/Stockpile.gd")
-    craft = pg.read(GAME_ROOT / "scripts/globals/Crafting.gd")
-    cat = pg.read(GAME_ROOT / "scripts/globals/Catalog.gd")
-    wshop = pg.read(GAME_ROOT / "objects/buildings/Workshop.gd")
-    factory_src = pg.read(GAME_ROOT / "scripts/FactoryBuilding.gd")
-    extract_src = pg.read(GAME_ROOT / "scripts/ExtractionBuilding.gd")
-
-    items = pg.parse_items(stock)
-    raw_recipes = pg.parse_recipes(craft)
-    buildings = pg.parse_buildings(GAME_ROOT / "objects/buildings")
-    catalog = pg.parse_catalog(cat)
-    placement = _parse_catalog_placement(cat)
-    workconsts = _parse_work_constants(craft)
-    cap_cost, cap_prereq, base_caps = _parse_workshop_research(wshop)
-    warehouse_research = _parse_research_items(
-        pg.read(GAME_ROOT / "objects/buildings/Warehouse.gd"))
-    building_upgrades = _parse_building_upgrades(GAME_ROOT / "objects/buildings")
-    challenges = _parse_challenges(stock)
-    cutscenes = _parse_cutscenes(pg.read(GAME_ROOT / "scripts/globals/Story.gd"))
-    world = _parse_world(GAME_ROOT / "world.tscn", pg.parse_enum(stock, "ItemType"))
-
-    recipes = {}                                   # key -> (in, out, work, caps)
-    skipped = []
-    for r in raw_recipes.values():
-        try:                                       # WIP recipes may lack work/outputs
-            work = float(eval(r.work, {"__builtins__": {}}, workconsts))
-        except (SyntaxError, NameError, TypeError):
-            work = 0.0
-        if work <= 0 or not r.outputs:
-            skipped.append(r.key); continue
-        recipes[r.key] = (dict(r.inputs), dict(r.outputs), work, set(r.capabilities))
-
-    recipe_building = {}
-    for cls, b in buildings.items():
-        if b.base == "FactoryBuilding" and b.recipe_index in raw_recipes:
-            recipe_building[raw_recipes[b.recipe_index].key] = cls
-
-    raw_source = {}
-    for cls, info in catalog.items():
-        for dep in info["deposits"]:
-            raw_source.setdefault(dep, cls)
-    for cls, b in buildings.items():
-        if b.base == "ExtractionBuilding":
-            for it in b.harvest_override:
-                raw_source.setdefault(it, cls)
-
-    build_cost = {cls: dict(info["cost"]) for cls, info in catalog.items()}
-    challenge_items = set(challenges)
-    produced = {g for (_i, o, _w, _c) in recipes.values() for g in o}
-    consumed = {g for (i, _o, _w, _c) in recipes.values() for g in i}
-    all_items = produced | consumed
-    raws = sorted(all_items - produced)
-    cost_items = {g for c in build_cost.values() for g in c}
-    finished = sorted(produced - consumed - cost_items)
-
-    return dict(items=items, recipes=recipes, buildings=buildings, catalog=catalog,
-                recipe_building=recipe_building, raw_source=raw_source,
-                build_cost=build_cost, raws=raws, goods=sorted(all_items),
-                finished=finished, cap_cost=cap_cost, cap_prereq=cap_prereq,
-                base_caps=base_caps,
-                factory_speedup=_parse_float_const(factory_src, "BASE_WORK_SPEEDUP", 10.0),
-                extraction_speedup=_parse_float_const(extract_src, "BASE_WORK_SPEEDUP", 10.0),
-                automation_cost=(_parse_automation_cost(factory_src)
-                                 or {"INDUSTRIAL_CONTROLLERS": 10}),
-                # factories and extraction sites charge DIFFERENT bills to automate
-                automation_cost_by_base={
-                    "FactoryBuilding": _parse_automation_cost(factory_src),
-                    "ExtractionBuilding": _parse_automation_cost(extract_src)},
-                warehouse_research=warehouse_research,
-                building_upgrades=building_upgrades,
-                challenge_items=challenge_items, challenges=challenges,
-                cutscenes=cutscenes, placement=placement, world=world,
-                skipped=skipped)
-
-
-G = load_game()
-ITEMS, RECIPES, BUILDINGS, CATALOG = G["items"], G["recipes"], G["buildings"], G["catalog"]
-RECIPE_BUILDING, RAW_SOURCE, BUILD_COST = G["recipe_building"], G["raw_source"], G["build_cost"]
-RAWS, GOODS, FINISHED = G["raws"], G["goods"], G["finished"]
-CAP_COST, CAP_PREREQ, BASE_CAPS = G["cap_cost"], G["cap_prereq"], G["base_caps"]
-ALL_CAPS = BASE_CAPS | set(CAP_COST)
-FACTORY_SPEEDUP = G["factory_speedup"]        # FactoryBuilding.BASE_WORK_SPEEDUP
-EXTRACTION_SPEEDUP = G["extraction_speedup"]  # ExtractionBuilding.BASE_WORK_SPEEDUP
-AUTOMATION_COST = G["automation_cost"]        # per-building Automation research cost
-AUTOMATION_COST_BY_BASE = {k: v for k, v in G["automation_cost_by_base"].items() if v}
-CHALLENGE_ITEMS = G["challenge_items"]        # merch/PC goods; need the Warehouse
-WAREHOUSE_RESEARCH = G["warehouse_research"]  # display -> {cost, prereqs} (speed tree)
-BUILDING_UPGRADES = G["building_upgrades"]    # bt -> [upgrade dicts] (throughput tree)
-
-# Flat id map: uid=(building_type, var) -> upgrade info (incl. prereq uids).
-UPGRADES = {}
-for _bt, _lst in BUILDING_UPGRADES.items():
-    for _u in _lst:
-        UPGRADES[(_bt, _u["var"])] = dict(
-            bt=_bt, var=_u["var"], kind=_u["kind"], display=_u["display"],
-            scale=_u["scale"], cost=_u["cost"],
-            prereq_ids=[(_bt, _p) for _p in _u["prereqs"]])
-
-
-CHALLENGES = G["challenges"]                  # item -> {limit, shown}
-CUTSCENES = G["cutscenes"]                    # the Story.gd cutscene DAG
-PLACEMENT = G["placement"]                    # building -> {deposits, work, always_unlocked}
-WORLD = G["world"]
-
-
-# ===========================================================================
-# 2b. THE MAP  (world.tscn): placement caps + travel times
-#
-# Every Job is done by a Starknight who WALKS to the tile, so the map is a hard
-# constraint on both how many of a building can exist and how much worker time a
-# job really costs.
-#   * a building may only stand on a tile whose deposit is in its
-#     allowed_deposits (CatalogItem.can_place_on), the tile must be walkable and
-#     empty -- so extractors are capped by their deposit's tile count and every
-#     plain factory competes for the same pool of blank tiles;
-#   * an extractor yields ITS TILE's deposit (ExtractionBuilding.get_base_yield_
-#     types), so a Pitmine on clay is a different producer from a Pitmine on sand
-#     -- they are modelled as separate per-deposit variants sharing a tile pool;
-#   * manual harvesting needs tile.workable and is switched off the moment a
-#     building is placed there (CatalogItem.try_place_on), so hand-harvest and
-#     extractors compete for the same tiles -- and deposits with no workable tile
-#     (water, petrochemicals, hoshiumium) can NOT be hand-harvested at all.
-# ===========================================================================
-TILES = WORLD["tiles"]
-WORKER_SPEEDS = WORLD["speeds"]
-WORKERS = len(WORKER_SPEEDS) or 12
-MEAN_SPEED = (sum(WORKER_SPEEDS) / len(WORKER_SPEEDS)) if WORKER_SPEEDS else 100.0
-_TILE_AT = {(t["q"], t["r"]): t for t in TILES}
-WORKSHOP_TILE = WORLD["workshop"]
-
-_HEX_NEIGHBORS = [(1, 0), (1, -1), (0, -1), (-1, 0), (-1, 1), (0, 1)]
-
-
-def _walk_distances(source):
-    """Dijkstra over WALKABLE tiles from `source`, in pixels -- exactly the cost
-    Starknight.travel_time() measures (it sums the pixel length of the A* path
-    and divides by speed)."""
-    import heapq
-    dist = {source: 0.0}
-    pq = [(0.0, source)]
-    while pq:
-        d, cur = heapq.heappop(pq)
-        if d > dist.get(cur, np.inf) + 1e-9:
-            continue
-        cx, cy = _TILE_AT[cur]["pos"]
-        for dq, dr in _HEX_NEIGHBORS:
-            nb = (cur[0] + dq, cur[1] + dr)
-            t = _TILE_AT.get(nb)
-            if t is None or not t["walkable"]:
-                continue
-            nd = d + ((t["pos"][0] - cx) ** 2 + (t["pos"][1] - cy) ** 2) ** 0.5
-            if nd < dist.get(nb, np.inf) - 1e-9:
-                dist[nb] = nd
-                heapq.heappush(pq, (nd, nb))
-    return dist
-
-
-_FROM_WORKSHOP = _walk_distances(WORKSHOP_TILE) if WORKSHOP_TILE else {}
-_PAIR_DIST = {}                                 # lazily filled per source tile
-
-
-def _pair_dist(a, b):
-    if a not in _PAIR_DIST:
-        _PAIR_DIST[a] = _walk_distances(a)
-    return _PAIR_DIST[a].get(b, np.inf)
-
-
-def _usable(t):
-    return t["walkable"] and not t["occupied"]
-
-
-# Candidate sites, nearest to the Workshop first: a real player clusters the
-# colony around the workshop, and the JobManager always hands a job to the
-# CLOSEST idle Starknight, so nearest-first is also the optimistic ordering.
-def _sites_for(deposit):
-    ts = [(_FROM_WORKSHOP.get((t["q"], t["r"]), np.inf), (t["q"], t["r"]))
-          for t in TILES if _usable(t) and t["deposit"] == deposit]
-    return [c for d, c in sorted(ts) if np.isfinite(d)]
-
-
-DEPOSIT_SITES = {}                              # deposit item -> [tile coords]
-for _t in TILES:
-    DEPOSIT_SITES.setdefault(_t["deposit"], None)
-for _d in list(DEPOSIT_SITES):
-    DEPOSIT_SITES[_d] = _sites_for(_d)
-BLANK_SITES = DEPOSIT_SITES.get("NONE", [])     # plain tiles: the factory pool
-WORKABLE_TILES = {}                             # deposit -> hand-harvestable tiles
-for _t in TILES:
-    if _t["workable"] and _usable(_t):
-        WORKABLE_TILES[_t["deposit"]] = WORKABLE_TILES.get(_t["deposit"], 0) + 1
-
-# Which deposits a building may stand on (NONE = a plain tile).
-BUILDING_DEPOSITS = {cls: (p["deposits"] or ["NONE"]) for cls, p in PLACEMENT.items()}
-CONSTRUCTION_WORK = {cls: p["work"] for cls, p in PLACEMENT.items()}
-
-
-def site_cap(cls):
-    """How many copies of `cls` the map can physically hold."""
-    return sum(len(DEPOSIT_SITES.get(d, [])) for d in BUILDING_DEPOSITS.get(cls, ["NONE"]))
-
-
-# --- TRAVEL MODEL ----------------------------------------------------------
-# A Starknight is occupied for travel + duration, and the building it serves is
-# blocked for the same stretch (_has_active_job spans the whole job).  Whether a
-# recurring job actually costs travel is decided by WHERE the re-post happens:
-#
-#   * HexTile._on_harvested and Workshop._on_craft_complete re-post from INSIDE
-#     the completion handler, i.e. during JobManager.complete(), BEFORE the
-#     Starknight calls report_idle().  It is standing on the tile, travel_time is
-#     0, and _fill_tier explicitly keeps a knight that is already on the job's
-#     tile.  => manual harvest and Workshop orders are STICKY: no travel.
-#   * FactoryBuilding/ExtractionBuilding only clear _has_active_job and re-post
-#     on the NEXT _process frame.  By then the knight has already reported idle
-#     and, if any other job is waiting, been sent off to it.  => building jobs
-#     pay travel EVERY cycle once there is competition for workers ("churn"),
-#     and pay nothing when the colony has idle knights to spare ("parked").
-#
-# Both regimes are real, so `--travel-mode auto` picks per solve: parked while
-# the worker cap has slack, churn once it binds (which is the whole mid/late
-# game).  Travel for a job at `site` is the mean walk from the rest of the
-# colony, since the knight comes from wherever it last worked.
-TRAVEL_MODE = "auto"
-
-
-def _colony(nsites):
-    """The tiles a colony of `nsites` buildings occupies: the workshop plus the
-    nearest usable tiles (any kind) to it."""
-    ts = sorted(((_FROM_WORKSHOP.get((t["q"], t["r"]), np.inf), (t["q"], t["r"]))
-                 for t in TILES if _usable(t)), key=lambda x: x[0])
-    out = [WORKSHOP_TILE] if WORKSHOP_TILE else []
-    return out + [c for d, c in ts[:max(nsites, 1)] if np.isfinite(d)]
-
-
-_travel_cache = {}
-def travel_seconds(cls, copies, nsites, speed_scale):
-    """Seconds of walking to reach a job at the `copies` nearest sites of `cls`.
-
-    NOT the colony average: JobManager._fill_tier hands each job to its CLOSEST
-    idle Starknight, and travel is only charged at all in the churn regime -- which
-    is precisely when many jobs are posted and knights are circulating inside a
-    dense cluster.  The knight who takes a job therefore comes from a NEIGHBOURING
-    tile, so the honest cost is the hop from the nearest other occupied site.  A
-    genuinely remote site (the lone hoshiumium tile) still prices as remote,
-    because its nearest neighbour is far."""
-    # bucket both axes: travel changes slowly with colony size, and a key per
-    # exact building multiset would give the LP template cache a fresh entry for
-    # every state the planner touches
-    copies = next(c for c in (1, 2, 4, 8, 16) if copies <= c or c == 16)
-    nsites = next(nn for nn in (4, 8, 16, 32, 64) if nsites <= nn or nn == 64)
-    key = (cls, copies, nsites)
-    if key not in _travel_cache:
-        colony = _colony(nsites)
-        if cls == "Workshop":
-            sites = [WORKSHOP_TILE] if WORKSHOP_TILE else []
-        else:
-            sites = []
-            for d in BUILDING_DEPOSITS.get(cls, ["NONE"]):
-                sites += DEPOSIT_SITES.get(d, [])
-        sites = sorted(sites, key=lambda c: _FROM_WORKSHOP.get(c, np.inf))[:max(copies, 1)]
-        if not sites or not colony:
-            _travel_cache[key] = 0.0
-        else:
-            hops = []
-            for b in sites:
-                near = [_pair_dist(a, b) for a in colony
-                        if a != b and np.isfinite(_pair_dist(a, b))]
-                if near:
-                    hops.append(min(near))
-            _travel_cache[key] = (sum(hops) / len(hops) / MEAN_SPEED) if hops else 0.0
-    return _travel_cache[key] / max(speed_scale, 1e-9)
-
-
-# The Warehouse move-speed tree is the only lever on travel, so it is a
-# first-class action.  display name -> the speed_scale it sets.
-SPEED_RESEARCH = {}
-_wh_src = pg.read(GAME_ROOT / "objects/buildings/Warehouse.gd")
-for _m in re.finditer(r"var\s+(\w+)\s*:=\s*ResearchItem\.new\(\)", _wh_src):
-    _blk = _wh_src[_m.end():]
-    _nxt = re.search(r"var\s+\w+\s*:=\s*ResearchItem\.new\(\)", _blk)
-    _blk = _blk[:_nxt.start()] if _nxt else _blk
-    _disp = re.search(r'\.display_name\s*=\s*"([^"]*)"', _blk)
-    _scale = re.search(r"Starknight\.speed_scale\s*=\s*([\d.]+)", _blk)
-    if _disp and _scale:
-        SPEED_RESEARCH[_disp.group(1)] = float(_scale.group(1))
-
-
-def speed_scale_of(spd):
-    """speed_scale after completing the set `spd` of Warehouse speed researches
-    (they overwrite rather than multiply, so the best one wins)."""
-    return max([1.0] + [SPEED_RESEARCH[d] for d in spd if d in SPEED_RESEARCH])
-
-
-def _umul(ups):
-    """Per-building-type upgrade multipliers from a set of researched upgrade ids,
-    as {bt: (production, work, efficiency)}. Each upgrade MULTIPLIES its lever, so
-    a lever's value is the product of that building's completed upgrades of that
-    kind. production (bigger batch) and work (faster) both scale the building's net
-    output rate per instance at no extra worker/building cost; efficiency divides
-    only the INPUT a batch consumes (relieving upstream), so it is applied to the
-    input side of the net vector, not to output (see _activities)."""
-    by_bt = {}
-    for uid in ups:
-        u = UPGRADES[uid]
-        m = by_bt.setdefault(u["bt"], [1.0, 1.0, 1.0])   # [production/yield, work, efficiency]
-        # extractor 'yield' scales harvest amount, i.e. output -> same slot as 'output'
-        idx = {"output": 0, "yield": 0, "speed": 1, "efficiency": 2}[u["kind"]]
-        m[idx] *= u["scale"]
-    return {bt: (m[0], m[1], m[2]) for bt, m in by_bt.items()}
-
-
-def research_chain(display):
-    """Ordered prerequisite chain of a Warehouse research, target last."""
-    chain, seen = [], set()
-    def visit(d):
-        if d in seen or d not in WAREHOUSE_RESEARCH:
-            return
-        seen.add(d)
-        for p in WAREHOUSE_RESEARCH[d]["prereqs"]:
-            visit(p)
-        chain.append(d)
-    visit(display)
-    return chain
-
-# --- BUILDING VARIANTS -----------------------------------------------------
-# An extractor yields its TILE's deposit, so one class can be several different
-# producers.  A variant key is "Class" for a factory and "Class@DEPOSIT" for an
-# extractor; upgrades, automation and construction cost stay per CLASS.
-EXTRACTOR_CLASSES = sorted(cls for cls, b in BUILDINGS.items()
-                           if b.base == "ExtractionBuilding" and cls in CATALOG)
-VARIANT_YIELD = {}                      # variant -> harvested item
-VARIANT_DEPOSIT = {}                    # variant -> the deposit tile it sits on
-for _cls in EXTRACTOR_CLASSES:
-    _over = BUILDINGS[_cls].harvest_override
-    for _d in BUILDING_DEPOSITS.get(_cls, ["NONE"]):
-        if not DEPOSIT_SITES.get(_d):
-            continue                    # the map has no such tile -> impossible
-        _item = _over[0] if _over else _d
-        if _item == "NONE":
-            continue
-        _v = f"{_cls}@{_d}"
-        VARIANT_YIELD[_v] = _item
-        VARIANT_DEPOSIT[_v] = _d
-
-
-def vclass(v):
-    """The building class behind a variant key."""
-    return v.split("@", 1)[0]
-
-
-def vdeposit(v):
-    return VARIANT_DEPOSIT.get(v, "NONE")
-
-
-RAW_SOURCE = {}                          # item -> [variants that produce it]
-for _v, _item in VARIANT_YIELD.items():
-    RAW_SOURCE.setdefault(_item, []).append(_v)
-
-BUILDING_TYPES = sorted(set(VARIANT_YIELD) | set(RECIPE_BUILDING.values()))
-FACTORY_BUILDINGS = set(RECIPE_BUILDING.values())
-CATALOG_BUILDINGS = [v for v in BUILDING_TYPES if v != "Warehouse"]
-_GOOD_INDEX = {g: i for i, g in enumerate(GOODS)}
-# Deposits with no workable tile can never be hand-harvested -- water,
-# petrochemicals and hoshiumium need their building or they do not exist.
-HAND_HARVESTABLE = {d for d, n in WORKABLE_TILES.items() if n > 0}
-
-
-def name(item):
-    return ITEMS.get(item, item)
-
-
-def bname(v):
-    b = BUILDINGS.get(vclass(v))
-    disp = b.display_name if b else vclass(v)
-    return f"{disp} ({name(vdeposit(v))})" if "@" in v and \
-        len(BUILDING_DEPOSITS.get(vclass(v), [])) > 1 else disp
-
-
-def manned(bs, auto):
-    """Buildings that must be OPERATED by a Starknight.
-
-    THE central constraint, from the recorded playthrough: a built,
-    non-automated building whose inputs are affordable posts a Job and takes a
-    knight -- the game has no "pause this factory" control. So owning a building
-    you do not want running actively steals crew from the work that matters, and
-    the only way to shed one is to DEMOLISH it (which is instant and refunds the
-    full build cost). Real play keeps this number pinned at 9-14 against a crew
-    of 12 for the entire run, while total buildings climb past 60 -- the excess
-    is all automated. Automation is the only way past the cap."""
-    return sum(n for v, n in bs.items()
-               if n > 0 and v in BUILDING_TYPES and v not in auto)
-
-
-def site_pool_free(bs, v):
-    """Copies of variant `v` the map can still take, given what is already built:
-    every building standing on a deposit competes for that deposit's tiles."""
-    d = vdeposit(v)
-    used = sum(n for k, n in bs.items() if vdeposit(k) == d)
-    return max(0, len(DEPOSIT_SITES.get(d, [])) - used)
-
-
-# ===========================================================================
-# 3. LEVER: research / upgrade costs (Workshop.gd + per-building research).
-#    (The build-cost lever was removed -- balancing now happens through the
-#    upgrade tree and its activity effects, not by scaling Catalog.gd.)
-# ===========================================================================
-RESEARCH_COST_MULT = 1.0
-
-
-# ===========================================================================
-# 4. THE ALLOCATION LP  (max sustainable rate given buildings + workshop caps)
-#    A recipe can run in the Workshop iff its capabilities are researched, or in
-#    its factory building (which embodies the capability) once built.
-# ===========================================================================
-def _activities(caps, unlocked, umul, auto, travel):
-    """One activity per way of doing work.  The LP variable is OCCUPANCY (how many
-    workers/buildings are continuously devoted to it), so an activity's `dur` is
-    its full CYCLE time -- travel included -- and its rate is net/dur.
-
-    `unlocked` = the challenge items whose challenge is currently ACTIVE.  Any
-    recipe that touches a challenge item outside that set does not exist yet
-    (Workshop._on_challenge_updated / Catalog.get_unlocked_buildings).
-    `travel` = {variant: seconds}, already 0 for the sticky/automated cases."""
-    def gated(inp, out):
-        return any(g in CHALLENGE_ITEMS and g not in unlocked
-                   for g in set(inp) | set(out))
-
-    acts = []
-    for r in RAWS:
-        # hand-harvest: HexTile._on_harvested re-posts the job from inside the
-        # completion handler, so the same Starknight keeps the tile -- no travel.
-        if r in HAND_HARVESTABLE:
-            acts.append((f"manual:{r}", HARVEST_DURATION / HARVEST_AMOUNT,
-                         {r: 1.0}, ("tile", r)))
-        for v in RAW_SOURCE.get(r, ()):
-            cls = vclass(v)
-            yld, wmul, _e = umul.get(cls, (1.0, 1.0, 1.0))   # yield x amount; speed / dur
-            dur = (HARVEST_DURATION / EXTRACTION_SPEEDUP) / wmul + travel.get(v, 0.0)
-            acts.append((f"extract:{v}", dur,
-                         {r: float(HARVEST_AMOUNT) * yld}, ("building", v)))
-    for key, (inp, out, work, rcaps) in RECIPES.items():
-        if gated(inp, out):
-            continue
-        net = {g: float(out.get(g, 0) - inp.get(g, 0)) for g in set(inp) | set(out)}
-        if rcaps <= caps:
-            # Workshop._on_craft_complete re-posts too -> a repeat order is sticky.
-            acts.append((f"workshop:{key}", work, net, "workshop"))
-        bt = RECIPE_BUILDING.get(key)
-        if bt is not None:
-            prod, wmul, eff = umul.get(bt, (1.0, 1.0, 1.0))   # per-building upgrades
-            if prod == 1.0 and eff == 1.0:
-                fnet = net
-            else:                               # output x prod; input x prod / eff
-                # FactoryBuilding._try_consume uses ceili() on the input
-                fnet = {g: out.get(g, 0) * prod - np.ceil(inp.get(g, 0) * prod / eff)
-                        for g in set(inp) | set(out)}
-            dur = work / FACTORY_SPEEDUP / wmul + travel.get(bt, 0.0)
-            acts.append((f"factory:{key}", dur, fnet, ("building", bt)))
-    return acts
-
-
-def _build_template(acts, auto):
-    """`auto` = set of building types that are AUTOMATED. An automated building's
-    runs post no Job, so they cost NO worker -- their coefficient in the worker
-    constraint is 0 (they are still capped by building count / concurrency).
-
-    Rows come back with a b-vector filled in by _solve: worker cap, the single
-    Workshop, one row per building variant (its copies), one per hand-harvestable
-    deposit (its free WORKABLE tiles), then the goods balance."""
-    n = len(acts)
-    c = np.zeros(n + 1); c[-1] = -1.0
-    rows, labels, is_cap, cap_b = [], [], [], []
-
-    def add(row, label, cap, bt=None):
-        rows.append(row); labels.append(label); is_cap.append(cap); cap_b.append(bt)
-
-    row = np.zeros(n + 1)                     # worker constraint
-    for i, (nm, dur, net, cap) in enumerate(acts):
-        automated = isinstance(cap, tuple) and cap[1] in auto
-        row[i] = 0.0 if automated else 1.0
-    add(row, "workers", True)
-    row = np.zeros(n + 1)
-    for i, (nm, *_ ) in enumerate(acts):
-        if nm.startswith("workshop:"):
-            row[i] = 1.0
-    add(row, "workshop", True)
-    brow = {}
-    for bt in BUILDING_TYPES:
-        row = np.zeros(n + 1); used = False
-        for i, (nm, dur, net, cap) in enumerate(acts):
-            if isinstance(cap, tuple) and cap[0] == "building" and cap[1] == bt:
-                row[i] = 1.0; used = True
-        if used:
-            brow[bt] = len(rows); add(row, bt, True, bt)
-    # hand-harvest is capped by free WORKABLE tiles: one job per tile, and a tile
-    # under a building is not harvestable at all (CatalogItem.try_place_on).
-    # NOTE: there is deliberately NO extra "manned buildings + harvest <= crew"
-    # row here. Row 0 (workers) already charges 1.0 for every manual-harvest and
-    # every non-automated building activity, so the crew budget is enforced
-    # exactly once. Adding a second row that also subtracted the OWNED building
-    # count double-charged it, and once owned buildings exceeded the crew it
-    # pinned hand-harvest to zero -- which killed the titanium the bootstrap
-    # still depends on and made the whole goal unreachable.
-    sink_row = None
-    trow = {}
-    for r in sorted(HAND_HARVESTABLE):
-        row = np.zeros(n + 1); used = False
-        for i, (nm, dur, net, cap) in enumerate(acts):
-            if isinstance(cap, tuple) and cap[0] == "tile" and cap[1] == r:
-                row[i] = 1.0; used = True
-        if used:
-            trow[r] = len(rows); add(row, f"workable:{name(r)}", True, None)
-    supply0 = len(rows)
-    for g in GOODS:
-        row = np.zeros(n + 1)
-        for i, (nm, dur, net, cap) in enumerate(acts):
-            if g in net:
-                row[i] = -net[g] / dur
-        add(row, f"supply:{g}", False)
-    return acts, c, np.array(rows), labels, is_cap, cap_b, brow, trow, sink_row, supply0
-
-
-_template_cache = {}
-def _template(caps, auto, unlocked, umul, travel):
-    key = (frozenset(caps), frozenset(auto), frozenset(unlocked),
-           tuple(sorted(umul.items())), tuple(sorted(travel.items())))
-    if key not in _template_cache:
-        _template_cache[key] = _build_template(
-            _activities(caps, unlocked, umul, auto, travel), auto)
-    return _template_cache[key]
-
-
-# Worker-seconds per second that construction and research Jobs are eating out of
-# the crew.  Solved for as a fixed point over the whole plan (see run_plan): those
-# Jobs are real Jobs with real Starknights, so production has to make do with what
-# is left.
-OVERHEAD_WORKERS = 0.0
-
-
-def _travel_map(buildings, spd, auto):
-    """Seconds of walking per job, per building variant.  0 for automated
-    buildings (their runs are timers, no Job at all) and 0 in the `parked`
-    regime, where idle knights let a building's own worker re-take its post."""
-    if TRAVEL_MODE == "parked":
-        return {}
-    nsites = max(1, sum(buildings.values()))
-    scale = speed_scale_of(spd)
-    out = {}
-    for v, count in buildings.items():
-        if count <= 0 or v in auto or vclass(v) in auto:
-            continue
-        t = travel_seconds(vclass(v), count, nsites, scale)
-        if t > 0:
-            out[v] = round(t, 1)
-    return out
-
-
-def _tile_caps(buildings):
-    """Workable tiles still free for hand-harvest, per raw: buildings standing on
-    a deposit take those tiles out of the pool."""
-    caps = {}
-    for r, total in WORKABLE_TILES.items():
-        used = sum(n for k, n in buildings.items() if vdeposit(k) == r)
-        caps[r] = float(max(0, total - used))
-    return caps
-
-
-def _solve(target, buildings, caps, auto, ups, spd=frozenset(), unlocked=None):
-    """Solve the LP; return (linprog result, acts, labels, is_cap, cap_b, b)."""
-    if unlocked is None:
-        unlocked = CHALLENGE_ITEMS            # story ignored (--no-story)
-    travel = _travel_map(buildings, spd, auto)
-    acts, c, A0, labels, is_cap, cap_b, brow, trow, sink_row, supply0 = _template(
-        caps, auto, unlocked, _umul(ups), travel)
-    A = A0.copy()
-    b = np.zeros(A.shape[0])
-    b[0] = max(1.0, WORKERS - OVERHEAD_WORKERS); b[1] = WORKSHOPS
-    for bt, ridx in brow.items():
-        b[ridx] = float(buildings.get(bt, 0))
-    tc = _tile_caps(buildings)
-    for r, ridx in trow.items():
-        b[ridx] = tc.get(r, 0.0)
-    for g, q in target.items():
-        A[supply0 + _GOOD_INDEX[g], -1] = float(q)
-    res = linprog(c, A_ub=A, b_ub=b, bounds=[(0, None)] * len(c), method="highs")
-
-    # TRAVEL REGIME.  Building jobs only lose their worker (and so pay travel) when
-    # somebody else is waiting for one.  In `auto` mode, solve with travel charged
-    # and fall back to the parked (travel-free) solve when the crew still has
-    # slack -- i.e. when nobody was competing for the knight in the first place.
-    if TRAVEL_MODE == "auto" and travel and res.success:
-        used = float(A0[0][:-1] @ res.x[:-1])
-        if used < b[0] - 1e-6:
-            acts2, c2, A2, labels2, is_cap2, cap_b2, brow2, trow2, sink2, supply2 = _template(
-                caps, auto, unlocked, _umul(ups), {})
-            A2 = A2.copy()
-            b2 = np.zeros(A2.shape[0])
-            b2[0] = b[0]; b2[1] = WORKSHOPS
-            for bt, ridx in brow2.items():
-                b2[ridx] = float(buildings.get(bt, 0))
-            for r, ridx in trow2.items():
-                b2[ridx] = tc.get(r, 0.0)
-            for g, q in target.items():
-                A2[supply2 + _GOOD_INDEX[g], -1] = float(q)
-            res2 = linprog(c2, A_ub=A2, b_ub=b2, bounds=[(0, None)] * len(c2),
-                           method="highs")
-            if res2.success and float(A2[0][:-1] @ res2.x[:-1]) < b2[0] - 1e-6:
-                return res2, acts2, labels2, is_cap2, cap_b2, b2
-    return res, acts, labels, is_cap, cap_b, b
-
-
-def max_bundle_rate(target, buildings, caps, auto=frozenset(), ups=frozenset(),
-                    spd=frozenset(), unlocked=None):
-    res, acts, labels, is_cap, cap_b, b = _solve(target, buildings, caps, auto,
-                                                 ups, spd, unlocked)
-    if not res.success:
-        return 0.0, "infeasible"
-    lam = res.x[-1]
-    marg = res.ineqlin.marginals
-    binding, best = "unconstrained", 0.0
-    for j in range(len(labels)):
-        if is_cap[j] and marg[j] < best - 1e-9 and b[j] > 0:
-            bt = cap_b[j]
-            binding = labels[j] if bt is None else f"{bname(bt)} x{int(b[j])}"
-            best = marg[j]
-    return lam, binding
-
-
-# good -> the recipe that produces it (primary); building -> its recipe outputs.
-GOOD_RECIPE = {}
-for _k, (_i, _o, _w, _c) in RECIPES.items():
-    for _g in _o:
-        GOOD_RECIPE.setdefault(_g, _k)
-BUILDING_OUTPUTS = {}
-for _k, _bt in RECIPE_BUILDING.items():
-    BUILDING_OUTPUTS.setdefault(_bt, set()).update(RECIPES[_k][1])
-
-
-# ===========================================================================
-# 5. THE OPTIMAL PLAYER  (greedy rollout over BUILD and RESEARCH investments;
-#    a producibility pass researches the capabilities a goal actually requires)
-# ===========================================================================
-GOAL_GOOD = "PC_PC"            # build one Personal Computer (the endgame goal)
-GOAL_AMOUNT = 1
-STORY_GATE = "MechanicalComponentFactory"      # the build that triggers the debut
-
-ACTIVE_CANDIDATES = list(CATALOG_BUILDINGS)
-RELEVANT_CAPS = set()
-RELEVANT_ITEMS = set()
-
-# item -> the wall-clock second its challenge goes ACTIVE (np.inf = never).
-# Recomputed from the plan's own event times by run_plan()'s fixed point.
-STORY_UNLOCK = {}
-USE_STORY = True
-# Each pass re-plans from scratch (the LP caches depend on both feedbacks), so
-# this is the model's main runtime knob.  2 already gets the story clock and the
-# overhead in; 3-4 only polishes them.
-MAX_FIXED_POINT_PASSES = 5
-
-
-def variant_items(v):
-    """Every item a building type produces or consumes -- what Catalog checks
-    against the story lock before it will even show the building."""
-    if v in VARIANT_YIELD:
-        return {VARIANT_YIELD[v]}
-    out = set()
-    for key, bt in RECIPE_BUILDING.items():
-        if bt == v:
-            inp, o, _w, _c = RECIPES[key]
-            out |= set(inp) | set(o)
-    return out
-
-
-def story_floor(items):
-    """The earliest second at which every challenge item in `items` is ACTIVE."""
-    if not USE_STORY:
-        return 0.0
-    ts = [STORY_UNLOCK.get(g, np.inf) for g in items if g in CHALLENGE_ITEMS]
-    return max(ts) if ts else 0.0
-
-
-def story_prerequisites(items):
-    """Items and buildings the STORY needs before `items` can be made at all.
-
-    Walking the cutscene DAG backwards from whichever scene calls start_challenge
-    for a challenge item picks up its conditions -- and those conditions are real
-    production goals: the coffee challenge only starts after a Jelly Standee has
-    been SEEN, so a coffee run has to stand up the standee line even though
-    standees are nowhere in coffee's recipe tree."""
-    by_var = {c["var"]: c for c in CUTSCENES}
-    want = {v for c in CUTSCENES for i in c["starts"] if i in items for v in (c["var"],)}
-    seen_v, need_items, need_built, need_caps = set(), set(), set(), set()
-    while want:
-        v = want.pop()
-        if v in seen_v or v not in by_var:
-            continue
-        seen_v.add(v)
-        cs = by_var[v]
-        want |= set(cs["after"])
-        cond = cs["cond"]
-        if not cond:
-            continue
-        if cond[0] in ("seen", "cumulative", "challenge_done"):
-            need_items.add(cond[1])
-        elif cond[0] == "hold":
-            need_items |= {g for g, _n in cond[1]}
-        elif cond[0] == "built":
-            need_built.add(cond[1])
-        elif cond[0] == "cap":
-            need_caps.add(cond[1])
-    return need_items, need_built, need_caps
-
-
-def _relevant(good):
-    return _relevant_seed({good})
-
-
-def _relevant_seed(seed_items):
-    """Closure of items on the way to the `seed_items` (a good, or a set of
-    research-cost items), including build-cost chains and the Warehouse. Returns:
-      cands  - the catalog buildings worth considering,
-      items  - the relevant item set (producibility gradient),
-      caps   - MANDATORY research caps = caps of relevant recipes that have NO
-               factory (must be workshop-crafted), closed under prerequisites.
-    Recipes that DO have a factory need no research -- you build the factory.
-
-    `goal_items` (the producibility gradient) covers only the goal's own chain.
-    The candidate/research sets additionally cover the Automation cost chain
-    (Industrial Computer Modules) so the optimiser can weigh automating -- but
-    that chain is kept OUT of the producibility gradient so the bootstrap does
-    not detour through it."""
-    def closure(seed):
-        items = set(seed)
-        changed = True
-        while changed:
-            changed = False
-            for g in list(items):
-                for (inp, out, _w, _c) in RECIPES.values():
-                    if g in out:
-                        for ing in inp:
-                            if ing not in items:
-                                items.add(ing); changed = True
-                for v in RAW_SOURCE.get(g, ()):
-                    for ci in BUILD_COST.get(vclass(v), {}):
-                        if ci not in items:
-                            items.add(ci); changed = True
-            for key, (_i, out, _w, _c) in RECIPES.items():
-                if key in RECIPE_BUILDING and any(o in items for o in out):
-                    for ci in BUILD_COST.get(RECIPE_BUILDING[key], {}):
-                        if ci not in items:
-                            items.add(ci); changed = True
-        return items
-
-    seed_items = set(seed_items)
-    if USE_STORY:                       # the story's own preconditions are goals too
-        for _ in range(4):
-            need_items, need_built, _need_caps = story_prerequisites(seed_items)
-            grown = seed_items | need_items
-            for cls in need_built:
-                grown |= set(BUILD_COST.get(cls, {}))
-                for key, bt in RECIPE_BUILDING.items():
-                    if bt == cls:
-                        grown |= set(RECIPES[key][1])
-            if grown == seed_items:
-                break
-            seed_items = grown
-    goal_items = closure(seed_items | set(BUILD_COST.get("Warehouse", {})))
-
-    def derive(items):
-        cands, mand = set(), set()
-        for key, (_i, out, _w, rc) in RECIPES.items():
-            if not any(o in items for o in out):
-                continue
-            if key in RECIPE_BUILDING:
-                cands.add(RECIPE_BUILDING[key])
-            else:
-                mand |= rc                          # workshop-only -> must research
-        for r in items:
-            cands |= set(RAW_SOURCE.get(r, ()))
-        cands.discard("Warehouse")
-        caps, frontier = set(mand), set(mand)       # close research caps under prereqs
-        while frontier:
-            for p in CAP_PREREQ.get(frontier.pop(), ()):
-                if p not in caps:
-                    caps.add(p); frontier.add(p)
-        return cands, caps - BASE_CAPS
-
-    # Fold in the automation chain, the research-cost chains of the caps the goal
-    # needs, AND the per-building UPGRADE costs, iterating to a fixpoint, so
-    # factory-able research/automation/upgrade inputs get their factory built
-    # rather than being hand-crafted avoidably. Without the upgrade costs, a
-    # narrow goal leaves late materials (power cells, actuators) unreachable and
-    # every capstone silently unaffordable -- so the optimiser never sees them.
-    auto_items = (set().union(*AUTOMATION_COST_BY_BASE.values())
-                  if AUTOMATION_COST_BY_BASE else set(AUTOMATION_COST))
-    items = closure(set(goal_items) | auto_items)
-    cands, caps = derive(items)
-    for _ in range(8):
-        seed = set(items)
-        for c in caps:
-            seed |= set(CAP_COST.get(c, {}))
-        for bt in cands:
-            for u in BUILDING_UPGRADES.get(vclass(bt), ()):
-                seed |= set(u["cost"])
-        for d in SPEED_RESEARCH:                # the move-speed tree is on the table
-            seed |= set(WAREHOUSE_RESEARCH.get(d, {}).get("cost", {}))
-        new_items = closure(seed)
-        if new_items == items:
-            break
-        items = new_items
-        cands, caps = derive(items)
-    return ([c for c in CATALOG_BUILDINGS if c in cands], goal_items, caps)
-
-
-# The player's STATE is (buildings, caps, auto, ups, spd): building counts, the
-# Workshop's researched capabilities, the automated building types, the completed
-# per-building upgrades, and the completed Warehouse move-speed researches.
-def _skey(bs, caps, auto, ups, spd):
-    return (tuple(sorted((k, v) for k, v in bs.items() if v > 0)),
-            frozenset(caps), frozenset(auto), frozenset(ups), frozenset(spd))
-
-
-def _addb(bs, k):
-    out = dict(bs); out[k] = out.get(k, 0) + 1; return out
-
-
-_rate_cache = {}
-def rate(bs, caps, auto, ups, spd, good):
-    key = (_skey(bs, caps, auto, ups, spd), good)
-    if key not in _rate_cache:
-        _rate_cache[key] = max_bundle_rate({good: 1.0}, bs, caps, auto, ups, spd)[0]
-    return _rate_cache[key]
-
-
-# ===========================================================================
-# THE STOCKPILE
-#
-# The model used to compute every cost from an EMPTY stockpile: each afford_time
-# accumulated its bundle from zero, so nothing a previous wait produced was ever
-# carried forward. Real play banks aggressively -- the opening move is to
-# overharvest titanium with knights that would otherwise idle, so the first
-# Pitmine costs no extra wall clock. Tracking stock closes that gap and makes
-# DEMOLITION meaningful too: tearing a building down refunds 100% of its build
-# cost straight back into the pile (Building._construction_aborted), instantly
-# and with no Job, so a finished factory can be cashed in to free a Starknight
-# and rebuilt later once it is automated.
-# ===========================================================================
-def _net_vector(target, bs, caps, auto, ups, spd, unlocked=None):
-    """(lambda, goods produced per second, crew occupancy used) at the LP optimum
-    for `target` -- including BYPRODUCTS the recipe forces out alongside what was
-    asked for (the Refinery yields acrylic whenever you ask it for plastic).
-    Those land in the pile too."""
-    res, acts, labels, is_cap, cap_b, b = _solve(target, bs, caps, auto, ups,
-                                                 spd, unlocked)
-    if not res.success:
-        return 0.0, {}, 0.0
-    net, used = {}, 0.0
-    for i, (nm, dur, nv, cap) in enumerate(acts):
-        x = res.x[i]
-        if x <= 1e-12:
-            continue
-        if not (isinstance(cap, tuple) and cap[1] in auto):
-            used += x                      # crew occupancy this solve consumes
-        for g, v in nv.items():
-            net[g] = net.get(g, 0.0) + x * v / dur
-    return res.x[-1], net, used
-
-
-def _bank_idle(bs, caps, auto, ups, spd, used_workers):
-    """What the crew banks with capacity the current job does not need.
-
-    This is the titanium overharvest: knights with nothing better to do work
-    deposits into the pile ahead of need. Only hand-harvest is used -- it is the
-    one activity a player can spin up freely, it needs no building, and it is
-    exactly what the recorded opening does (7 tiles on at 4 min, all off by 12)."""
-    slack = max(0.0, min(WORKERS - OVERHEAD_WORKERS, WORKERS) - used_workers)
-    if slack <= 1e-6:
-        return {}
-    tc = _tile_caps(bs)
-    out = {}
-    # bank what the plan will actually want first -- a player overharvests
-    # TITANIUM because the next building needs it, not whatever deposit happens
-    # to be nearest. Scarce deposits (few tiles) win ties: they are the ones a
-    # later step is most likely to be waiting on.
-    order = sorted(tc, key=lambda r: (r not in RELEVANT_ITEMS, tc[r]))
-    for r in order:
-        tiles = tc[r]
-        if tiles <= 0 or r not in HAND_HARVESTABLE:
-            continue
-        take = min(slack, tiles)
-        if take <= 0:
-            break
-        # one tile sustains HARVEST_AMOUNT / HARVEST_DURATION per second
-        out[r] = out.get(r, 0.0) + take * HARVEST_AMOUNT / HARVEST_DURATION
-        slack -= take
-        if slack <= 1e-6:
-            break
-    return out
-
-
-def pay(cost, bs, caps, auto, ups, spd, stock):
-    """Spend `cost` from the pile, returning (wait_seconds, new_stock).
-
-    Only the SHORTFALL has to be produced; anything already banked is free. What
-    the colony makes during the wait -- the bundle, its byproducts, and whatever
-    idle knights harvest -- is credited back."""
-    need = {g: q - stock.get(g, 0.0) for g, q in cost.items()
-            if q - stock.get(g, 0.0) > 1e-9}
-    new = dict(stock)
-    if not need:                                  # already in the pile: instant
-        for g, q in cost.items():
-            new[g] = new.get(g, 0.0) - q
-        return 0.0, new
-
-    lam, net, used = _net_vector(need, bs, caps, auto, ups, spd)
-    if lam <= 0:
-        return np.inf, stock
-    dt = 1.0 / lam
-
-    for g, rate in net.items():
-        new[g] = new.get(g, 0.0) + rate * dt
-    for g, rate in _bank_idle(bs, caps, auto, ups, spd, used).items():
-        new[g] = new.get(g, 0.0) + rate * dt
-    for g, q in cost.items():
-        new[g] = new.get(g, 0.0) - q
-    return dt, {g: v for g, v in new.items() if v > 1e-9}
-
-
-def refund(cost, stock):
-    """Demolition returns the FULL build cost to the pile, instantly."""
-    new = dict(stock)
-    for g, q in cost.items():
-        new[g] = new.get(g, 0.0) + q
-    return new
-
-
-_afford_cache = {}
-def afford_time(cost, bs, caps, auto, ups, spd):
-    key = (_skey(bs, caps, auto, ups, spd), tuple(sorted(cost.items())))
-    if key not in _afford_cache:
-        lam, _b = max_bundle_rate(cost, bs, caps, auto, ups, spd)
-        _afford_cache[key] = np.inf if lam <= 0 else 1.0 / lam
-    return _afford_cache[key]
-
-
-def _cap_cost(c):
-    return {g: v * RESEARCH_COST_MULT for g, v in CAP_COST[c].items()}
-
-
-def _auto_cost(v):
-    """Automation cost: FactoryBuilding and ExtractionBuilding charge different
-    bills for it, so read the one that belongs to this building's base class."""
-    src = AUTOMATION_COST_BY_BASE.get(BUILDINGS[vclass(v)].base if vclass(v) in BUILDINGS
-                                      else "FactoryBuilding", AUTOMATION_COST)
-    return {g: n * RESEARCH_COST_MULT for g, n in src.items()}
-
-
-def _upgrade_cost(uid):
-    return {g: v * RESEARCH_COST_MULT for g, v in UPGRADES[uid]["cost"].items()}
-
-
-def _wcost(d):
-    return {g: v * RESEARCH_COST_MULT
-            for g, v in WAREHOUSE_RESEARCH[d]["cost"].items()}
-
-
-def _bcost(b):
-    return dict(BUILD_COST[vclass(b)])
-
-
-def _job_time(kind, typ, bs, spd):
-    """Wall-clock of the JOB an investment posts: a Starknight has to walk there
-    and then work.  Construction work comes from CatalogItem.work (the Starfall
-    Site is 60s, everything else 10s); research is ResearchItem.work."""
-    nsites = max(1, sum(bs.values()))
-    scale = speed_scale_of(spd)
-    if kind == "build":
-        walk = travel_seconds(vclass(typ), bs.get(typ, 0) + 1, nsites, scale)
-        return CONSTRUCTION_WORK.get(vclass(typ), 10.0) + walk
-    site = {"upgrade": lambda: typ[0], "automate": lambda: vclass(typ),
-            "research": lambda: "Workshop"}.get(kind, lambda: "Warehouse")()
-    walk = travel_seconds(site, 1, nsites, scale)
-    return RESEARCH_WORK + walk
-
-
-def _actions(bs, caps, auto, ups, spd):
-    """Yield (kind, typ, nbs, ncaps, nauto, nups, nspd, cost, job_time).
-
-    Copy counts are capped by the MAP, not by an arbitrary number: a variant can
-    only be built while its deposit still has a free tile, and every plain
-    factory competes for the same pool of blank tiles.
-
-    The CREW pressure is applied in the LP instead of here: hand-harvest and
-    manned buildings share one budget row, so owning more manned buildings really
-    does squeeze the crew. Blocking builds outright at manned == WORKERS was
-    tried and DEADLOCKED -- the only escape is automation, which needs a supply
-    chain you cannot build while blocked, so the planner fell back to
-    hand-crafting the goal over 27 hours. Real play briefly exceeds the crew size
-    too (measured 9-14 against 12), because a starved building posts no Job and
-    costs nothing."""
-    for b in ACTIVE_CANDIDATES:
-        if site_pool_free(bs, b) <= 0:
-            continue
-        yield ("build", b, _addb(bs, b), caps, auto, ups, spd, _bcost(b),
-               _job_time("build", b, bs, spd))
-    # DEMOLISH: instant, posts no Job, and refunds the whole build cost
-    # (Building.demolish -> _construction_aborted). The point is to hand a
-    # Starknight back, so it is only worth offering for a manned building.
-    for b in ACTIVE_CANDIDATES:
-        if bs.get(b, 0) > 0 and b not in auto:
-            nbs = dict(bs); nbs[b] -= 1
-            yield ("demolish", b, nbs, caps, auto, ups, spd, {}, 0.0)
-    for c in RELEVANT_CAPS:
-        if c not in caps and CAP_PREREQ.get(c, set()) <= caps:
-            yield ("research", c, bs, caps | {c}, auto, ups, spd, _cap_cost(c),
-                   _job_time("research", c, bs, spd))
-    for bt in ACTIVE_CANDIDATES:                    # automate a built factory/extractor
-        if bs.get(bt, 0) > 0 and bt not in auto:
-            yield ("automate", bt, bs, caps, auto | {bt}, ups, spd, _auto_cost(bt),
-                   _job_time("automate", bt, bs, spd))
-    for bt in ACTIVE_CANDIDATES:                    # per-building throughput upgrade
-        if bs.get(bt, 0) <= 0:
-            continue
-        cls = vclass(bt)
-        for u in BUILDING_UPGRADES.get(cls, ()):
-            uid = (cls, u["var"])
-            if uid in ups:
-                continue
-            if all((cls, p) in ups for p in u["prereqs"]):
-                yield ("upgrade", uid, bs, caps, auto, ups | {uid}, spd,
-                       _upgrade_cost(uid), _job_time("upgrade", uid, bs, spd))
-    # the Warehouse move-speed tree: the only thing that shortens TRAVEL, which is
-    # most of a job's cost once the crew is busy
-    if bs.get("Warehouse", 0) > 0:
-        for d, scale in SPEED_RESEARCH.items():
-            if d in spd:
-                continue
-            if all(p in spd for p in WAREHOUSE_RESEARCH[d]["prereqs"]):
-                yield ("speed", d, bs, caps, auto, ups, spd | {d}, _wcost(d),
-                       _job_time("speed", d, bs, spd))
-
-
-def make_produce_goal(good, amount):
-    def finish(bs, caps, auto, ups, spd):
-        r = rate(bs, caps, auto, ups, spd, good)
-        return np.inf if r <= 0 else amount / r
-    return finish
-
-
-def _step_time(kind, typ, aff, jt, t):
-    """When an investment lands.
-
-    Materials accumulate (aff), then the Job runs (jt).  Crucially the Job does NOT
-    serialise the plan: construction (priority 12) and research (11) each post
-    their own Job, so up to WORKERS of them are in flight at once and one more
-    costs only jt/WORKERS of wall clock at the margin.  The worker time itself is
-    charged separately through OVERHEAD_WORKERS.  Serialising jt here was adding
-    ~10s + travel per building to the clock -- half an hour of phantom time across
-    a map-filling plan.  A story-locked build still cannot start before its
-    cutscene has fired."""
-    at = t + max(aff, jt / max(WORKERS, 1))
-    if kind == "build":
-        at = max(at, story_floor(variant_items(typ)) + jt)
-    return at
-
-
-def remaining(bs, caps, auto, ups, spd, finish, memo):
-    """Lookahead heuristic only. It deliberately ignores the STOCKPILE so the memo
-    stays keyed on a small state -- carrying stock here would make every state
-    unique and destroy the cache. The greedy walk itself is exact; this just
-    ranks candidates."""
-    key = _skey(bs, caps, auto, ups, spd)
-    if key in memo:
-        return memo[key]
-    best, best_step = finish(bs, caps, auto, ups, spd), None
-    for kind, typ, nbs, ncaps, nauto, nups, nspd, cost, jt in _actions(
-            bs, caps, auto, ups, spd):
-        aff = afford_time(cost, bs, caps, auto, ups, spd)
-        if not np.isfinite(aff):
-            continue
-        if kind == "build" and not np.isfinite(story_floor(variant_items(typ))):
-            continue
-        dt = max(aff, jt)
-        val = dt + finish(nbs, ncaps, nauto, nups, nspd)
-        if val < best - 1e-9:
-            best, best_step = val, (nbs, ncaps, nauto, nups, nspd, dt)
-    if best_step is None:
-        memo[key] = finish(bs, caps, auto, ups, spd)
-        return memo[key]
-    nbs, ncaps, nauto, nups, nspd, dt = best_step
-    res = min(finish(bs, caps, auto, ups, spd),
-              dt + remaining(nbs, ncaps, nauto, nups, nspd, finish, memo))
-    memo[key] = res
-    return res
-
-
-# An investment is only worth making if it actually buys time.  Without a real
-# threshold the greedy pockets rounding-level gains and keeps building until the
-# map runs out -- which is pointless past the crew size, since only WORKERS
-# buildings can be manned at once.
-MIN_GAIN_FRAC = 0.005
-MIN_GAIN_SECS = 5.0
-
-
-def greedy(finish, bs, caps, auto, ups, spd, t, steps, jobs, stock):
-    memo = {}
-    while True:
-        best_total, best = t + finish(bs, caps, auto, ups, spd), None
-        floor = best_total - max(MIN_GAIN_SECS, MIN_GAIN_FRAC * (best_total - t))
-        for kind, typ, nbs, ncaps, nauto, nups, nspd, cost, jt in _actions(
-                bs, caps, auto, ups, spd):
-            aff, nstock = pay(cost, bs, caps, auto, ups, spd, stock)
-            if not np.isfinite(aff):
-                continue
-            at = _step_time(kind, typ, aff, jt, t)
-            if not np.isfinite(at):
-                continue
-            total = at + remaining(nbs, ncaps, nauto, nups, nspd, finish, memo)
-            if total < min(best_total, floor) - 1e-6:
-                best_total, best = total, (kind, typ, nbs, ncaps, nauto, nups,
-                                           nspd, at, jt, nstock)
-        if best is None:
-            return bs, caps, auto, ups, spd, t, stock
-        kind, typ, nbs, ncaps, nauto, nups, nspd, at, jt, nstock = best
-        if kind == "demolish":
-            nstock = refund(_bcost(typ), nstock)
-        bs, caps, auto, ups, spd, t, stock = nbs, ncaps, nauto, nups, nspd, at, nstock
-        steps.append((kind, typ, t))
-        jobs.append(jt)
-
-
-def ensure_producible(good, bs, caps, auto, ups, spd, t, steps, jobs, stock):
-    """Make `good` producible at all by acquiring, cheapest-first, the unlocks
-    that increase how many relevant items can be produced -- building a factory
-    for recipes that have one, researching a capability for the workshop-only
-    ones. (Automation, upgrades and move speed never change producibility, so they
-    are skipped here.)"""
-    def pcount(bs, caps):
-        return sum(1 for it in RELEVANT_ITEMS
-                   if rate(bs, caps, auto, ups, spd, it) > 1e-9)
-
-    while rate(bs, caps, auto, ups, spd, good) <= 1e-9:
-        cur = pcount(bs, caps)
-        best = fallback = None
-        for kind, typ, nbs, ncaps, nauto, nups, nspd, cost, jt in _actions(
-                bs, caps, auto, ups, spd):
-            if kind in ("automate", "upgrade", "speed", "demolish"):
-                continue
-            aff, nstock = pay(cost, bs, caps, auto, ups, spd, stock)
-            if not np.isfinite(aff):
-                continue
-            key = _step_time(kind, typ, aff, jt, t)
-            if not np.isfinite(key):
-                continue
-            if fallback is None or key < fallback[0]:
-                fallback = (key, kind, typ, nbs, ncaps, jt, nstock)
-            if pcount(nbs, ncaps) > cur and (best is None or key < best[0]):
-                best = (key, kind, typ, nbs, ncaps, jt, nstock)
-        pick = best or fallback
-        if pick is None:
-            raise RuntimeError(f"{name(good)} is not reachable (missing recipe/deposit?)")
-        at, kind, typ, nbs, ncaps, jt, stock = pick
-        bs, caps, t = nbs, ncaps, at
-        steps.append((kind, typ, t)); jobs.append(jt)
-    return bs, caps, auto, ups, spd, t, stock
-
-
-def _toposort(nodes, deps_fn):
-    order, seen, temp = [], set(), set()
-    def visit(n):
-        if n in seen or n in temp:
-            return
-        temp.add(n)
-        for d in deps_fn(n):
-            if d in nodes:
-                visit(d)
-        temp.discard(n); seen.add(n); order.append(n)
-    for n in nodes:
-        visit(n)
-    return order
-
-
-def build_factory_tree(bs, caps, auto, ups, spd, t, steps, jobs, stock):
-    """Build one of every relevant producer in DEPENDENCY ORDER, so each one's
-    construction inputs are already supplied by something upstream. This minimises
-    hand-crafting to the true bootstrap (the first Brickworks' bricks, the first
-    Mech-Comp Factory's components, ...) instead of, say, hand-crafting 800 bricks.
-
-    EXTRACTORS BELONG HERE TOO. Leaving them to the later optimisation pass meant
-    the whole build-up ran on hand-harvesting -- 4 titanium/s from 4 workable tiles
-    -- while the game's own tutorial tells you to drop a pitmine on a deposit
-    immediately. A raw's extractor is therefore ordered ahead of the factories that
-    consume that raw."""
-    good_factory = {g: bt for k, bt in RECIPE_BUILDING.items() for g in RECIPES[k][1]}
-    # Only the GOAL's own chain gets stood up unconditionally.  ACTIVE_CANDIDATES
-    # is deliberately wider (it also closes over automation and upgrade costs) so
-    # the optimiser can reach for those, but building all of them up front would
-    # charge the goal for a semiconductor foundry it never uses.
-    on_chain = {bt for g in RELEVANT_ITEMS for bt in (good_factory.get(g),) if bt}
-    extractors = [v for g in RELEVANT_ITEMS for v in RAW_SOURCE.get(g, ())
-                  if v in ACTIVE_CANDIDATES]
-    factories = [c for c in ACTIVE_CANDIDATES
-                 if c in FACTORY_BUILDINGS and c in on_chain]
-
-    # what a factory eats, so its supplier is built first
-    consumes = {}
-    for key, bt in RECIPE_BUILDING.items():
-        consumes.setdefault(bt, set()).update(RECIPES[key][0])
-
-    def deps(f):
-        # material dependencies: build the factory that supplies my build cost first
-        out = {good_factory[g] for g in BUILD_COST[vclass(f)]
-               if g in good_factory and good_factory[g] != f}
-        # STORY dependencies: if my output is challenge-gated, whatever the cutscene
-        # chain wants produced first has to be standing before me.  Without this the
-        # toposort happily places the Coffee Brewery ahead of the Standee Line that
-        # unlocks coffee, and the story fixed point chases its own tail.
-        if USE_STORY:
-            need_items, need_built, _caps = story_prerequisites(variant_items(f))
-            for g in need_items:
-                producers = set(RAW_SOURCE.get(g, ()))
-                if g in good_factory:
-                    producers.add(good_factory[g])
-                out |= producers - {f}
-            out |= set(need_built) - {f}
+class Knowledge:
+    def __init__(self, game: sim.Game):
+        self.g = game
+        self.recipes = list(game.crafting._recipe_map.values())
+
+        # catalog entry <-> building class
+        self.cat_of: dict[type, object] = {}
+        for entry in game.catalog._catalog:
+            self.cat_of[Res.SCENES[entry.scene.path]] = entry
+
+        # what each buildable produces / consumes, per deposit it may stand on
+        self.produces: dict[int, list[type]] = {}
+        self.recipe_of_class: dict[type, object] = {}
+        for cls, entry in self.cat_of.items():
+            if hasattr(cls, "_try_consume"):                  # a FactoryBuilding
+                recipe = game.crafting.get_recipe(cls.recipe)
+                self.recipe_of_class[cls] = recipe
+                for item in recipe.outputs:
+                    self.produces.setdefault(item, []).append(cls)
+            elif hasattr(cls, "get_base_yield_types"):
+                for item in self.yields(cls):
+                    self.produces.setdefault(item, []).append(cls)
+
+        # item -> the recipe that makes it (the Workshop's only option)
+        self.recipe_for: dict[int, object] = {}
+        for recipe in self.recipes:
+            for item in recipe.outputs:
+                self.recipe_for.setdefault(item, recipe)
+
+        self.raws = {item for item in self.produces if item not in self.recipe_for}
+
+    def yields(self, cls: type) -> set[int]:
+        """What an extraction site of this class would produce, per allowed
+        deposit -- asked of the building itself, so overrides (the coffee farm)
+        answer for themselves."""
+        out = set()
+        entry = self.cat_of[cls]
+        for deposit in entry.allowed_deposits:
+            probe = cls()
+            probe.tile = _FakeTile(deposit)
+            out |= {i for i in probe.get_base_yield_types() if i}
         return out
 
-    # Toposort the FACTORIES on build-cost dependencies only -- that graph is
-    # acyclic and gives the sane bootstrap order. Extractors cannot join it: a
-    # Pitmine costs mechanical components while the Mech-Comp Factory eats
-    # titanium, so they form a cycle and the tie-break is arbitrary (it put the
-    # Mech-Comp Factory first and cost an hour of hand-harvesting). Instead each
-    # extractor is INTERLEAVED just ahead of the first factory that consumes its
-    # raw, which is the order a player actually plays.
-    sequence, placed = [], set()
-    for f in _toposort(factories, deps):
-        for g in sorted(consumes.get(f, ())):
-            for v in RAW_SOURCE.get(g, ()):
-                if v in extractors and v not in placed:
-                    sequence.append(v); placed.add(v)
-        sequence.append(f); placed.add(f)
-    for v in extractors:                       # raws nothing on-chain consumes yet
-        if v not in placed:
-            sequence.append(v); placed.add(v)
+    def deposits_for(self, cls: type, item: int) -> list[int]:
+        """The deposits a site of `cls` must stand on to yield `item`."""
+        out = []
+        for deposit in self.cat_of[cls].allowed_deposits:
+            probe = cls()
+            probe.tile = _FakeTile(deposit)
+            if item in probe.get_base_yield_types():
+                out.append(deposit)
+        return out
 
-    for f in sequence:
-        if site_pool_free(bs, f) <= 0:
-            continue
-        aff, nstock = pay(_bcost(f), bs, caps, auto, ups, spd, stock)
-        if not np.isfinite(aff):
-            continue
-        jt = _job_time("build", f, bs, spd)
-        at = _step_time("build", f, aff, jt, t)
-        if not np.isfinite(at):
-            continue          # story-locked: its challenge never goes ACTIVE here
-        t, stock = at, nstock
-        bs = _addb(bs, f); steps.append(("build", f, t)); jobs.append(jt)
-    return bs, caps, auto, ups, spd, t, stock
+    # -- what the goal needs, all the way down --------------------------------
+    def closure(self, seed: set[int]) -> set[int]:
+        """Every item on the way to `seed`: recipe inputs, the build cost of the
+        buildings that make them, and the research that unlocks them."""
+        items = set(seed)
+        while True:
+            grown = set(items)
+            for item in items:
+                recipe = self.recipe_for.get(item)
+                if recipe:
+                    grown |= set(recipe.inputs)
+                for cls in self.produces.get(item, ()):
+                    grown |= set(self.cat_of[cls].cost)
+            for research in self.g.research._items:   # research is bought out of
+                if research.state != research.State.COMPLETED:
+                    grown |= set(research.cost)          # the same economy
+            if grown == items:
+                return items
+            items = grown
 
 
-def plan(good, amount):
-    global ACTIVE_CANDIDATES, RELEVANT_CAPS, RELEVANT_ITEMS
-    ACTIVE_CANDIDATES, RELEVANT_ITEMS, RELEVANT_CAPS = _relevant(good)
-
-    bs, caps, auto, ups, spd = {}, set(BASE_CAPS), set(), frozenset(), frozenset()
-    t, steps, jobs, stock = 0.0, [], [], {}
-
-    # The Warehouse is where the crew's move-speed research lives (and the story
-    # nags for it from the first cutscene), so it goes up first.
-    aff, stock = pay(_bcost("Warehouse"), bs, caps, auto, ups, spd, stock)
-    jt = _job_time("build", "Warehouse", bs, spd)
-    t = _step_time("build", "Warehouse", aff, jt, t)
-    bs = _addb(bs, "Warehouse"); steps.append(("build", "Warehouse", t)); jobs.append(jt)
-
-    # Stand up the factory tree first (craft-minimal), research any workshop-only
-    # capabilities the goal needs, then optimise throughput (copies + upgrades +
-    # automation + move speed).
-    bs, caps, auto, ups, spd, t, stock = build_factory_tree(
-        bs, caps, auto, ups, spd, t, steps, jobs, stock)
-    bs, caps, auto, ups, spd, t, stock = ensure_producible(
-        good, bs, caps, auto, ups, spd, t, steps, jobs, stock)
-    bs, caps, auto, ups, spd, t, stock = greedy(
-        make_produce_goal(good, amount), bs, caps, auto, ups, spd, t, steps, jobs, stock)
-    # the goal itself cannot start before its challenge is ACTIVE
-    t = max(t, story_floor({good}))
-    t += amount / rate(bs, caps, auto, ups, spd, good)
-    return steps, bs, caps, auto, ups, spd, t, jobs
-
-
-def _research_all_caps(needed, bs, caps, auto, ups, spd, t, steps, jobs):
-    """Research every capability in `needed` (closed under prereqs), each in
-    prerequisite order, cheapest affordable first."""
-    remaining = {c for c in needed if c not in caps}
-    while remaining:
-        avail = [c for c in remaining if CAP_PREREQ.get(c, set()) <= caps]
-        avail = [c for c in avail
-                 if np.isfinite(afford_time(_cap_cost(c), bs, caps, auto, ups, spd))]
-        if not avail:
-            break
-        c = min(avail, key=lambda x: afford_time(_cap_cost(x), bs, caps, auto, ups, spd))
-        jt = _job_time("research", c, bs, spd)
-        t = _step_time("research", c, afford_time(_cap_cost(c), bs, caps, auto, ups, spd),
-                       jt, t)
-        caps = caps | {c}; remaining.discard(c)
-        steps.append(("research", c, t)); jobs.append(jt)
-    return caps, t
-
-
-def plan_research(target):
-    """Benchmark reaching a WAREHOUSE research (e.g. 'MekaSuit Integration'):
-    build the economy, then research its prerequisite chain in order, producing
-    each research's cost bundle. Returns the same shape as plan()."""
-    global ACTIVE_CANDIDATES, RELEVANT_CAPS, RELEVANT_ITEMS
-    chain = research_chain(target)
-    cost_items = {g for d in chain for g in WAREHOUSE_RESEARCH[d]["cost"]}
-    ACTIVE_CANDIDATES, RELEVANT_ITEMS, RELEVANT_CAPS = _relevant_seed(cost_items)
-
-    bs, caps, auto, ups, spd = {}, set(BASE_CAPS), set(), frozenset(), frozenset()
-    t, steps, jobs, stock = 0.0, [], [], {}
-    aff, stock = pay(_bcost("Warehouse"), bs, caps, auto, ups, spd, stock)
-    jt = _job_time("build", "Warehouse", bs, spd)
-    t = _step_time("build", "Warehouse", aff, jt, t)
-    bs = _addb(bs, "Warehouse"); steps.append(("build", "Warehouse", t)); jobs.append(jt)
-
-    bs, caps, auto, ups, spd, t, stock = build_factory_tree(
-        bs, caps, auto, ups, spd, t, steps, jobs, stock)
-    caps, t = _research_all_caps(RELEVANT_CAPS, bs, caps, auto, ups, spd, t, steps, jobs)
-
-    # Optimise the building set for the whole chain's cost, then research in order.
-    def finish(bs, caps, auto, ups, spd):
-        return sum(afford_time({g: v * WAREHOUSE_COST_MULT for g, v in
-                                WAREHOUSE_RESEARCH[d]["cost"].items()},
-                               bs, caps, auto, ups, spd) + RESEARCH_WORK for d in chain)
-    bs, caps, auto, ups, spd, t, stock = greedy(
-        finish, bs, caps, auto, ups, spd, t, steps, jobs, stock)
-    for d in chain:
-        cost = {g: v * WAREHOUSE_COST_MULT for g, v in WAREHOUSE_RESEARCH[d]["cost"].items()}
-        jt = _job_time("speed", d, bs, spd)
-        aff, stock = pay(cost, bs, caps, auto, ups, spd, stock)
-        t = _step_time("wresearch", d, aff, jt, t)
-        t = max(t, story_floor(set(cost)))
-        spd = spd | {d}
-        steps.append(("wresearch", d, t)); jobs.append(jt)
-    return steps, bs, caps, auto, ups, spd, t, jobs
-
-
-WAREHOUSE_COST_MULT = 1.0
+@dataclass
+class _FakeTile:
+    deposit: int
 
 
 # ===========================================================================
-# 6. THE STORY CLOCK  (source: Story.gd)
-#
-# Cutscenes are not decoration: their on_complete calls Stockpile.start_challenge,
-# and until a challenge is ACTIVE its item is an "unavailable story item", which
-#   * hides every building that produces or consumes it from the catalog
-#     (Catalog.get_unlocked_buildings), and
-#   * cancels/blocks any Workshop order for it (Workshop._on_challenge_updated).
-# So merch, the steam engine, the paint and every PC part are hard-gated behind a
-# chain of videos.  Story plays ONE cutscene at a time, polls conditions once a
-# second and waits DELAY_BETWEEN_CUTSCENES before each -- a serial clock that the
-# production plan cannot outrun.
+# The player
 # ===========================================================================
-def cutscene_timeline(events):
-    """Play out the cutscene DAG against a plan.
-
-    `events` supplies when each trigger becomes true:
-      built[cls], cap[capability], seen[item], cumulative[(item, n)],
-      challenge_done[item]  -- each a time in seconds (np.inf = never).
-    Returns (fires, unlock) where fires is [(var, start, end)] and unlock maps a
-    challenge item to the moment its challenge goes ACTIVE."""
-    done, unlock, fires = {}, {}, []
-    clock = 0.0
-    pending = list(CUTSCENES)
-    guard = 0
-    while pending and guard < 200:
-        guard += 1
-        ready = []
-        for cs in pending:
-            after = max([done.get(a, np.inf) for a in cs["after"]] or [0.0])
-            cond = _trigger_time(cs["cond"], events)
-            t = max(after, cond)
-            if np.isfinite(t):
-                ready.append((t, cs))
-        if not ready:
-            break
-        ready.sort(key=lambda x: (x[0], CUTSCENES.index(x[1])))
-        t, cs = ready[0]
-        start = max(clock, t + CUTSCENE_POLL / 2.0) + CUTSCENE_GAP
-        end = start + cs["duration"]
-        fires.append((cs["var"], start, end))
-        done[cs["var"]] = end
-        for item in cs["starts"]:
-            unlock[item] = end
-        clock = end
-        pending.remove(cs)
-    return fires, unlock
+@dataclass
+class Objective:
+    kind: str                      # build | research | goal
+    label: str
+    cost: dict
+    place: object = None           # (catalog entry, tile)
+    research: object = None        # (ResearchItem, building)
+    started: float = 0.0
 
 
-def _trigger_time(cond, events):
-    if cond is None:
-        return 0.0
-    kind = cond[0]
-    if kind == "built":
-        return events.get("built", {}).get(cond[1], np.inf)
-    if kind == "cap":
-        return events.get("cap", {}).get(cond[1], np.inf)
-    if kind == "seen":
-        return events.get("seen", {}).get(cond[1], np.inf)
-    if kind == "challenge_done":
-        return events.get("challenge_done", {}).get(cond[1], np.inf)
-    if kind == "cumulative":
-        fn = events.get("cumulative")
-        return fn(cond[1], cond[2]) if fn else np.inf
-    if kind == "hold":
-        fn = events.get("hold")
-        return fn(dict(cond[1])) if fn else np.inf
-    return np.inf
+class Player:
+    BANK = 100                     # how far ahead of need a deposit is worth working
+    REASSIGN = 30.0                # how often the crew is re-pointed at deposits
+    COPY_LIMIT = 3                 # copies of one building before upgrades win
+    GRACE = 120.0                  # how long something may sit unwanted before it goes
 
+    def __init__(self, game: sim.Game, know: Knowledge, goal: int, amount: int,
+                 research_goal=None, verbose: bool = False):
+        self.g, self.k = game, know
+        self.goal, self.amount = goal, amount
+        self.research_goal = research_goal        # a ResearchItem to finish instead
+        self.verbose = verbose
+        seed = {goal} if goal else set()
+        for item in self._chain(research_goal):
+            seed |= set(item.cost)
+        self.wanted = know.closure(seed)
+        self.objective: Objective | None = None
+        self.waits: dict[str, float] = {}
+        self.order = None      # (recipe, target, item, since, made) in progress
+        self.blocked: dict[str, float] = {}     # label -> when to consider it again
+        self._shortfall, self._progress_at = math.inf, 0.0
+        self._harvest_at = -math.inf
+        self._order_unwanted = self._order_idle = 0.0
+        self._unwanted_since: dict[int, float] = {}   # building id -> when it went idle
+        self.targets: dict[int, int] = {}       # item -> how much the goal still needs
+        self.demand: set[int] = set()           # the items in targets we are short of
+        self.done_at: float | None = None
 
-# ===========================================================================
-# 7. EVALUATE + ACTIVITY
-#    "Activity" = density of PLAYER ACTIONS over time. Player actions are:
-#    building constructions, research, and WORKSHOP CRAFT ORDERS (each good the
-#    player hand-crafts in a phase). The design goal is high early density
-#    (busy = fun) tapering to a calm late game (manual PC-part crafting only).
-# ===========================================================================
-def _story_events(steps, bs, caps, ups, total, good, amount):
-    """Reduce a plan to the trigger times Story.gd polls for."""
-    built, first_seen = {}, {}
-    for kind, typ, t in steps:
-        if kind == "build":
-            built.setdefault(vclass(typ), t)
-            for g in variant_items(typ):        # a built producer starts making it
-                first_seen.setdefault(g, t)
-        elif kind == "research":
-            first_seen.update({g: min(first_seen.get(g, np.inf), t)
-                               for g in CAP_COST.get(typ, {})})
-    cap_time = {}
-    for kind, typ, t in steps:
-        if kind == "research":
-            cap_time[typ] = t
-    for c in BASE_CAPS:
-        cap_time.setdefault(c, 0.0)
-    if good is not None:
-        first_seen.setdefault(good, total)
+    # -- main entry ---------------------------------------------------------
+    def tick(self):
+        if self.done_at is None and self._reached():
+            self.done_at = self.g.now
+        self._retarget()
+        self._choose_objective()
+        self._shed()
+        self._harvest()
+        self._craft()
 
-    def cumulative(item, n):
-        """When cumulative production of `item` first reaches n, at the plan's
-        END-state rate (optimistic, which is the right side to err on for a gate
-        that merely unlocks more work)."""
-        start = first_seen.get(item, np.inf)
-        r = rate(bs, caps, frozenset(), ups, frozenset(), item)
-        return np.inf if (not np.isfinite(start) or r <= 0) else start + n / r
+    def _retarget(self):
+        """How much of everything the colony is still short of.
 
-    def hold(bundle):
-        """When the colony could first have this whole bundle in stock at once --
-        it has to be able to MAKE every item, then accumulate the lot."""
-        start = max([first_seen.get(g, np.inf) for g in bundle] or [0.0])
-        if not np.isfinite(start):
-            return np.inf
-        return start + afford_time(bundle, bs, caps, frozenset(), ups, frozenset())
+        ONE map drives all four decisions -- what to build, what to harvest, what
+        to craft and what to tear down -- so they cannot contradict each other.
+        It is the goal's whole bill of materials, plus whatever the objective in
+        hand needs on top of it, minus what is already in the pile."""
+        targets = self._requirements(self._goal_cost())
+        if self.objective is not None:
+            for item, qty in self._requirements(self.objective.cost).items():
+                targets[item] = max(targets.get(item, 0), qty)
+        # When the goal is story-locked there is nothing to buy that unlocks it
+        # directly -- the cutscene chain is watching for something to be MADE
+        # (the PC needs an Industrial Computer Module to have been seen first).
+        # So make one of everything the colony has never seen and keep playing,
+        # which is what a player does when the story is holding them up.
+        if self._story_locked():
+            for item in self.wanted:
+                if not self.g.stockpile.is_seen(item):
+                    targets[item] = max(targets.get(item, 0), 1)
 
-    return dict(built=built, cap=cap_time, seen=first_seen,
-                challenge_done={}, cumulative=cumulative, hold=hold)
+        self.targets = targets
+        self.demand = {i for i, q in targets.items()
+                       if self.g.stockpile.get_amount(i) < q}
 
+    def _story_locked(self) -> bool:
+        """Is the goal itself waiting on a cutscene?"""
+        if self.research_goal is not None:
+            return False
+        return self.g.stockpile.is_unavailable_story_item(self.goal)
 
-def run_plan(planner):
-    """Run a planner to a FIXED POINT over the two whole-plan feedbacks:
+    def _goal_cost(self) -> dict:
+        """The whole bill still outstanding: the goal itself, and the buildings
+        the goal's chain still needs raising.
 
-      * STORY -- challenge items are locked until their cutscene fires, and the
-        cutscene times depend on when the plan builds/researches things, which in
-        turn depends on the locks.  Iterate until the unlock times stop moving.
-      * WORKER OVERHEAD -- every construction and research is a Job that takes a
-        Starknight off production for travel+work seconds.  Spread that over the
-        run and hand the LP the crew that is actually left."""
-    global STORY_UNLOCK, OVERHEAD_WORKERS
-    STORY_UNLOCK, OVERHEAD_WORKERS = {}, 0.0
-    result = None
-    for _ in range(MAX_FIXED_POINT_PASSES):
-        _rate_cache.clear(); _afford_cache.clear()
-        steps, bs, caps, auto, ups, spd, total, jobs = planner()
-        good = getattr(planner, "goal_good", None)
-        amount = getattr(planner, "goal_amount", 0)
-        events = _story_events(steps, bs, caps, ups, total, good, amount)
-        fires, unlock = cutscene_timeline(events)
-        new_overhead = min(WORKERS - 1.0, sum(jobs) / max(total, 1.0))
-        # Unlock times only ever move LATER as the plan learns what the story
-        # makes it build first, so take the running max: that makes the sequence
-        # monotone and it converges upward instead of oscillating.
-        merged = dict(STORY_UNLOCK)
-        for k, v in unlock.items():
-            merged[k] = max(v, merged.get(k, 0.0)) if np.isfinite(v) else merged.get(k, v)
-        moved = (any(abs(merged.get(k, np.inf) - STORY_UNLOCK.get(k, np.inf)) > 1.0
-                     for k in set(merged) | set(STORY_UNLOCK))
-                 or abs(new_overhead - OVERHEAD_WORKERS) > 0.05)
-        STORY_UNLOCK = merged if USE_STORY else {}
-        OVERHEAD_WORKERS = new_overhead
-        result = (steps, bs, caps, auto, ups, spd, total, jobs, fires)
-        if not moved:
-            break
-    return result
-
-
-def story_violations(steps):
-    """Any step the STORY would not actually have allowed yet.  The plan and the
-    cutscene clock are solved as a fixed point, so a leftover violation means the
-    passes ran out rather than converged -- worth saying out loud."""
-    out = []
-    for kind, typ, t in steps:
-        if kind != "build":
-            continue
-        floor = story_floor(variant_items(typ))
-        if np.isfinite(floor) and t < floor - 1.0:
-            out.append((bname(typ), t, floor))
-    return out
-
-
-def evaluate(good, amount):
-    def planner():
-        return plan(good, amount)
-    planner.goal_good, planner.goal_amount = good, amount
-    steps, bs, caps, auto, ups, spd, total, jobs, fires = run_plan(planner)
-    gate = next((s[2] for s in steps if s[1] == STORY_GATE), np.nan)
-    sched = crafting_schedule(steps, good, amount, total)
-    return dict(steps=steps, buildings=bs, caps=caps, auto=auto, ups=ups, spd=spd,
-                total=total, gate=gate, crafts=sched, good=good, amount=amount,
-                jobs=jobs, fires=fires,
-                goal_row=f"▶ {amount} {name(good)}", label=f"{amount} x {name(good)}")
-
-
-def evaluate_research(target):
-    def planner():
-        return plan_research(target)
-    planner.goal_good, planner.goal_amount = None, 0
-    steps, bs, caps, auto, ups, spd, total, jobs, fires = run_plan(planner)
-    sched = crafting_schedule(steps, None, 0, total)
-    return dict(steps=steps, buildings=bs, caps=caps, auto=auto, ups=ups, spd=spd,
-                total=total, gate=np.nan, crafts=sched, good=None, amount=0,
-                jobs=jobs, fires=fires,
-                goal_row=f"▶ {target}", label=f"{target} (research)")
-
-
-def crafting_schedule(steps, good, amount, total):
-    """The MINIMAL, explicit workshop crafts a near-optimal player must make.
-
-    A good is hand-crafted only to BOOTSTRAP -- when it is needed for a build /
-    research cost (or the final goal) and no factory for it exists YET. Once its
-    factory is built it is factory-supplied and never hand-crafted again. Crafts
-    cascade to a recipe's inputs only if those, too, lack a factory. Returns an
-    ordered list of (time, good, qty, why)."""
-    have = set()                       # goods a built factory now supplies
-    caps = set(BASE_CAPS)
-    orders = []
-
-    def craft_for(g, qty, t, why):
-        if g in RAWS or g in have:
-            return                     # harvested / factory-supplied -> no craft
-        key = GOOD_RECIPE.get(g)
-        if key is None:
-            return
-        inp, out, work, rcaps = RECIPES[key]
-        if not rcaps <= caps:
-            return                     # not workshop-craftable yet (factory-only)
-        orders.append((t, g, qty, why))
-        runs = -(-qty // out[g])       # integer ceil
-        for h, amt in inp.items():
-            craft_for(h, amt * runs, t, why)
-
-    for kind, typ, t in steps:
-        if kind == "build":
-            for g, q in BUILD_COST[vclass(typ)].items():
-                craft_for(g, q, t, f"build {bname(typ)}")
-            have |= BUILDING_OUTPUTS.get(typ, set()) | (
-                {VARIANT_YIELD[typ]} if typ in VARIANT_YIELD else set())
-        elif kind == "research":
-            for g, q in CAP_COST.get(typ, {}).items():
-                craft_for(g, q, t, f"research {typ}")
-            caps.add(typ)
-        elif kind in ("wresearch", "speed"):
-            for g, q in WAREHOUSE_RESEARCH.get(typ, {}).get("cost", {}).items():
-                craft_for(g, q, t, f"research {typ}")
-        elif kind == "automate":
-            for g, q in _auto_cost(typ).items():
-                craft_for(g, q, t, f"automate {bname(typ)}")
-        elif kind == "upgrade":
-            for g, q in UPGRADES[typ]["cost"].items():
-                craft_for(g, q, t, f"upgrade {bname(typ[0])}")
-    if good is not None:
-        craft_for(good, amount, total, "assemble goal")     # final manual assembly
-
-    # aggregate: one order per good per phase (the player batches a repeat count)
-    agg = {}
-    for t, g, qty, why in orders:
-        k = (round(t, 3), g)
-        agg[k] = (t, g, agg[k][2] + qty, agg[k][3]) if k in agg else (t, g, qty, why)
-    # attach the workshop time each order costs: runs x work, serial through the
-    # single workshop (this time is already inside the plan's total, via
-    # afford_time for builds/research and amount/rate for the final assembly).
-    out = []
-    for t, g, qty, why in agg.values():
-        inp, outs, work, _c = RECIPES[GOOD_RECIPE[g]]
-        dur = -(-qty // outs[g]) * work
-        out.append((t, g, qty, why, dur))
-    return sorted(out, key=lambda o: (o[0], -o[4]))
-
-
-def activity_density(steps, crafts, total, split=0.5):
-    """Player actions per minute, early vs late half. Actions = builds +
-    research + automations + workshop craft orders."""
-    times = [s[2] for s in steps if np.isfinite(s[2])] + [c[0] for c in crafts]
-    if not np.isfinite(total):
-        total = max(times) if times else 1.0
-    cut = total * split
-    early = sum(1 for tt in times if tt < cut)
-    em = (cut / 60.0) or 1e-9
-    lm = ((total - cut) / 60.0) or 1e-9
-    return early / em, (len(times) - early) / lm, len(times)
-
-
-# ===========================================================================
-# 8. REPORT + PLOTS
-# ===========================================================================
-def fmt(sec):
-    if not np.isfinite(sec):
-        return "   n/a   "
-    m = sec / 60.0
-    return f"{m:6.1f} min" if m < 60 else f"{m/60:5.2f} h ({m:5.0f}m)"
-
-
-def _label(kind, typ):
-    if kind == "build":
-        return bname(typ)
-    if kind in ("research", "wresearch"):
-        return f"~research {typ}"
-    if kind == "speed":
-        return f"> crew speed: {typ}"
-    if kind == "demolish":
-        return f"x demolish {bname(typ)}  (refunded, frees a Starknight)"
-    if kind == "automate":
-        return f"* automate {bname(typ)}"
-    if kind == "upgrade":
-        return f"^ upgrade {bname(typ[0])}: {UPGRADES[typ]['display']}"
-    return typ
-
-
-def report(res):
-    global TRAVEL_MODE
-    steps, bs, total, crafts = res["steps"], res["buildings"], res["total"], res["crafts"]
-    print("=" * 78)
-    print("  12 STINKY STARKNIGHTS  --  pacing model (parsed from game source)")
-    print("=" * 78)
-    print(f"  {len(RECIPES)} recipes | {len(BUILDING_TYPES)} producing buildings | "
-          f"{len(CAP_COST)} researchable capabilities | {len(FINISHED)} finished goods")
-    if G["skipped"]:
-        print(f"  skipped {len(G['skipped'])} incomplete recipe(s): "
-              f"{', '.join(G['skipped'])}  (no work/outputs yet)")
-    print(f"  Map: {len(TILES)} tiles, {sum(1 for t in TILES if t['walkable'])} walkable, "
-          f"{len(BLANK_SITES)} free build sites, {sum(WORKABLE_TILES.values())} workable "
-          f"deposits | crew {WORKERS} @ {MEAN_SPEED:.0f} px/s mean")
-    print(f"  Travel mode: {TRAVEL_MODE} | story gating: {'on' if USE_STORY else 'off'} | "
-          f"investment-job overhead: {OVERHEAD_WORKERS:.2f} of {WORKERS} workers")
-    print(f"  Goal: {res['label']}")
-    for msg in challenge_limit_warnings(res):
-        print(f"  !! {msg}")
-    if not np.isfinite(total):
-        missing = [g for g in ([res["good"]] if res["good"] else [])
-                   if g in CHALLENGE_ITEMS and not np.isfinite(STORY_UNLOCK.get(g, np.inf))]
-        why = (f"its challenge never goes ACTIVE in this plan ({', '.join(name(g) for g in missing)}) "
-               f"-- the story fixed point needs more passes" if missing else
-               "nothing in the plan can produce it")
-        print(f"  !! GOAL NEVER REACHED: {why}. Try --passes {MAX_FIXED_POINT_PASSES + 2}.")
-    for cs in CUTSCENES:
-        if cs.get("unparsed"):
-            print(f"  !! cutscene '{cs['var']}' has a condition this model cannot "
-                  f"read, so it is treated as ALWAYS TRUE: {cs['unparsed']}")
-    for bn, t, floor in story_violations(steps):
-        print(f"  !! {bn} is placed at {t/60:.0f}m but the story only unlocks it at "
-              f"{floor/60:.0f}m -- the story fixed point did not converge "
-              f"(try --passes {MAX_FIXED_POINT_PASSES + 3}).")
-    print()
-
-    fires = res.get("fires") or []
-
-    print("-" * 78)
-    print("  DISCOVERED OPTIMAL PLAN  (builds + research + automation)")
-    print("-" * 78)
-    for kind, typ, t in steps:
-        tag = "   <- Jelly debut + merch challenge" if typ == STORY_GATE else ""
-        print(f"    {_label(kind, typ):<36} @ {fmt(t)}{tag}")
-    goal_line = (f"ASSEMBLE {res['amount']} {name(res['good'])}"
-                 if res["good"] is not None else f"COMPLETE {res['label']}")
-    print(f"    {goal_line:<36} @ {fmt(total)}")
-    print()
-
-    print("-" * 78)
-    print("  WORKSHOP CRAFTING SCHEDULE  (the only items the player hand-crafts)")
-    print("-" * 78)
-    for t, g, qty, why, dur in crafts:
-        print(f"    craft {qty:>4}x {name(g):<26} @ {fmt(t)}   "
-              f"{dur/60:5.1f} min at bench   ({why})")
-    if not crafts:
-        print("    (none)")
-    else:
-        tot = sum(c[4] for c in crafts)
-        print(f"    {'':>36}   total {tot/60:5.1f} min of workshop crafting "
-              f"(serial; {tot/max(total,1)*100:.0f}% of the run)")
-    print()
-
-    early, late, n = activity_density(steps, crafts, total)
-    n_build = sum(1 for s in steps if s[0] == "build")
-    n_res = sum(1 for s in steps if s[0] == "research")
-    n_auto = sum(1 for s in steps if s[0] == "automate")
-    n_up = sum(1 for s in steps if s[0] == "upgrade")
-    n_spd = sum(1 for s in steps if s[0] == "speed")
-    print("-" * 78)
-    print("  PLAYER ACTIVITY  (density of actions = fun; want early >> late)")
-    print("-" * 78)
-    print(f"    {n_build} builds, {n_res} research, {n_up} upgrades, {n_spd} crew-speed, "
-          f"{n_auto} automations, {len(crafts)} workshop crafts  ({n} actions total)")
-    print(f"    density: early half {early:5.2f}/min   ->   late half {late:5.2f}/min")
-    jobs = res.get("jobs") or []
-    print(f"    those investments are Jobs too: {sum(jobs)/60:.1f} min of Starknight "
-          f"time ({OVERHEAD_WORKERS:.2f} workers held back on average)")
-    print()
-
-    print("-" * 78)
-    print("  STORY CLOCK  (Story.gd; cutscenes are serial and gate every challenge)")
-    print("-" * 78)
-    for label, s, e in fires:
-        starts = next((c["starts"] for c in CUTSCENES if c["var"] == label), [])
-        tag = ("   -> unlocks " + ", ".join(name(i) for i in starts[:3]) +
-               ("..." if len(starts) > 3 else "")) if starts else ""
-        print(f"    {label:<24} {fmt(s)} -> {fmt(e)}{tag}")
-    if not fires:
-        print("    (story gating disabled)")
-    late_gate = [(g, u) for g, u in sorted(STORY_UNLOCK.items(), key=lambda x: x[1])
-                 if np.isfinite(u)]
-    if late_gate:
-        print("    challenge items become craftable at: " +
-              ", ".join(f"{name(g)} {u/60:.0f}m" for g, u in late_gate[:6]))
-    print()
-
-    # The map is a hard ceiling on the building set -- more copies is not always
-    # an option, which is exactly when upgrades become the only lever left.
-    print("-" * 78)
-    print("  SITE PRESSURE  (copies built vs. tiles the map can hold)")
-    print("-" * 78)
-    pools = {}
-    for v, n_built in sorted(bs.items()):
-        if n_built <= 0:
-            continue
-        d = vdeposit(v)
-        pools.setdefault(d, 0)
-        pools[d] += n_built
-    for d, used in sorted(pools.items(), key=lambda x: -x[1]):
-        total_tiles = len(DEPOSIT_SITES.get(d, []))
-        flag = "  <- FULL" if used >= total_tiles else ""
-        print(f"    {name(d):<28} {used:>3} / {total_tiles:<3} tiles{flag}")
-    print()
-
-    # Automation removes the worker cost AND the walk (an automated building runs
-    # on a timer, it posts no Job at all), so it is the single biggest throughput
-    # lever late on.  Show manual (worker+travel bound) vs fully automated.
-    full_caps = set(ALL_CAPS)
-    loadout = {}
-    for v in BUILDING_TYPES:                 # as many copies as the map allows, max 2
-        loadout[v] = min(2, len(DEPOSIT_SITES.get(vdeposit(v), [])))
-    loadout["Warehouse"] = 1
-    all_auto = frozenset(BUILDING_TYPES)
-    full_ups = frozenset(UPGRADES)           # every throughput upgrade researched
-    full_spd = frozenset(SPEED_RESEARCH)
-    print("-" * 78)
-    print("  STEADY-STATE THROUGHPUT per finished good  (<=2x every building, all "
-          "caps + upgrades + top crew speed)")
-    print(f"  {'':30}{'manual (12 walking)':>22}{'fully automated':>20}")
-    print("-" * 78)
-    keep = TRAVEL_MODE
-    for g in FINISHED:
-        # a full colony always has more posted jobs than Starknights, so the manual
-        # column is the churn regime; automation removes the Job (and the walk).
-        TRAVEL_MODE = "churn"
-        man, bm = max_bundle_rate({g: 1.0}, loadout, full_caps, ups=full_ups, spd=full_spd)
-        TRAVEL_MODE = keep
-        aut, ba = max_bundle_rate({g: 1.0}, loadout, full_caps, all_auto, full_ups, full_spd)
-        m = f"{man*60:8.3f}/min" if man > 1e-9 else " (no producer)"
-        a = f"{aut*60:8.3f}/min" if aut > 1e-9 else " (no producer)"
-        gain = f"x{aut/man:6.1f}" if man > 1e-9 and aut > man else "      "
-        print(f"    {name(g):<28}{m:>20}{a:>20} {gain}  [auto: {ba}]")
-    TRAVEL_MODE = keep
-    print("=" * 78)
-    return fires
-
-
-def challenge_limit_warnings(res):
-    """A challenge item stops existing the moment its limit is reached: the
-    Challenge goes COMPLETED, which is is_unavailable_story_item() all over again.
-    So no plan may lean on more of one than its limit."""
-    out = []
-    lim = CHALLENGES.get(res["good"], {}).get("limit") if res["good"] else None
-    if lim is not None and res["amount"] > lim:
-        out.append(f"{name(res['good'])} is a challenge capped at {lim}: the challenge "
-                   f"COMPLETES there and the item locks again, so {res['amount']} is "
-                   f"unreachable in a real playthrough.")
-    # anything the plan has to BUY with a challenge item (research/upgrade costs)
-    spend = {}
-    for kind, typ, _t in res["steps"]:
-        cost = ({} if kind == "build" else
-                CAP_COST.get(typ, {}) if kind == "research" else
-                WAREHOUSE_RESEARCH.get(typ, {}).get("cost", {})
-                if kind in ("wresearch", "speed") else
-                UPGRADES[typ]["cost"] if kind == "upgrade" else _auto_cost(typ))
-        for g, q in cost.items():
-            spend[g] = spend.get(g, 0) + q
-    for g, q in sorted(spend.items()):
-        lim = CHALLENGES.get(g, {}).get("limit")
-        if lim is not None and q > lim:
-            out.append(f"the plan spends {q} {name(g)} but its challenge completes "
-                       f"(and locks the item) at {lim}.")
-    return out
-
-
-def make_plots(res, fires):
-    steps, total, crafts = res["steps"], res["total"], res["crafts"]
-    palette = {"build": "#23deff", "research": "#b060e0", "wresearch": "#b060e0",
-               "automate": "#40c060", "goal": "#e0a030", "craft": "#e0782a",
-               "upgrade": "#d8b020", "speed": "#e05a8a", "demolish": "#d05050"}
-
-    # One ROW PER type; a dot marks each event. Workshop CRAFT orders are folded
-    # into the same timeline (orange) and rows are ordered by first-occurrence
-    # TIME, so builds, research and hand-crafts interleave chronologically.
-    events = {}
-    def add_event(lab, t, kind):
-        events.setdefault(lab, []).append((t, kind))
-    for k, ty, t in steps:
-        if k in ("research", "wresearch"):
-            lab = f"research {ty}"
-        elif k == "speed":
-            lab = f"» crew speed: {ty}"
-        elif k == "demolish":
-            lab = f"x demolish {bname(ty)}"
-        elif k == "automate":
-            lab = f"automate {bname(ty)}"
-        elif k == "upgrade":
-            lab = f"↑ {bname(ty[0])}: {UPGRADES[ty]['display']}"
+        Leaving the build costs out was a real bug -- between two objectives the
+        colony believed it needed nothing, switched the deposits off and idled."""
+        if self.research_goal is None:
+            cost = {self.goal: self.amount}
         else:
-            lab = bname(ty)
-        add_event(lab, t, k)
-    for t, g, qty, why, dur in crafts:
-        add_event(f"⚒ craft {name(g)}", t, "craft")
-    add_event(res["goal_row"], total, "goal")
+            cost = {}
+            for item in self._chain(self.research_goal):
+                if item.state != item.State.COMPLETED:
+                    for res, qty in item.cost.items():
+                        cost[res] = cost.get(res, 0) + qty
 
-    # Order rows by first-occurrence time. At equal times a craft precedes the
-    # build/research it feeds (you craft the inputs, THEN the job completes), and
-    # the goal marker stays last.
-    def _rank(lab):
-        kinds = {k for _, k in events[lab]}
-        return 0 if "craft" in kinds else (2 if "goal" in kinds else 1)
-    order = sorted(events, key=lambda lab: (min(t for t, _ in events[lab]),
-                                            _rank(lab), lab))
+        for item in list(self._requirements(cost)):
+            if self._producer_coming(item):
+                continue
+            for cls in self.k.produces.get(item, ()):
+                for res, qty in self.k.cat_of[cls].cost.items():
+                    cost[res] = cost.get(res, 0) + qty
+                break                      # one producer per item is enough
+        return cost
 
-    n = len(order)
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, max(5.0, 0.34 * n + 4.0)),
-                                   gridspec_kw={"height_ratios": [3, 2]})
-    yof = {lab: n - 1 - i for i, lab in enumerate(order)}   # first event at top
-    for lab in order:
-        evs = events[lab]
-        y = yof[lab]
-        xs = [t / 60.0 for t, _ in evs]
+    # -- objectives ----------------------------------------------------------
+    def _choose_objective(self):
+        """Pick something to save up for -- and then STICK TO IT.
+
+        Re-deciding every second is not how anyone plays, and it thrashes: the
+        Workshop order that feeds an objective gets cancelled and re-issued each
+        time the list reshuffles. The objective is only dropped once it is bought
+        or has become impossible."""
+        current = self.objective
+        # the goal is never something to "save up for" exclusively -- the colony
+        # keeps buying and building while the last parts come together, and the
+        # tier order puts anything else first anyway
+        if current is not None and current.kind != "goal" and not self._stale(current):
+            if self._afford(current.cost):
+                self._execute(current)
+                self.objective = None
+            elif self._patience(current):
+                self.waits[current.label] = self.waits.get(current.label, 0.0) + POLICY_STEP
+                return
+            else:
+                # nothing has moved for a long time -- something else is eating the
+                # inputs. Shelve it and go do something that is actually possible.
+                self.blocked[current.label] = self.g.now + self.PATIENCE
+                self.objective = None
+            if self.objective is not None:
+                return
+
+        self.objective = self._next_objective()
+        if self.objective is not None:
+            self.objective.started = self.g.now
+            self._shortfall, self._progress_at = math.inf, self.g.now
+
+    PATIENCE = 600.0               # seconds of no progress before giving up on a buy
+
+    def _patience(self, obj: Objective) -> bool:
+        """Is this still worth waiting for?
+
+        The goal always is -- there is nothing better to do than finish it, and
+        walking away mid-assembly cancels a two-minute craft and refunds every
+        part. Everything else has to keep shrinking its bill or it gets shelved."""
+        if obj.kind == "goal":
+            return True
+        short = sum(max(0, n - self.g.stockpile.get_amount(i)) for i, n in obj.cost.items())
+        if short < self._shortfall:
+            self._shortfall, self._progress_at = short, self.g.now
+        return self.g.now - self._progress_at < self.PATIENCE
+
+    def _stale(self, obj: Objective) -> bool:
+        if obj.kind == "build":
+            entry, tile = obj.place
+            return tile.building is not None or entry not in self.g.catalog.get_unlocked_buildings()
+        if obj.kind == "research":
+            item, _building = obj.research
+            return item.state != item.State.AVAILABLE
+        return self._reached()
+
+    # The shopping list, in tiers. Within a tier the cheapest ACHIEVABLE thing
+    # wins, where "cheapest" is seconds of colony work still owed for it (_effort)
+    # and "achievable" means nothing in the bill is impossible yet -- which is what
+    # stops the list saving forever for a Pumping Station it cannot reach.
+    WAREHOUSE, PRODUCER, CAPABILITY, AUTOMATION, EXPAND, GOAL, UPGRADE = range(7)
+
+    def _next_objective(self) -> Objective | None:
+        stock = self.g.stockpile
+        unlocked = {Res.SCENES[e.scene.path]: e
+                    for e in self.g.catalog.get_unlocked_buildings()}
+        built = self._built()
+        starving = set(self._starving())
+        bottleneck = {cls for item in starving for cls in self.k.produces.get(item, ())}
+        out: list[tuple[int, float, Objective]] = []
+
+        def offer(tier: int, obj: Objective | None):
+            if obj is not None and self.blocked.get(obj.label, 0.0) <= self.g.now:
+                out.append((tier, self._effort(obj.cost), obj))
+
+        # the Warehouse: the story asks for it and the crew-speed tree lives there
+        warehouse = self.g.building_classes["Warehouse"]
+        if not built.get("Warehouse"):
+            offer(self.WAREHOUSE, self._build_objective(warehouse, unlocked))
+
+        # a producer for anything the objective is short of that nothing makes
+        # yet, rawest first. Demand-driven, so it agrees with _shed(): the colony
+        # builds what it is working towards and tears down what it is not.
+        # A deposit the crew can already work by hand only earns a site when the
+        # colony is actually SHORT of it -- otherwise the shopping list insists on
+        # an 800-petrochemical Logging Camp to replace four lumber tiles.
+        for item in self._by_depth():
+            if item not in self.demand or self._producer_coming(item):
+                continue
+            if (item in self.k.raws and self._obtainable(item)
+                    and stock.get_amount(item) >= self.BANK / 2):
+                continue           # hand-harvest is keeping up; a site can wait
+            for cls in self.k.produces.get(item, ()):
+                offer(self.PRODUCER, self._build_objective(cls, unlocked, item))
+
+        # the Workshop capability a wanted, factory-less recipe needs
+        for obj in self._capability_objectives():
+            offer(self.CAPABILITY, obj)
+
+        # automation, once every Starknight is tied to a building
+        if self._manned() >= len(self.g.knights):
+            for obj in self._research_objectives(lambda r, b: r.display_name == "Automation"):
+                offer(self.AUTOMATION, obj)
+
+        # more of, or better at, whatever the current craft is starving on
+        for cls in bottleneck:
+            if 0 < built.get(cls.__name__, 0) < self.COPY_LIMIT:
+                offer(self.EXPAND, self._build_objective(cls, unlocked))
+        for obj in self._research_objectives(
+                lambda r, b: r.display_name != "Automation" and type(b) in bottleneck):
+            offer(self.EXPAND, obj)
+
+        # the goal itself: an item to assemble, or the next step of a research chain
+        if self.research_goal is not None:
+            offer(self.GOAL, self._chain_objective())
+        elif stock.get_amount(self.goal) < self.amount:
+            offer(self.GOAL, Objective("goal", f"assemble {self._name(self.goal)}",
+                                       {self.goal: self.amount}))
+
+        # anything else worth researching
+        for obj in self._research_objectives(lambda r, b: r.display_name != "Automation"):
+            offer(self.UPGRADE, obj)
+
+        reachable = [c for c in out if c[1] < math.inf]
+        # nothing is worth more work than finishing: the crew-speed tree wants
+        # 12,000 Jelly Coffee, which is not a shortcut to anything
+        finish = min((c[1] for c in reachable if c[0] == self.GOAL), default=math.inf)
+        if math.isfinite(finish):
+            reachable = [c for c in reachable if c[1] <= finish]
+        if not reachable:                    # nothing is fully reachable: get closer
+            reachable = out
+        if not reachable:
+            return None
+        tier, effort, best = min(reachable, key=lambda c: (c[0], c[1]))
+
+        # 800 bricks away? Then a cheap upgrade to whatever makes bricks comes
+        # first. Anything that feeds the chosen objective and costs a fraction of
+        # it is bought on the way -- which is the whole point of the upgrade tree.
+        wants = set(self._requirements(best.cost))
+        helpers = [c for c in reachable
+                   if c[2] is not best and c[1] < self.DETOUR * effort
+                   and self._helps(c[2], wants)]
+        return min(helpers, key=lambda c: c[1])[2] if helpers else best
+
+    DETOUR = 0.3                   # a helper is only worth it at this fraction of the cost
+
+    # -- a research chain as the goal (the "how long to MekaSuit?" benchmark) ---
+    def _chain(self, target) -> list:
+        """`target` and its prerequisites, prerequisites first."""
+        out: list = []
+
+        def visit(item):
+            if item is None or item in out:
+                return
+            for prereq in item.prerequisites:
+                visit(prereq)
+            out.append(item)
+
+        visit(target)
+        return out
+
+    def _chain_objective(self) -> Objective | None:
+        """The next uncompleted step of the goal chain that can be started now."""
+        for item in self._chain(self.research_goal):
+            if item.state == item.State.COMPLETED:
+                continue
+            if item.state != item.State.AVAILABLE:
+                return None                    # its prerequisites are still running
+            building = next((b for b in self._buildings() if type(b) is item.research_at),
+                            None)
+            if building is None:
+                return None                    # the building it lives in is not up yet
+            return Objective("research",
+                             f"research {item.display_name} @ {building.get_display_name()}",
+                             dict(item.cost), research=(item, building))
+        return None
+
+    def _reached(self) -> bool:
+        if self.research_goal is not None:
+            return self.research_goal.state == self.research_goal.State.COMPLETED
+        return self.g.stockpile.get_amount(self.goal) >= self.amount
+
+    def _helps(self, obj: Objective, wants: set[int]) -> bool:
+        """Would owning this make the objective arrive sooner?"""
+        if obj.kind == "build":
+            entry, _tile = obj.place
+            return bool(self._outputs(Res.SCENES[entry.scene.path]) & wants)
+        if obj.kind == "research":
+            _item, building = obj.research
+            return bool(self._outputs(type(building)) & wants)
+        return False
+
+    def _outputs(self, cls: type) -> set[int]:
+        if cls in self.k.recipe_of_class:
+            return set(self.k.recipe_of_class[cls].outputs)
+        if hasattr(cls, "get_base_yield_types"):
+            return self.k.yields(cls)
+        return set()
+
+    def _producer_coming(self, item: int) -> bool:
+        """A producer that exists OR is still being built -- one is enough; a
+        second copy is a capacity decision, not a structural one."""
+        if self._factory_for(item):
+            return True
+        for tile in self.g.tiles.values():
+            b = tile.building
+            if b is None or b.is_constructed():
+                continue
+            if hasattr(b, "get_base_yield_types"):
+                if item in b.get_base_yield_types():   # what THIS tile would yield
+                    return True
+            elif item in self._outputs(type(b)):
+                return True
+        return False
+
+    def _effort(self, cost: dict) -> float:
+        """Roughly how many SECONDS of colony work `cost` still needs, or INF when
+        something in it cannot be made at all yet (no capability, no factory, no
+        reachable deposit).
+
+        Crude on purpose -- it only has to rank shopping-list entries. What it
+        must get right is that a hand-crafted batch costs its full recipe work at
+        the one bench, which is exactly why building the factory first pays."""
+        speedup = self.g.building_classes["Sawmill"].BASE_WORK_SPEEDUP
+
+        def item_effort(item, qty, seen):
+            short = qty - self.g.stockpile.get_amount(item)
+            if short <= 0:
+                return 0.0
+            if item in seen:
+                return math.inf
+            if item in self.k.raws:
+                rate = self._dig_rate(item)
+                return short / rate if rate else math.inf
+            recipe = self.k.recipe_for.get(item)
+            if recipe is None:
+                return math.inf
+            factory = self._factory_for(item)
+            if not factory and not self._craftable(recipe):
+                return math.inf
+            runs = CEIL(short / recipe.outputs[item])
+            work = runs * recipe.work / (speedup if factory else 1.0)
+            return work + sum(item_effort(i, n * runs, seen | {item})
+                              for i, n in recipe.inputs.items())
+
+        return sum(item_effort(i, q, frozenset()) for i, q in cost.items())
+
+    def _dig_rate(self, item: int) -> float:
+        """Units per second the colony can pull out of the ground: one per second
+        per worked tile (HexTile.HARVEST_DURATION), or the faster site if one
+        stands on the deposit."""
+        tile_cls = type(self.g.workshop.tile)
+        rate = 0.0
+        for tile in self.g.tiles.values():
+            if tile.deposit != item:
+                continue
+            if tile.building is not None:
+                site = tile.building
+                if hasattr(site, "_will_harvest") and site.is_constructed():
+                    rate += site._get_base_yield_amount() * site._get_yield_scale() \
+                        / site._duration()
+            elif tile.workable:
+                rate += tile_cls.HARVEST_AMOUNT / tile_cls.HARVEST_DURATION
+        return rate
+
+    def _obtainable(self, item: int) -> bool:
+        """A raw is only real if something can dig it: a free workable tile, or a
+        site already standing on its deposit."""
+        if self._factory_for(item):
+            return True
+        return any(t.workable and t.building is None and t.deposit == item
+                   for t in self.g.tiles.values())
+
+    def _build_objective(self, cls: type, unlocked: dict, item: int | None = None):
+        entry = unlocked.get(cls)
+        if entry is None:
+            return None                                   # story-locked, or unknown
+        deposits = (self.k.deposits_for(cls, item) if item is not None
+                    and hasattr(cls, "get_base_yield_types") else entry.allowed_deposits)
+        tile = self._free_tile(entry, deposits)
+        if tile is None:
+            return None
+        return Objective("build", f"build {entry.get_display_name()}"
+                         + (f" ({self._name(item)})" if item and len(deposits) > 1 else ""),
+                         dict(entry.cost), place=(entry, tile))
+
+    def _capability_objectives(self):
+        """Workshop research that unlocks a wanted recipe no factory can run."""
+        need = set()
+        for item in self.wanted:
+            recipe = self.k.recipe_for.get(item)
+            if recipe is None or self._factory_for(item):
+                continue
+            need |= {c for c in recipe.needs_capabilities
+                     if c not in self.g.building_classes["Workshop"].capabilities}
+        if not need:
+            return []
+        return self._research_objectives(
+            lambda r, b: type(b).__name__ == "Workshop" and bool(self._grants(r) & need))
+
+    def _grants(self, research) -> set:
+        """The capability a Workshop research adds (from its on_complete)."""
+        return CAPABILITY_OF.get(research.display_name, set())
+
+    def _research_objectives(self, accept) -> list[Objective]:
+        """Every research the player could actually click right now: Research.
+        available_for() shows one item per slot per building, which is the real
+        constraint on what a tree offers next."""
+        out = []
+        for building in self._buildings():
+            for item in self.g.research.available_for(building):
+                if item.state != item.State.AVAILABLE or not accept(item, building):
+                    continue
+                if not self._useful(item, building):
+                    continue
+                out.append(Objective(
+                    "research",
+                    f"research {item.display_name} @ {building.get_display_name()}",
+                    dict(item.cost), research=(item, building)))
+        return out
+
+    def _useful(self, research, building) -> bool:
+        """Skip upgrades on a building whose output nothing on the path wants, and
+        the crew-speed tree until the colony is actually walking a lot."""
+        if research.display_name in CAPABILITY_OF or research.display_name == "Automation":
+            return True
+        cls = type(building)
+        if cls in self.k.recipe_of_class:
+            outputs = set(self.k.recipe_of_class[cls].outputs)
+        elif hasattr(cls, "get_base_yield_types"):
+            outputs = self.k.yields(cls)
+        else:
+            return True                     # the Workshop and the Warehouse trees
+        return bool(outputs & self.wanted)
+
+    # -- execution -----------------------------------------------------------
+    def _execute(self, obj: Objective):
+        if obj.kind == "build":
+            entry, tile = obj.place
+            if tile.building is None:
+                entry.try_place_on(tile)
+        elif obj.kind == "research":
+            item, building = obj.research
+            self.g.research.start_research(item, building)
+
+    # -- shedding ------------------------------------------------------------
+    def _shed(self):
+        """Tear down what the colony is no longer working towards.
+
+        A built, non-automated building whose inputs are affordable POSTS A JOB --
+        the game has no way to switch one off. So every one of them is a standing
+        claim on a Starknight, and a knight answering a claim it did not need to
+        walks there and back for nothing. Demolition is instant, posts no Job and
+        refunds the whole build cost (Building._construction_aborted), so a
+        building that has stopped serving the current objective is pure loss and
+        goes. It gets rebuilt (for the same materials) when it is wanted again --
+        which is exactly the demolish/rebuild-after-automation pattern real play
+        shows.
+
+        Nothing here is aimed at "walking" as such: fewer standing claims than
+        Starknights is simply what a colony that only owns what it needs looks
+        like, and the walking falls out of it."""
+        for tile in list(self.g.tiles.values()):
+            building = tile.building
+            if building is None or not building.is_constructed():
+                continue
+            if not building.can_demolish() or not hasattr(building, "_is_automated"):
+                continue                       # the Workshop, the Warehouse: no Job
+            if building._is_automated():
+                continue                       # runs on a timer, costs no Starknight
+            key = id(building)
+            if self._outputs_of(building) & self.demand:
+                self._unwanted_since.pop(key, None)
+                continue
+            since = self._unwanted_since.setdefault(key, self.g.now)
+            if self.g.now - since >= self.GRACE:
+                self._unwanted_since.pop(key, None)
+                building.demolish()
+
+    def _outputs_of(self, building) -> set[int]:
+        """What this particular building makes -- an extraction site answers for
+        the deposit it actually stands on."""
+        if hasattr(building, "get_base_yield_types"):
+            return set(building.get_base_yield_types())
+        return self._outputs(type(building))
+
+    # -- harvesting ----------------------------------------------------------
+    def _harvest(self):
+        """Work the nearest tiles of what the current objective is short of.
+
+        Never more tiles than Starknights: the JobManager hands every posted job
+        to its closest IDLE knight, so switching on the whole map at once just
+        scatters the crew across it (the game's own 'use them optimally' nag).
+        Spare capacity goes to the next-nearest wanted deposit -- banking ahead
+        costs nothing, harvest is the lowest priority in the game."""
+        if self.g.now - self._harvest_at < self.REASSIGN:
+            return                    # re-assigning the crew every second is churn
+        self._harvest_at = self.g.now
+        stock, home = self.g.stockpile, self.g.workshop.tile
+        need = {i: q for i, q in self.targets.items() if i in self.k.raws}
+
+        def rank(tile):
+            """Short of it first, then already-banked deposits, nearest first --
+            a knight with nothing better to do may as well dig ahead of need."""
+            short = stock.get_amount(tile.deposit) < need.get(tile.deposit, 0) + self.BANK
+            return (tile.deposit not in need, not short,
+                    self.g.world.walk_length(home, tile))
+
+        candidates = sorted((t for t in self.g.tiles.values()
+                             if t.workable and t.building is None
+                             and t.deposit in self.wanted), key=rank)
+        # leave a Starknight for every building that is holding a Job: a knight on
+        # a one-second harvest job spends most of its time walking back to it
+        budget = max(1, len(self.g.knights) - self._manned())
+        on = set(id(t) for t in candidates[:budget])
+        for tile in self.g.tiles.values():
+            if tile.workable and tile.building is None:
+                tile.set_harvesting(id(tile) in on)
+
+    # -- the Workshop --------------------------------------------------------
+    STALLED = 45.0                 # give up on an order that has made nothing for this long
+
+    def _craft(self):
+        """One order at a time, and let it RUN.
+
+        The bench is a single job: re-picking a target every second would cancel
+        the order (and refund its inputs) over and over, which is neither what a
+        player does nor free. A standing order is replaced when it is finished,
+        when what it makes is no longer wanted, when the objective moves on, or
+        when it has stopped producing because its own inputs dried up."""
+        workshop, stock = self.g.workshop, self.g.stockpile
+        # what the OBJECTIVE needs, not the colony-wide bill: the bench is one
+        # job and it belongs to the thing being saved for
+        focus = self._requirements(self.objective.cost) if self.objective else {}
+        if self.order is not None:
+            recipe, amount, item, since, made = self.order
+            # "no longer wanted" needs the same patience as everything else: the
+            # numbers flicker as stock crosses a target, and re-issuing the order
+            # on every flicker cancels and refunds it for nothing
+            if stock.get_amount(item) < focus.get(item, 0) or item in self.demand:
+                self._order_unwanted = self.g.now
+            # An order is STALLED when the bench is standing idle for want of its
+            # inputs -- not merely when nothing has come out yet. Assembling the
+            # PC is two minutes of work with its parts already consumed, and
+            # judging that by output would cancel it every time.
+            if self.g.workshop._order_job is not None:
+                self._order_idle = self.g.now
+            done = (stock.get_amount(item) >= amount
+                    or self.g.now - self._order_unwanted >= self.STALLED)
+            if not done and self.g.now - self._order_idle < self.STALLED:
+                return
+
+        target = self._craft_target(focus)
+        if target is None:
+            if self.order is not None and workshop.order is not None:
+                workshop.clear_order()
+            self.order = None
+            return
+        recipe, amount, item = target
+        if workshop.order is recipe and workshop.order_target == amount:
+            return                     # already on the bench: re-clicking cancels it
+        self.order = (recipe, amount, item, self.g.now, stock.get_cumulative(item))
+        self._order_unwanted = self._order_idle = self.g.now
+        workshop.apply_order(recipe, workshop.Repeat.UNTIL, amount)
+
+    def _craft_target(self, need: dict):
+        """The deepest thing the bench can make that the objective is short of."""
+        best = None
+        for item, qty in need.items():
+            if self.g.stockpile.get_amount(item) >= qty or item in self.k.raws:
+                continue
+            if self._factory_for(item):
+                continue                       # a building already makes this
+            recipe = self.k.recipe_for.get(item)
+            if recipe is None or not self._craftable(recipe):
+                continue
+            if any(self.g.stockpile.get_amount(i) < n for i, n in recipe.inputs.items()):
+                continue                       # its own ingredients are not in yet
+            depth = self._depth(item)
+            if best is None or depth < best[0]:
+                best = (depth, (recipe, qty, item))
+        return best[1] if best else None
+
+    def _requirements(self, cost: dict) -> dict[int, int]:
+        """`cost` plus every intermediate it implies, as absolute stock targets --
+        200 planks for the build AND the 10 the mechanical components will eat."""
+        need: dict[int, int] = {}
+
+        def walk(item, qty, seen):
+            need[item] = need.get(item, 0) + qty
+            short = need[item] - self.g.stockpile.get_amount(item)
+            if short <= 0 or item in seen or item in self.k.raws:
+                return
+            recipe = self.k.recipe_for.get(item)
+            if recipe is None:
+                return
+            runs = CEIL(short / recipe.outputs[item])
+            for ingredient, n in recipe.inputs.items():
+                walk(ingredient, n * runs, seen | {item})
+
+        for item, qty in cost.items():
+            walk(item, qty, frozenset())
+        return need
+
+    def _depth(self, item: int, seen=()) -> int:
+        recipe = self.k.recipe_for.get(item)
+        if recipe is None or item in seen:
+            return 0
+        return 1 + max([self._depth(i, tuple(seen) + (item,))
+                        for i in recipe.inputs] or [0])
+
+    def _craftable(self, recipe) -> bool:
+        """What the bench would actually offer -- Crafting.recipes_for_workshop():
+        the capabilities, and OUTPUTS that are not story-locked. Inputs are not
+        checked, so a part whose own challenge has already completed (the 9th PC
+        fan) can still be consumed; only a challenge changing under a STANDING
+        order cancels it (Workshop._on_challenge_updated)."""
+        workshop = self.g.building_classes["Workshop"]
+        if any(c not in workshop.capabilities for c in recipe.needs_capabilities):
+            return False
+        return not any(self.g.stockpile.is_unavailable_story_item(i)
+                       for i in recipe.outputs)
+
+    # -- small helpers --------------------------------------------------------
+    def _name(self, item):
+        return self.g.item_name.get(item, str(item))
+
+    def _buildings(self):
+        seen, out = set(), []
+        for tile in self.g.tiles.values():
+            b = tile.building
+            if b is not None and b.is_constructed() and type(b).__name__ not in seen:
+                seen.add(type(b).__name__)
+                out.append(b)
+        return out
+
+    def _built(self) -> dict[str, int]:
+        out: dict[str, int] = {}
+        for tile in self.g.tiles.values():
+            if tile.building is not None:
+                name = type(tile.building).__name__
+                out[name] = out.get(name, 0) + 1
+        return out
+
+    def _manned(self) -> int:
+        """Standing claims on the crew: non-automated buildings with a Job posted.
+
+        Not every built building costs a Starknight -- one that cannot afford its
+        inputs posts nothing and is free to own. `_has_active_job` is the game's
+        own flag for "this building is holding a Job right now", which is exactly
+        the drain the crew feels."""
+        total = 0
+        for tile in self.g.tiles.values():
+            b = tile.building
+            if b is None or not b.is_constructed() or not hasattr(b, "_is_automated"):
+                continue
+            if not b._is_automated() and b._has_active_job:
+                total += 1
+        return total
+
+    def _factory_for(self, item: int):
+        for tile in self.g.tiles.values():
+            b = tile.building
+            if b is None or not b.is_constructed():
+                continue
+            cls = type(b)
+            if cls in self.k.recipe_of_class and item in self.k.recipe_of_class[cls].outputs:
+                return b
+            if hasattr(b, "get_base_yield_types") and item in b.get_base_yield_types():
+                return b
+        return None
+
+    def _free_tile(self, entry, deposits):
+        home = self.g.workshop.tile
+        best, best_d = None, math.inf
+        for tile in self.g.tiles.values():
+            if tile.building is not None or not tile.walkable or tile.deposit not in deposits:
+                continue
+            d = self.g.world.walk_length(home, tile)
+            if d < best_d:
+                best, best_d = tile, d
+        return best
+
+    def _by_depth(self):
+        """Wanted items, rawest first: a producer is only worth building once its
+        inputs exist, and this is the order that falls out of the recipe tree."""
+        depth: dict[int, int] = {}
+
+        def rank(item, seen=()):
+            if item in depth:
+                return depth[item]
+            if item in seen:
+                return 0
+            recipe = self.k.recipe_for.get(item)
+            d = 0 if recipe is None else 1 + max(
+                [rank(i, tuple(seen) + (item,)) for i in recipe.inputs] or [0])
+            depth[item] = d
+            return d
+
+        return sorted(self.wanted, key=rank)
+
+    def _starving(self):
+        """Items the current craft cannot get enough of."""
+        obj = self.objective
+        if obj is None:
+            return []
+        return [i for i, n in sorted(obj.cost.items(), key=lambda kv: -kv[1])
+                if self.g.stockpile.get_amount(i) < n]
+
+    def _afford(self, cost) -> bool:
+        return all(self.g.stockpile.get_amount(i) >= n for i, n in cost.items())
+
+
+# Workshop research -> the capability it grants (Workshop.gd's on_complete).
+CAPABILITY_OF: dict[str, set] = {}
+
+
+def _read_capabilities(game: sim.Game):
+    """Which Workshop research adds which capability, read from Workshop.gd."""
+    caps = game.crafting.Capabilities
+    text = (GAME / "objects/buildings/Workshop.gd").read_text(encoding="utf-8")
+    name = None
+    for line in text.splitlines():
+        m = re.search(r'(\w+)\.display_name\s*=\s*"([^"]*)"', line)
+        if m:
+            name = (m.group(1), m.group(2))
+        m = re.search(r"capabilities\.append\(Crafting\.Capabilities\.(\w+)\)", line)
+        if m and name:
+            CAPABILITY_OF[name[1]] = {getattr(caps, m.group(1))}
+
+
+# ===========================================================================
+# Running
+# ===========================================================================
+POLICY_STEP = 1.0                  # the player looks at the screen once a second
+
+
+@dataclass
+class Trace:
+    t: list[float] = field(default_factory=list)
+    working: list[int] = field(default_factory=list)
+    walking: list[int] = field(default_factory=list)
+    idle: list[int] = field(default_factory=list)
+    buildings: list[int] = field(default_factory=list)
+    stock: dict[int, list[int]] = field(default_factory=dict)
+
+
+def play(goal: str, amount: int, minutes: float, dt: float, seed: int,
+         verbose: bool = False, research: str | None = None):
+    """Run one playthrough. `goal` is an ItemType name, or use `research` to race
+    to a named research instead."""
+    game = sim.Game(dt=dt, seed=seed)
+    game.register_all_research()
+    _read_capabilities(game)
+    know = Knowledge(game)
+
+    target, item = None, None
+    if research:
+        # every research item exists from the start of the game; the tree it lives
+        # in is registered when its building is first raised, so look it up there
+        target = next((r for r in game.research._items
+                       if r.display_name.lower() == research.lower()), None)
+        if target is None:
+            raise LookupError(f"unknown research '{research}'. known: " + ", ".join(
+                sorted({r.display_name for r in game.research._items})))
+    else:
+        item = getattr(game.items, goal.upper(), None)
+        if not item:
+            raise LookupError(f"unknown item '{goal}'. known: "
+                              + ", ".join(game.items.keys()))
+        TRACKED[:] = [game.items.RAW_TITANIUM, game.items.BRICKS,
+                      game.items.MECHANICAL_COMPONENTS, item]
+    player = Player(game, know, item, amount, target, verbose)
+    trace = Trace()
+
+    steps = int(minutes * 60 / dt)
+    next_policy = next_sample = 0.0
+    for _ in range(steps):
+        game.tick()
+        if game.now >= next_policy:
+            next_policy += POLICY_STEP
+            player.tick()
+            if verbose and player.objective:
+                print(f"  {game.now/60:6.1f}m  {player.objective.label}")
+        if game.now >= next_sample:
+            next_sample += 5.0
+            _sample(game, player, trace)
+        if player.done_at is not None:
+            break
+    return game, know, player, trace
+
+
+def _sample(game: sim.Game, player: Player, trace: Trace):
+    states = [k._state for k in game.knights]
+    State = type(game.knights[0]).State
+    trace.t.append(game.now)
+    trace.working.append(sum(s == State.WORKING for s in states))
+    trace.walking.append(sum(s == State.MOVING for s in states))
+    trace.idle.append(sum(s == State.IDLE for s in states))
+    trace.buildings.append(sum(1 for t in game.tiles.values() if t.building is not None))
+    for item in TRACKED:
+        trace.stock.setdefault(item, []).append(game.stockpile.get_amount(item))
+
+
+TRACKED: list[int] = []
+
+
+# ===========================================================================
+# Report
+# ===========================================================================
+def fmt(seconds: float) -> str:
+    return f"{seconds / 60:6.1f}m"
+
+
+def report(game: sim.Game, know: Knowledge, player: Player, trace: Trace, dt: float):
+    log = game.log.entries
+    actions = [e for e in log if e["kind"] != "harvest"]
+    total = player.done_at or game.now
+
+    print("=" * 78)
+    print("  12 STINKY STARKNIGHTS -- pacing model (a simulated playthrough)")
+    print("=" * 78)
+    print(f"  map {len(game.tiles)} tiles, "
+          f"{sum(1 for t in game.tiles.values() if t.walkable)} walkable, "
+          f"{sum(1 for t in game.tiles.values() if t.workable)} workable deposits | "
+          f"crew {len(game.knights)}")
+    goal_text = (f"finish the {player.research_goal.display_name} research"
+                 if player.research_goal is not None
+                 else f"{player.amount} x {game.item_name[player.goal]}")
+    print(f"  goal: {goal_text} | "
+          f"{len(know.recipes)} recipes | {len(game.catalog._catalog)} buildables | "
+          f"{len(game.research._items)} research items | dt {dt:.3f}s")
+    if player.done_at:
+        print(f"  GOAL REACHED at {fmt(player.done_at)}")
+    else:
+        print(f"  GOAL NOT REACHED in {fmt(game.now)} -- "
+              f"stuck on: {player.objective.label if player.objective else 'nothing to do'}")
+    print()
+
+    print("-" * 78)
+    print("  PLAYER ACTIONS  (the game's own ActivityLog)")
+    print("-" * 78)
+    for e in actions:
+        detail = f"  ({e['detail']})" if e["detail"] else ""
+        print(f"    {fmt(e['seconds'])}  {e['kind']:<9} {e['name']}{detail}")
+    if not actions:
+        print("    (none)")
+    print()
+
+    print("-" * 78)
+    print("  STORY CLOCK  (Story.gd; cutscenes gate every challenge)")
+    print("-" * 78)
+    for cut in game.cutscenes.played:
+        print(f"    {fmt(cut.start)} -> {fmt(cut.end)}  {cut.scene.var_name}")
+    pending = [c.var_name for c in game.story._locked_cutscenes]
+    if pending:
+        print(f"    never fired: {', '.join(pending)}")
+    print()
+
+    print("-" * 78)
+    print("  CHALLENGES  (a locked item cannot be crafted and hides its buildings)")
+    print("-" * 78)
+    for item, challenge in game.stockpile._challenges.items():
+        state = ["LOCKED", "ACTIVE", "COMPLETED"][challenge.state]
+        limit = challenge.get_limit()
+        print(f"    {game.item_name[item]:<28} {state:<10} "
+              f"made {game.stockpile.get_cumulative(item)}"
+              f"{f' of {limit}' if limit else ''}")
+    print()
+
+    print("-" * 78)
+    print("  ACTIVITY  (density of player actions -- the design goal is early-heavy)")
+    print("-" * 78)
+    half = total / 2
+    early = sum(1 for e in actions if e["seconds"] < half)
+    kinds: dict[str, int] = {}
+    for e in actions:
+        kinds[e["kind"]] = kinds.get(e["kind"], 0) + 1
+    print("    " + ", ".join(f"{n} {k}" for k, n in sorted(kinds.items())) +
+          f"  ({len(actions)} actions)")
+    print(f"    density: first half {early / max(half / 60, 1e-9):5.2f}/min"
+          f"   ->   second half {(len(actions) - early) / max(half / 60, 1e-9):5.2f}/min")
+    print(f"    plus {sum(1 for e in log if e['kind'] == 'harvest')} deposit "
+          f"on/off toggles (the crew being re-pointed at deposits)")
+    if trace.t:
+        n = len(game.knights)
+        print(f"    crew: {sum(trace.working) / len(trace.t) / n:5.1%} working, "
+              f"{sum(trace.walking) / len(trace.t) / n:5.1%} walking, "
+              f"{sum(trace.idle) / len(trace.t) / n:5.1%} idle "
+              f"(walking is the cost of spreading out)")
+    print()
+
+    print("-" * 78)
+    print("  WAITING  (wall clock the player spent saving up for one thing)")
+    print("-" * 78)
+    for label, seconds in sorted(player.waits.items(), key=lambda kv: -kv[1])[:15]:
+        print(f"    {fmt(seconds)}  {label}  ({seconds / max(total, 1) * 100:.0f}% of the run)")
+    print()
+
+    print("-" * 78)
+    print("  PRODUCTION  (cumulative, and what is left over)")
+    print("-" * 78)
+    for item in game.items.values():
+        if not item:
+            continue
+        made = game.stockpile.get_cumulative(item)
+        if made:
+            print(f"    {game.item_name[item]:<28} made {made:>7}   "
+                  f"left {game.stockpile.get_amount(item):>7}")
+    print("=" * 78)
+
+
+def plots(game: sim.Game, player: Player, trace: Trace, out: Path):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    colours = {"build": "#23deff", "research": "#b060e0", "wresearch": "#e05a8a",
+               "upgrade": "#d8b020", "automate": "#40c060", "craft": "#e0782a",
+               "demolish": "#d05050", "harvest": "#888888"}
+    log = game.log.entries
+    actions = [e for e in log if e["kind"] != "harvest"]
+    toggles = [e for e in log if e["kind"] == "harvest"]
+    rows: dict[str, list] = {}
+    for e in log:
+        # every tile of one deposit shares a row: which of the four clay tiles is
+        # being worked says nothing, when clay is being worked says everything
+        label = (f"harvest: {e['name']}" if e["kind"] == "harvest"
+                 else f"{e['kind']}: {e['name']}")
+        rows.setdefault(label, []).append(e)
+    order = sorted(rows, key=lambda r: min(e["seconds"] for e in rows[r]))
+
+    fig, (ax1, ax2, ax3) = plt.subplots(
+        3, 1, figsize=(11, max(6.0, 0.28 * len(order) + 6.0)),
+        gridspec_kw={"height_ratios": [3, 1, 1]})
+
+    for y, row in enumerate(order):
+        py = len(order) - 1 - y
+        xs = [e["seconds"] / 60 for e in rows[row]]
         if len(xs) > 1:
-            ax1.hlines(y, min(xs), max(xs), color="#dddddd", lw=1, zorder=1)
-        for t, k in evs:
-            ax1.scatter(t / 60.0, y, color=palette[k], s=34, zorder=3)
-    labels = [f"{lab}  ×{len(events[lab])}" if len(events[lab]) > 1 else lab
-              for lab in order]
-    ax1.set_yticks(list(yof.values())); ax1.set_yticklabels(labels, fontsize=8)
-    ax1.set_ylim(-0.6, n - 0.4)
-    d = [(s, e) for l, s, e in fires if l == "jelly_debut"]
-    if d:
-        ax1.axvspan(d[0][0] / 60.0, d[0][1] / 60.0, color="#e0a030", alpha=0.15,
-                    label="Jelly debut")
-    ax1.set_xlabel("wall-clock minutes")
-    ax1.set_title(f"Optimal path to {res['label']}")
-    legend_handles = [Line2D([0], [0], marker="o", linestyle="none",
-                             markerfacecolor=palette[k], markeredgecolor="none",
-                             markersize=7, label=lab)
-                      for k, lab in [("build", "build"), ("research", "research"),
-                                     ("upgrade", "upgrade"), ("speed", "crew speed"),
-                                     ("automate", "automate"),
-                                     ("craft", "craft"), ("goal", "goal")]]
-    ax1.legend(handles=legend_handles, fontsize=7, loc="upper right",
-               ncol=6, framealpha=0.9)
-    ax1.margins(x=0.02)
+            ax1.hlines(py, min(xs), max(xs), color="#dddddd", lw=1, zorder=1)
+        # a harvest toggle is on (filled) or off (hollow); everything else is a
+        # one-off click
+        faces = ["none" if e["detail"] == "off" else colours.get(e["kind"], "#333")
+                 for e in rows[row]]
+        ax1.scatter(xs, [py] * len(xs), s=30, zorder=3, facecolors=faces,
+                    edgecolors=[colours.get(e["kind"], "#333") for e in rows[row]],
+                    linewidths=1.0)
+    ax1.set_yticks(range(len(order)))
+    ax1.set_yticklabels(list(reversed(order)), fontsize=7)
+    ax1.set_ylim(-0.6, len(order) - 0.4)
+    goal_text = (player.research_goal.display_name if player.research_goal is not None
+                 else f"{player.amount} x {game.item_name[player.goal]}")
+    ax1.set_title(f"Playthrough: {goal_text}"
+                  + (f" in {player.done_at / 60:.0f} min" if player.done_at else " (unfinished)"))
     ax1.grid(True, axis="x", alpha=0.3)
+    for cut in game.cutscenes.played:
+        ax1.axvspan(cut.start / 60, cut.end / 60, color="#e0a030", alpha=0.12)
 
-    # Panel 2: player-action density over time (builds + research + crafts / min).
-    # The design goal is early-heavy (busy start) tapering to a calm late game.
-    allt = sorted([s[2] for s in steps] + [c[0] for c in crafts])
-    nb = 24
-    edges = np.linspace(0, max(total, 1.0), nb + 1)
-    counts, _ = np.histogram(allt, bins=edges)
-    wmin = (total / nb) / 60.0 or 1e-9
-    centers = ((edges[:-1] + edges[1:]) / 2) / 60.0
-    ax2.bar(centers, counts / wmin, width=(total / nb) / 60.0 * 0.9,
-            color="#6aa9c9", edgecolor="none")
-    d = [(s, e) for l, s, e in fires if l == "jelly_debut"]
-    if d:
-        ax2.axvspan(d[0][0] / 60.0, d[0][1] / 60.0, color="#e0a030", alpha=0.15)
-    ax2.set_xlabel("wall-clock minutes"); ax2.set_ylabel("player actions / min")
-    ax2.set_title("Player-action density over time (design goal: early-heavy)")
+    minutes = [t / 60 for t in trace.t]
+    span = max(trace.t[-1] if trace.t else 60, 60)
+    bins = [i * span / 24 / 60 for i in range(25)]
+    ax2.hist([[e["seconds"] / 60 for e in actions], [e["seconds"] / 60 for e in toggles]],
+             bins=bins, stacked=True, color=["#6aa9c9", "#888888"],
+             label=["builds / research / crafts", "deposit on-off"],
+             weights=[[24 * 60 / span] * len(actions), [24 * 60 / span] * len(toggles)])
+    ax2.set_ylabel("actions / min")
+    ax2.set_title("Player-action density")
+    ax2.legend(fontsize=7, loc="upper right")
     ax2.grid(True, axis="y", alpha=0.3)
+
+    # a minute of smoothing: the raw per-sample counts are pure churn noise, and
+    # what matters is the balance between working and walking, not the flicker
+    smooth = lambda xs: [sum(xs[max(0, i - 6):i + 6]) / len(xs[max(0, i - 6):i + 6])
+                         for i in range(len(xs))]
+    ax3.stackplot(minutes, smooth(trace.working), smooth(trace.walking),
+                  smooth(trace.idle), labels=["working", "walking", "idle"],
+                  colors=["#40c060", "#e0a030", "#cccccc"])
+    ax3.plot(minutes, trace.buildings, color="#23deff", lw=1.5, label="buildings")
+    ax3.set_xlabel("minutes")
+    ax3.set_ylabel("Starknights")
+    ax3.legend(fontsize=7, loc="upper left", ncol=4)
+    ax3.grid(True, axis="y", alpha=0.3)
+
     fig.tight_layout()
-    out = Path(__file__).with_name("balance_model.png")
     fig.savefig(out, dpi=120)
     print(f"  wrote {out}")
 
 
-def main():
+# ===========================================================================
+def main() -> int:
     try:
-        sys.stdout.reconfigure(encoding="utf-8")     # item names may be non-ASCII
+        sys.stdout.reconfigure(encoding="utf-8")
     except Exception:
         pass
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--good", default=GOAL_GOOD)
-    ap.add_argument("--amount", type=int, default=GOAL_AMOUNT)
+    ap.add_argument("--goal", default="PC_PC", help="ItemType to produce, e.g. JELLY_STANDEES")
+    ap.add_argument("--amount", type=int, default=1)
     ap.add_argument("--research", metavar="NAME",
-                    help="benchmark reaching a Warehouse research, e.g. 'Meka Suit Integration'")
+                    help="instead of an item, race to a research, e.g. 'MekaSuit Integration'")
+    ap.add_argument("--minutes", type=float, default=180.0, help="give up after this")
+    ap.add_argument("--dt", type=float, default=1 / 30, help="simulation timestep")
+    ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--no-plots", action="store_true")
-    ap.add_argument("--travel-mode", choices=["auto", "churn", "parked"], default="auto",
-                    help="auto: pay travel only once the crew cap binds (default); "
-                         "churn: always pay it; parked: never (the old travel-free model)")
-    ap.add_argument("--no-story", action="store_true",
-                    help="ignore the cutscene/challenge gating on merch and PC parts")
-    ap.add_argument("--passes", type=int, default=5,
-                    help="story/overhead fixed-point passes (each re-plans; 1 = fastest)")
+    ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
 
-    global TRAVEL_MODE, USE_STORY, MAX_FIXED_POINT_PASSES
-    TRAVEL_MODE = args.travel_mode
-    USE_STORY = not args.no_story
-    MAX_FIXED_POINT_PASSES = max(1, args.passes)
-
-    if args.research:
-        match = next((d for d in WAREHOUSE_RESEARCH
-                      if d.lower() == args.research.lower()), None)
-        if match is None:
-            print(f"unknown research '{args.research}'. available: "
-                  f"{', '.join(WAREHOUSE_RESEARCH)}", file=sys.stderr)
-            return 1
-        res = evaluate_research(match)
-    else:
-        good = args.good.upper()
-        if good not in GOODS:
-            print(f"unknown good '{good}'. finished: {', '.join(FINISHED)}", file=sys.stderr)
-            return 1
-        try:
-            res = evaluate(good, args.amount)
-        except RuntimeError as e:
-            print(f"  !! {e}"); return 1
-
-    fires = report(res)
+    try:
+        game, know, player, trace = play(args.goal, args.amount, args.minutes, args.dt,
+                                         args.seed, args.verbose, args.research)
+    except LookupError as e:
+        print(e, file=sys.stderr)
+        return 1
+    report(game, know, player, trace, args.dt)
     if not args.no_plots:
-        make_plots(res, fires)
+        plots(game, player, trace, Path(__file__).with_name("balance_model.png"))
     return 0
 
 

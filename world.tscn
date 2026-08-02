@@ -2000,6 +2000,9 @@ theme_override_colors/font_color = Color(1, 0.45098, 0.45098, 1)
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="RecipeDescription" parent="UI/DepositPanel/VBox/HBox" unique_id=1900000103 instance=ExtResource("11_rdesc")]
+layout_mode = 2
+
 [node name="Toggle" type="CheckButton" parent="UI/DepositPanel/VBox/HBox" unique_id=1631508977]
 layout_mode = 2
 text = "Harvest (H)"

@@ -5,6 +5,8 @@ extends VBoxContainer
 const MUSIC_BUS := &"Music"
 const MIN_DB := -24.0
 const MAX_DB := 6.0
+const JELLY_PLAYLIST := "Jelly Music"
+const FADE_SECONDS := 3.0
 
 @export var play_icon: Texture2D
 @export var pause_icon: Texture2D
@@ -31,8 +33,7 @@ var _index: int = 0
 var _scrubbing: bool = false
 var _muted: bool = false
 var _bus: int = -1
-
-const JELLY_PLAYLIST := "Jelly Music"
+var _fade_timer: SceneTreeTimer = null
 
 
 func _ready() -> void:
@@ -54,7 +55,7 @@ func _ready() -> void:
 	_prev.pressed.connect(func() -> void: _step(-1))
 	_next.pressed.connect(func() -> void: _step(1))
 	_play_pause.toggled.connect(_on_play_toggled)
-	_player.finished.connect(func() -> void: _step(1))
+	_player.finished.connect(_on_track_finished)
 
 	_seek.value_changed.connect(_on_seek_changed)
 	_seek.drag_started.connect(_on_seek_drag_started)
@@ -138,8 +139,18 @@ func _on_play_toggled(on: bool) -> void:
 			_play_index(_index)
 	else:
 		_player.stream_paused = true
+		_fade_timer = null
 
 	_play_pause.texture_normal = pause_icon if on else play_icon
+
+
+func _on_track_finished() -> void:
+	var timer := get_tree().create_timer(FADE_SECONDS)
+	_fade_timer = timer
+
+	await timer.timeout
+	if _fade_timer == timer:
+		_step(1)
 
 
 func _step(offset: int) -> void:
@@ -147,6 +158,8 @@ func _step(offset: int) -> void:
 
 
 func _play_index(index: int) -> void:
+	_fade_timer = null
+
 	var list := _current_list()
 	if list.is_empty():
 		return

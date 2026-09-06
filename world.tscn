@@ -1,6 +1,5 @@
 [gd_scene format=3 uid="uid://w2nnm8tc46ps"]
 
-[ext_resource type="Texture2D" uid="uid://dyyutj475tdfm" path="res://assets/planet.png" id="1_iett8"]
 [ext_resource type="Script" uid="uid://cdr2jyps6m0my" path="res://scripts/HexMap.gd" id="1_wse8f"]
 [ext_resource type="Texture2D" uid="uid://c54gtae8eqqyx" path="res://assets/new_terrain/hexOcean00.png" id="3_bh8nc"]
 [ext_resource type="Texture2D" uid="uid://63lcbhvl5pjw" path="res://assets/new_terrain/hexSnowField00.png" id="3_bo7i5"]
@@ -62,10 +61,6 @@
 bg_color = Color(0, 0, 0, 1)
 
 [node name="World" type="Node2D" unique_id=1592913599]
-
-[node name="PlanetBG" type="Sprite2D" parent="." unique_id=790983586]
-scale = Vector2(30, 30)
-texture = ExtResource("1_iett8")
 
 [node name="PlanetFog" type="Node2D" parent="." unique_id=1434334864]
 

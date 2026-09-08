@@ -1991,16 +1991,23 @@ layout_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.45098, 0.45098, 1)
 
-[node name="Spacer" type="Control" parent="UI/DepositPanel/VBox/HBox" unique_id=1455959908]
+[node name="Spacer1" type="Control" parent="UI/DepositPanel/VBox/HBox" unique_id=1455959908]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="RecipeDescription" parent="UI/DepositPanel/VBox/HBox" unique_id=1900000103 instance=ExtResource("11_rdesc")]
+[node name="VBox" type="VBoxContainer" parent="UI/DepositPanel/VBox/HBox" unique_id=1461450418]
 layout_mode = 2
 
-[node name="Toggle" type="CheckButton" parent="UI/DepositPanel/VBox/HBox" unique_id=1631508977]
+[node name="Toggle" type="CheckButton" parent="UI/DepositPanel/VBox/HBox/VBox" unique_id=1631508977]
 layout_mode = 2
 text = "Harvest (H)"
+
+[node name="RecipeDescription" parent="UI/DepositPanel/VBox/HBox/VBox" unique_id=1900000103 instance=ExtResource("11_rdesc")]
+layout_mode = 2
+
+[node name="Spacer2" type="Control" parent="UI/DepositPanel/VBox/HBox" unique_id=1487249029]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="BuildingPanel" type="PanelContainer" parent="UI" unique_id=1190837471]
 anchors_preset = -1
@@ -2119,6 +2126,10 @@ size_flags_horizontal = 3
 
 [node name="RecipeDescription" parent="UI/BuildingPanel/VBox/HBox" unique_id=2013579246 instance=ExtResource("11_rdesc")]
 layout_mode = 2
+
+[node name="Spacer3" type="Control" parent="UI/BuildingPanel/VBox/HBox" unique_id=1290145864]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="DestructButton" type="TextureButton" parent="UI/BuildingPanel/VBox/HBox" unique_id=1045028468]
 layout_mode = 2

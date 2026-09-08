@@ -150,7 +150,7 @@ func get_display_recipe() -> Recipe:
     var amount: int = _get_base_yield_amount() * _get_yield_scale()
 
     var harvest := Recipe.new()
-    harvest.display_name = "Harvest"
+    harvest.display_name = "Harvesting"
     harvest.work = _duration()
     for item_type in types:
         harvest.outputs[item_type] = amount

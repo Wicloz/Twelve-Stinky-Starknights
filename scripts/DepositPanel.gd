@@ -11,10 +11,10 @@ var _tile: HexTile
 var _shown: Array[CatalogItem] = []
 
 @onready var _title: Label = $VBox/Header/Title
-@onready var _toggle: CheckButton = $VBox/HBox/Toggle
+@onready var _toggle: CheckButton = $VBox/HBox/VBox/Toggle
 @onready var _buildings: HBoxContainer = $VBox/HBox/Buildings
 @onready var _error: Label = $VBox/HBox/Error
-@onready var _recipe_description: RecipeDescription = $VBox/HBox/RecipeDescription
+@onready var _recipe_description: RecipeDescription = $VBox/HBox/VBox/RecipeDescription
 @onready var _close: TextureButton = $VBox/Header/Close
 
 
@@ -33,17 +33,13 @@ func show_for(tile: HexTile) -> void:
 	_toggle.visible = tile.workable
 	_toggle.set_pressed_no_signal(tile.harvesting)
 
-	# Manual harvesting has no upgrades, so unlike ExtractionBuilding this recipe is
-	# just the two tile constants.
-	_recipe_description.visible = tile.workable
 	var harvest := Recipe.new()
-	harvest.display_name = "Harvest"
 	harvest.work = tile.HARVEST_DURATION
 	harvest.outputs[tile.deposit] = tile.HARVEST_AMOUNT
 	_recipe_description.show_recipe(harvest)
+	_recipe_description.visible = tile.workable
 
 	_error.hide()
-
 	show()
 
 	_refresh_buildings()

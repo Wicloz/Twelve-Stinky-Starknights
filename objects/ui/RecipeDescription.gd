@@ -11,13 +11,18 @@ extends VBoxContainer
 
 func show_recipe(recipe: Recipe) -> void:
 	if recipe == null:
-		_recipe_name.text = ""
+		_recipe_name.hide()
 		_recipe_inputs.text = ""
 		_recipe_outputs.text = ""
 		_recipe_work.text = ""
 		return
 
-	_recipe_name.text = recipe.display_name
+	if not recipe.display_name:
+		_recipe_name.hide()
+	else:
+		_recipe_name.text = recipe.display_name
+		_recipe_name.show()
+
 	_recipe_inputs.text = _fmt_io(recipe.inputs)
 	_recipe_outputs.text = _fmt_io(recipe.outputs)
 	_recipe_work.text = _fmt_work(recipe.work)

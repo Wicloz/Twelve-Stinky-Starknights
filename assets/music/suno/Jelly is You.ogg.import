@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://cc66bayw8gmbl"
+path="res://.godot/imported/Jelly is You.ogg-54dcc2d7dcaed385bb54efeb3ace3275.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/music/suno/Jelly is You.ogg"
+dest_files=["res://.godot/imported/Jelly is You.ogg-54dcc2d7dcaed385bb54efeb3ace3275.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
